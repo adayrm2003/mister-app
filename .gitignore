@@ -8,3 +8,4 @@ Thumbs.db
 .env
 *.env
 tranvia-copia-*.json
+.netlify/
