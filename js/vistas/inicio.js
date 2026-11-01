@@ -31,6 +31,16 @@ Vistas.inicio = {
         </div>
       </section>
 
+      ${jugadores.length ? '' : `
+      <section class="tarjeta mt centrado">
+        <h2>¡Bienvenido/a!</h2>
+        <p class="texto-suave">Empieza añadiendo a los jugadores de tu equipo, o carga datos de ejemplo para ver cómo funciona todo.</p>
+        <div class="fila-botones" style="justify-content:center">
+          <button class="btn btn-primario" data-accion="nuevo-jugador">${UI.icono('mas')} Añadir jugador</button>
+          <button class="btn btn-borde" data-accion="cargar-ejemplo">Ver ejemplo</button>
+        </div>
+      </section>`}
+
       ${Vistas.inicio.bloquesExtra()}
 
       <div class="seccion-titulo"><h2>Jugadores por categoría</h2><a href="#/plantilla">Ver plantilla</a></div>
