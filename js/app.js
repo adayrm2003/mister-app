@@ -18,11 +18,6 @@ const App = {
     // La primera vez metemos datos de ejemplo para poder probar
     if (primeraVez) DB.cargarEjemplo(DatosEjemplo.generar());
 
-    // Pestañas que aún no existen muestran "Próximamente"
-    ['entrenos', 'partidos', 'asistente'].forEach((t) => {
-      if (!Vistas[t]) Vistas[t] = { ...Vistas.proximamente, tab: t };
-    });
-
     App.aplicarTema();
     App.escucharBotones();
 
@@ -134,11 +129,6 @@ const App = {
   },
 };
 
-// Pantalla genérica para secciones aún no construidas
-Vistas.proximamente = {
-  titulo: 'Próximamente',
-  pintar: () => UI.vacio('reloj', 'Muy pronto', 'Esta sección se está construyendo.'),
-};
 
 // Cuando el navegador termina de leer la página, arrancamos
 document.addEventListener('DOMContentLoaded', App.iniciar);

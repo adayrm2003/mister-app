@@ -9,7 +9,7 @@
    número de VERSION. Así los móviles descargan la versión nueva.
    ============================================================= */
 
-const VERSION = 'tranvia-v4';
+const VERSION = 'tranvia-v5';
 
 // Archivos que forman la app (el "esqueleto")
 const ARCHIVOS = [
@@ -29,6 +29,9 @@ const ARCHIVOS = [
   './js/vistas/partidos.js',
   './js/vistas/pizarra.js',
   './js/vistas/evolucion.js',
+  './js/asistente.js',
+  './js/ia.js',
+  './js/vistas/asistente.js',
   './js/vistas/ajustes.js',
   './assets/icons/escudo-512.png',
   './assets/icons/icon-192.png',

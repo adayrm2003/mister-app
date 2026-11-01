@@ -86,7 +86,7 @@ const Biblioteca = (() => {
       material: 'Portería, balones, conos, portero', descripcion: 'El jugador conduce, hace pared con un compañero situado en la frontal y remata a portería. Rotan posiciones. Variante: pared con el pie contrario.' },
     { id: 'b-t05', parte: 'tecnica', nombre: 'Tiro a portería tras conducción', objetivos: ['finalizacion', 'conduccion'], categorias: rango('prebenjamin'), duracion: 12,
       material: 'Portería, balones, conos en slalom', descripcion: 'Slalom entre 4 conos y tiro a portería desde fuera del área (o desde 8 m en F7). Insistir en mirar al portero y golpear con el empeine o el interior según la distancia.' },
-    { id: 'b-t06', parte: 'tecnica', nombre: '1x1 a minipotería', objetivos: ['regate', 'defensa'], categorias: rango('benjamin'), duracion: 15,
+    { id: 'b-t06', parte: 'tecnica', nombre: '1x1 a miniportería', objetivos: ['regate', 'defensa'], categorias: rango('benjamin'), duracion: 15,
       material: '2 miniporterías, balones, conos', descripcion: 'Campo de 10x15. El defensor pasa al atacante y sale a defender. El atacante debe superarle y marcar en la miniportería. El defensor, si roba, puede marcar en la contraria.' },
     { id: 'b-t07', parte: 'tecnica', nombre: 'Centros y remate', objetivos: ['centros', 'finalizacion'], categorias: rango('alevin'), duracion: 15,
       material: 'Portería, balones, conos, portero', descripcion: 'Un extremo conduce por banda y centra; dos rematadores atacan el primer y segundo palo. Cambiar de banda a mitad. Corregir la llegada: al primer palo de fuera hacia dentro.' },
