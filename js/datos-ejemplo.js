@@ -112,12 +112,71 @@ const DatosEjemplo = (() => {
     ];
   }
 
+  /* Partidos: 3 jugados y 1 próximo por equipo (rivales inventados) */
+  function partidos(listaJugadores) {
+    const hoy = UI.hoyISO();
+    const sabado = UI.sumarDias(hoy, (6 - new Date().getDay() + 7) % 7 || 7);
+    const calendario = {
+      alevin: [['C.F. Atlántico Sur', -21, 3, 1, 'casa'], ['U.D. Costa Norte', -14, 2, 2, 'fuera'], ['C.D. Las Palmeras', -7, 4, 2, 'casa'], ['U.D. Las Torres', 0, null, null, 'fuera']],
+      infantil: [['A.D. Valle Verde', -21, 1, 2, 'fuera'], ['C.F. Puerto Chico', -14, 3, 0, 'casa'], ['U.D. Monte Alto', -7, 2, 1, 'fuera'], ['C.D. Barrio Nuevo', 0, null, null, 'casa']],
+    };
+    const lista = [];
+    let n = 0;
+    Object.entries(calendario).forEach(([cat, juegos]) => {
+      const equipo = listaJugadores.filter((j) => j.categoria === cat);
+      const duracion = DB.categoria(cat).futbol === 7 ? 50 : 70;
+      juegos.forEach(([rival, dias, gf, gc, lugar]) => {
+        n++;
+        const jugado = gf !== null;
+        const fecha = UI.sumarDias(sabado, dias + (cat === 'infantil' ? 1 : 0)); // alevín los sábados, infantil los domingos
+        // Convocamos a todos menos a uno o dos
+        const convocados = equipo.filter(() => azar() > 0.12).map((j) => j.id);
+        const stats = {};
+        if (jugado) {
+          convocados.forEach((id) => { stats[id] = { goles: 0, asistencias: 0, minutos: entre(Math.round(duracion * 0.4), duracion), amarillas: azar() < 0.07 ? 1 : 0, rojas: 0 }; });
+          // Repartimos los goles entre delanteros y medios
+          const atacantes = equipo.filter((j) => convocados.includes(j.id) && ['Delantero', 'Centrocampista'].includes(j.posicion));
+          for (let g = 0; g < gf; g++) {
+            const goleador = atacantes[entre(0, atacantes.length - 1)];
+            stats[goleador.id].goles++;
+            if (azar() < 0.7) {
+              const asistente = atacantes[entre(0, atacantes.length - 1)];
+              if (asistente.id !== goleador.id) stats[asistente.id].asistencias++;
+            }
+          }
+        }
+        // Alineación para el próximo partido del alevín
+        let alineacion = null;
+        if (!jugado && cat === 'alevin') {
+          alineacion = Pizarra.nueva('3-2-1');
+          const orden = ['Portero', 'Defensa', 'Centrocampista', 'Delantero'];
+          const titulares = equipo.filter((j) => convocados.includes(j.id)).sort((a, b) => orden.indexOf(a.posicion) - orden.indexOf(b.posicion));
+          const porteros = titulares.filter((j) => j.posicion === 'Portero');
+          const resto = titulares.filter((j) => j.posicion !== 'Portero');
+          alineacion.puestos.forEach((p, i) => { p.jugador = (i === 0 ? porteros[0] : resto[i - 1])?.id || null; });
+        }
+        lista.push({
+          id: 'ej-m' + n, ejemplo: true, rival, categoria: cat, competicion: 'Liga', fecha,
+          hora: cat === 'alevin' ? '10:00' : '12:00', citacion: cat === 'alevin' ? '09:15' : '11:15', lugar,
+          campo: lugar === 'casa' ? 'Campo Municipal (casa)' : 'Campo de ' + rival.replace(/^\S+\s/, ''),
+          jugado, golesFavor: gf ?? 0, golesContra: gc ?? 0, convocados, stats, alineacion, notas: '',
+        });
+      });
+    });
+    return lista;
+  }
+
   return {
     // Devuelve todos los datos de ejemplo agrupados por colección
     generar() {
       semilla = 7;
       const listaJugadores = jugadores();
-      return { jugadores: listaJugadores, sesiones: sesiones(listaJugadores), preparaciones: preparaciones() };
+      return {
+        jugadores: listaJugadores,
+        sesiones: sesiones(listaJugadores),
+        preparaciones: preparaciones(),
+        partidos: partidos(listaJugadores),
+      };
     },
   };
 })();

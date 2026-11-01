@@ -65,6 +65,11 @@ const App = {
     atras.hidden = !vista.atras;
     atras.onclick = () => (history.length > 1 ? history.back() : (location.hash = vista.atras));
 
+    // Que el chip de la categoría elegida se vea (si la fila es más ancha que la pantalla)
+    document.querySelectorAll('.chips .chip.activo').forEach((c) => {
+      c.parentElement.scrollLeft = c.offsetLeft - c.parentElement.clientWidth / 2 + c.clientWidth / 2;
+    });
+
     window.scrollTo({ top: 0 });
   },
 

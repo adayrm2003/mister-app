@@ -194,6 +194,16 @@ const UI = {
     return `<div class="vacio">${UI.icono(icono)}<h3>${UI.esc(titulo)}</h3><p>${UI.esc(texto)}</p>${boton}</div>`;
   },
 
+  // Copia un texto al portapapeles
+  async copiar(texto) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      UI.aviso('Texto copiado');
+    } catch {
+      UI.aviso('No se pudo copiar', 'error');
+    }
+  },
+
   // Descarga un texto como archivo (para las copias de seguridad)
   descargar(nombreArchivo, contenido, tipo = 'application/json') {
     const blob = new Blob([contenido], { type: tipo });
@@ -202,5 +212,22 @@ const UI = {
     a.href = url; a.download = nombreArchivo;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
+};
+
+/* ---------- COMPARTIR ----------
+   WhatsApp permite abrir un chat con un texto ya escrito usando
+   la dirección https://wa.me/?text=… (tú eliges a quién enviarlo). */
+const Compartir = {
+  whatsapp(texto) {
+    window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener');
+  },
+  // Menú de compartir del propio móvil (si lo tiene)
+  async nativo(texto, titulo = 'C.D. El Tranvía') {
+    if (navigator.share) {
+      try { await navigator.share({ title: titulo, text: texto }); } catch { /* el usuario canceló */ }
+    } else {
+      UI.copiar(texto);
+    }
   },
 };
