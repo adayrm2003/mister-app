@@ -66,11 +66,58 @@ const DatosEjemplo = (() => {
     return lista;
   }
 
+  /* Sesiones de entrenamiento (fechas relativas a hoy) */
+  const PLANES = [
+    { titulo: 'Pase y control orientado', ej: { calentamiento: ['b-c06'], tecnica: ['b-t03', 'b-t08'], tactica: ['b-k02'], vuelta: ['b-v02'] } },
+    { titulo: 'Finalización', ej: { calentamiento: ['b-c09'], tecnica: ['b-t10', 'b-t07'], tactica: ['b-k13'], vuelta: ['b-v06'] } },
+    { titulo: 'Presión tras pérdida', ej: { calentamiento: ['b-c03'], tecnica: ['b-t06'], tactica: ['b-k04', 'b-k08'], vuelta: ['b-v02'] } },
+    { titulo: 'Salida de balón', ej: { calentamiento: ['b-c08'], tecnica: ['b-t08'], tactica: ['b-k03', 'b-k12'], vuelta: ['b-v06'] } },
+  ];
+  function sesiones(listaJugadores) {
+    const hoy = UI.hoyISO();
+    const lista = [];
+    let n = 0;
+    ['alevin', 'infantil'].forEach((cat) => {
+      const delEquipo = listaJugadores.filter((j) => j.categoria === cat);
+      [-12, -9, -5, -2, 1, 3].forEach((dias, i) => {
+        n++;
+        const plan = PLANES[i % PLANES.length];
+        const partes = {};
+        Biblioteca.PARTES.forEach((p) => { partes[p.id] = { duracion: { calentamiento: 15, tecnica: 25, tactica: 25, vuelta: 10 }[p.id], ejercicios: [...plan.ej[p.id]] }; });
+        // A las sesiones ya pasadas les ponemos asistencia
+        const asistencia = {};
+        if (dias < 0) delEquipo.forEach((j) => { const r = azar(); asistencia[j.id] = r < 0.82 ? 'si' : r < 0.92 ? 'just' : 'no'; });
+        lista.push({
+          id: 'ej-s' + n, ejemplo: true, titulo: plan.titulo, categoria: cat,
+          fecha: UI.sumarDias(hoy, dias + (cat === 'infantil' ? 0 : -1)), hora: cat === 'alevin' ? '17:30' : '19:00',
+          partes, asistencia, notas: '',
+        });
+      });
+    });
+    return lista;
+  }
+
+  /* Preparación del partido de la semana (rivales inventados) */
+  function preparaciones() {
+    const sabado = UI.sumarDias(UI.hoyISO(), (6 - new Date().getDay() + 7) % 7 || 7);
+    return [
+      { id: 'ej-p1', ejemplo: true, rival: 'U.D. Las Torres', fecha: sabado, categoria: 'alevin', sistema: '1-3-2-1',
+        estilos: ['presion-alta', 'contraataque'], ejercicios: ['b-k03', 'b-k04', 'b-k08'],
+        fuertes: 'Aprietan muy arriba los primeros 15 minutos. Su extremo izquierdo es muy rápido.',
+        debiles: 'Dejan mucho espacio a la espalda de los defensas cuando presionan.',
+        vigilar: 'El 7 (extremo izquierdo): no dejarle encarar.', notas: 'Campo de hierba artificial, más rápido.' },
+      { id: 'ej-p2', ejemplo: true, rival: 'C.D. Barrio Nuevo', fecha: UI.sumarDias(sabado, 1), categoria: 'infantil', sistema: '1-4-4-2',
+        estilos: ['bloque-bajo', 'balon-parado'], ejercicios: ['b-k06', 'b-k10'],
+        fuertes: 'Muy ordenados atrás y peligrosos en los córners.', debiles: 'Les cuesta salir jugando.', vigilar: 'Su central (el 4) en los balones parados.', notas: '' },
+    ];
+  }
+
   return {
     // Devuelve todos los datos de ejemplo agrupados por colección
     generar() {
       semilla = 7;
-      return { jugadores: jugadores() };
+      const listaJugadores = jugadores();
+      return { jugadores: listaJugadores, sesiones: sesiones(listaJugadores), preparaciones: preparaciones() };
     },
   };
 })();

@@ -341,6 +341,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .item-cuerpo { flex: 1; min-width: 0; }
 .item-titulo { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .item-sub { font-size: 13px; color: var(--texto-suave); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.item-sub > span { white-space: nowrap; }
 .item .ico.flecha { color: var(--texto-suave); width: 18px; }
 
 /* Avatar con iniciales (no usamos fotos de menores) */
@@ -436,6 +437,63 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .val-lista { display: flex; flex-direction: column; gap: 12px; }
 .val-fila { display: grid; grid-template-columns: 90px 1fr 30px; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
 .val-fila b { font-family: var(--fuente-titulos); font-size: 20px; text-align: right; }
+
+/* ---------- 6. PANTALLAS CONCRETAS ---------- */
+
+/* Pestañas hechas con enlaces (Entrenos, Partidos…) */
+.segmentado a { flex: 1; text-align: center; padding: 9px 8px; border-radius: 10px; font-weight: 600; font-size: 13px; color: var(--texto-suave); }
+.segmentado a.activo { background: var(--superficie); color: var(--texto); box-shadow: var(--sombra); }
+
+/* Bloque con el día y el mes (sesiones, partidos) */
+.fecha-bloque { flex: none; width: 50px; height: 54px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--azul-suave); color: var(--azul); }
+.fecha-bloque b { font-family: var(--fuente-titulos); font-size: 24px; line-height: 1; }
+.fecha-bloque span { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.fecha-bloque.pasada { background: var(--superficie-2); color: var(--texto-suave); }
+
+/* Barrita de colores con lo que dura cada parte de la sesión */
+.barra-partes { display: flex; gap: 2px; height: 5px; border-radius: 5px; overflow: hidden; margin-top: 7px; }
+.barra-partes span { display: block; min-width: 2px; }
+
+.mini-dato { flex: none; text-align: center; }
+.mini-dato b { display: block; font-family: var(--fuente-titulos); font-size: 20px; line-height: 1; }
+.mini-dato span { font-size: 11px; color: var(--texto-suave); }
+
+/* Icono cuadrado de color (parte de la sesión, rival…) */
+.icono-parte { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); }
+.icono-parte .ico { width: 20px; height: 20px; }
+
+/* Parte de una sesión */
+.tarjeta.parte { border-top: 4px solid var(--c); margin-top: 0; }
+.parte-cab { display: flex; align-items: center; gap: 12px; }
+.ejercicio-fila { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--radio-peq); background: var(--superficie-2); }
+.ejercicio-nombre { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; display: flex; flex-direction: column; }
+.ejercicio-nombre span { font-size: 12.5px; color: var(--texto-suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ejercicio-fila .btn-icono { width: 34px; min-height: 34px; background: transparent; }
+
+/* Asistencia */
+.asis-fila { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--borde); }
+.asis-fila:last-child { border-bottom: 0; }
+.asis-fila .avatar { width: 38px; height: 38px; font-size: 16px; border-radius: 11px; }
+.asis-nombre { flex: 1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asis-btns { display: flex; gap: 6px; }
+.asis-btns button { width: 38px; height: 38px; border-radius: 11px; border: 1px solid var(--borde); background: var(--superficie-2); color: var(--texto-suave); font-weight: 800; display: grid; place-items: center; transition: all .15s; }
+.asis-btns button .ico { width: 18px; height: 18px; }
+.asis-btns button.si { background: var(--verde); border-color: var(--verde); color: #fff; }
+.asis-btns button.no { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+.asis-btns button.just { background: var(--amarillo); border-color: var(--amarillo); color: #3a2a00; }
+
+/* Casillas con forma de chip (categorías, estilos del rival…) */
+.chips-check { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip-check input { position: absolute; opacity: 0; pointer-events: none; }
+.chip-check span { display: inline-block; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--borde); background: var(--superficie-2); font-size: 13px; font-weight: 600; color: var(--texto-suave); cursor: pointer; transition: all .15s; }
+.chip-check input:checked + span { background: var(--azul); border-color: var(--azul); color: #fff; }
+.chip-check input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--azul) 50%, transparent); }
+
+/* Notas del rival */
+.nota-rival { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+.nota-rival:last-child { border-bottom: 0; }
+.nota-rival .ico { color: var(--rojo); margin-top: 2px; }
+.nota-rival p { margin: 2px 0 0; color: var(--texto-suave); white-space: pre-line; }
 
 .rejilla-ficha { display: grid; gap: 12px; }
 .separador { height: 1px; background: var(--borde); margin: 14px 0; }
