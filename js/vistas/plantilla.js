@@ -170,6 +170,7 @@ Vistas.jugador = {
           <div class="separador"></div>
           <div class="val-fila"><span>Media</span><div class="barra"><span style="width:${media * 10}%;background:${UI.colorNota(media)}"></span></div><b>${media.toFixed(1)}</b></div>
         </section>
+        ${(Vistas.jugador.extras || []).map((fn) => fn(j)).join('')}
       </div>
     `;
   },
@@ -268,6 +269,7 @@ Acciones['nuevo-jugador'] = () => {
     alGuardar: (f) => {
       const j = leerJugador(f);
       if (!j) return false;
+      j.historial = Evolucion.anotar([], j.valoraciones); // primera valoración
       DB.crear('jugadores', j);
       UI.aviso(`${j.nombre} añadido a la plantilla`);
       App.refrescar();
@@ -284,6 +286,10 @@ Acciones['editar-jugador'] = (el) => {
     alGuardar: (f) => {
       const j = leerJugador(f);
       if (!j) return false;
+      // Si han cambiado las valoraciones, las guardamos en el historial con la fecha de hoy
+      if (JSON.stringify(j.valoraciones) !== JSON.stringify(actual.valoraciones)) {
+        j.historial = Evolucion.anotar(Evolucion.historial(actual), j.valoraciones);
+      }
       DB.actualizar('jugadores', actual.id, j);
       UI.aviso('Cambios guardados');
       App.refrescar();

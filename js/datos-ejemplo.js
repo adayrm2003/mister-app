@@ -51,6 +51,7 @@ const DatosEjemplo = (() => {
         n++;
         const edad = entre(cat.min, Math.min(cat.max, cat.min + 2));
         const crece = Math.min(edad, 17) - 6; // los niños crecen hasta los 17 aprox.
+        const valoraciones = valoracionesPara(posicion);
         lista.push({
           id: 'ej-j' + n,
           ejemplo: true,
@@ -59,12 +60,36 @@ const DatosEjemplo = (() => {
           edad,
           altura: Math.round(116 + crece * 5.5 + entre(-5, 6)),
           peso: Math.round(21 + crece * 4.2 + entre(-3, 4)),
-          valoraciones: valoracionesPara(posicion),
+          valoraciones,
+          historial: historialHasta(valoraciones),
+          notas: NOTAS[nombre] ? NOTAS[nombre].map(([dias, tipo, texto], i) => ({ id: `ej-n${n}-${i}`, fecha: UI.sumarDias(UI.hoyISO(), dias), tipo, texto })) : [],
         });
       });
     });
     return lista;
   }
+
+  /* Historial: 4 valoraciones mensuales que van mejorando hasta la actual */
+  function historialHasta(actual) {
+    const hoy = UI.hoyISO();
+    return [-60, -40, -20, 0].map((dias, i) => {
+      const punto = { fecha: UI.sumarDias(hoy, dias) };
+      DB.ASPECTOS.forEach((a) => {
+        const atras = 3 - i; // cuanto más antiguo, algo más bajo
+        punto[a.id] = Math.max(1, Math.min(10, actual[a.id] - Math.round(atras * azar() * 0.9)));
+      });
+      if (dias === 0) Object.assign(punto, actual);
+      return punto;
+    });
+  }
+
+  /* Algunas notas privadas de ejemplo */
+  const NOTAS = {
+    Sara: [[-30, 'Actitud', 'Muy buena actitud, anima a sus compañeros.'], [-6, 'Técnica', 'Ha mejorado mucho el pase con la izquierda.']],
+    Iker: [[-25, 'Táctica', 'Le cuesta volver a defender tras pérdida. Trabajarlo.'], [-4, 'Físico', 'Muy rápido en los primeros metros.']],
+    Lucía: [[-18, 'General', 'Líder en el campo. Candidata a capitana.']],
+    Kevin: [[-10, 'Técnica', 'Mejorar el control orientado antes de rematar.']],
+  };
 
   /* Sesiones de entrenamiento (fechas relativas a hoy) */
   const PLANES = [
@@ -129,8 +154,9 @@ const DatosEjemplo = (() => {
         n++;
         const jugado = gf !== null;
         const fecha = UI.sumarDias(sabado, dias + (cat === 'infantil' ? 1 : 0)); // alevín los sábados, infantil los domingos
-        // Convocamos a todos menos a uno o dos
-        const convocados = equipo.filter(() => azar() > 0.12).map((j) => j.id);
+        // Convocamos a todos menos a dos, que van rotando partido a partido
+        const fuera = [(n * 3) % equipo.length, (n * 7 + 2) % equipo.length];
+        const convocados = equipo.filter((_, k) => !fuera.includes(k)).map((j) => j.id);
         const stats = {};
         if (jugado) {
           convocados.forEach((id) => { stats[id] = { goles: 0, asistencias: 0, minutos: entre(Math.round(duracion * 0.4), duracion), amarillas: azar() < 0.07 ? 1 : 0, rojas: 0 }; });
