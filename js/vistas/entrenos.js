@@ -384,6 +384,7 @@ function formularioEjercicio(e = {}) {
     <div class="chips-check mt" style="margin-top:6px">
       ${DB.CATEGORIAS.map((c) => `<label class="chip-check"><input type="checkbox" name="cat-${c.id}" ${cats.includes(c.id) ? 'checked' : ''}><span>${c.nombre}</span></label>`).join('')}
     </div>
+    ${Nube.conectado() ? `<label class="chip-check"><input type="checkbox" name="compartido" ${e.compartido ? 'checked' : ''}><span>${UI.icono('compartir', 'peq')} Compartir con todo el club</span></label>` : ''}
   `;
 }
 
@@ -392,7 +393,7 @@ function leerEjercicio(form) {
   if (!d.nombre) { UI.aviso('Escribe un nombre', 'error'); return null; }
   const categorias = DB.CATEGORIAS.filter((c) => d['cat-' + c.id]).map((c) => c.id);
   if (!categorias.length) { UI.aviso('Marca al menos una categoría', 'error'); return null; }
-  return { nombre: d.nombre, parte: d.parte, objetivos: [d.objetivo], duracion: Number(d.duracion) || 10, material: d.material, descripcion: d.descripcion, categorias };
+  return { nombre: d.nombre, parte: d.parte, objetivos: [d.objetivo], duracion: Number(d.duracion) || 10, material: d.material, descripcion: d.descripcion, categorias, compartido: !!d.compartido };
 }
 
 function formularioPreparacion(p = {}) {
@@ -550,7 +551,8 @@ Acciones['ver-ejercicio'] = (el, ev) => {
       <h3 class="mt">Material</h3><p style="margin-top:6px">${UI.esc(e.material || '—')}</p>
       <h3 class="mt">Categorías</h3><p style="margin-top:6px">${(e.categorias || Biblioteca.ORDEN).map((c) => DB.categoria(c).nombre).join(', ')}</p>
       ${(e.contra || []).length ? `<h3 class="mt">Útil contra rivales que…</h3><p style="margin-top:6px">${e.contra.map((c) => Biblioteca.estilo(c).nombre.toLowerCase()).join(', ')}</p>` : ''}
-      ${e.propio ? `<div class="fila-botones mt">
+      ${e.autorId && e.autorId !== Nube.usuarioId() ? '<p class="texto-suave peq mt">Compartido por otro entrenador del club.</p>' : ''}
+      ${e.propio && (!e.autorId || e.autorId === Nube.usuarioId()) ? `<div class="fila-botones mt">
         <button type="button" class="btn btn-primario" data-accion="editar-ejercicio" data-id="${e.id}">${UI.icono('editar')} Editar</button>
         <button type="button" class="btn btn-peligro" data-accion="borrar-ejercicio" data-id="${e.id}">${UI.icono('papelera')} Borrar</button></div>` : ''}
     `,

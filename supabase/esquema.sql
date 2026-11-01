@@ -1,8 +1,9 @@
 -- =============================================================
--- ESQUEMA DE BASE DE DATOS · C.D. El Tranvía (FASE 6, PREPARADO)
+-- ESQUEMA DE BASE DE DATOS · C.D. El Tranvía (FASE 6)
 -- -------------------------------------------------------------
--- NO SE HA EJECUTADO EN NINGÚN SITIO. Cuando confirmes la fase 6,
--- se pega en Supabase > SQL Editor y se ejecuta una sola vez.
+-- Aplicado en el proyecto de Supabase del club (migraciones "esquema_inicial" y "funciones_privadas").
+-- Si algún día creas otro proyecto, pégalo en Supabase > SQL Editor y
+-- ejecútalo una sola vez.
 --
 -- Idea general:
 --   · Cada usuario tiene un PERFIL con un ROL: 'entrenador' o 'directiva'.
@@ -21,6 +22,7 @@ create type public.rol_usuario as enum ('entrenador', 'directiva');
 -- Perfil de cada usuario (se crea solo al registrarse, ver trigger abajo)
 create table public.perfiles (
   id      uuid primary key references auth.users (id) on delete cascade,
+  email   text,                               -- para que la directiva sepa quién es
   nombre  text not null default '',
   rol     public.rol_usuario not null default 'entrenador',
   creado  timestamptz not null default now()
@@ -125,10 +127,16 @@ create table public.ejercicios (
 create index on public.ejercicios (autor_id);
 
 -- ---------- 3. FUNCIONES DE AYUDA PARA LA SEGURIDAD ----------
+-- Viven en el esquema "privado", que Supabase NO publica en su API:
+-- las usan las reglas de seguridad, pero nadie puede llamarlas desde fuera.
+create schema if not exists privado;
+revoke all on schema privado from public, anon;
+grant usage on schema privado to authenticated;
+
 -- "security definer" = se ejecutan con permisos de administrador, pero solo
 -- responden sí/no; "search_path = ''" evita trucos con nombres de tablas.
 
-create or replace function public.es_directiva()
+create or replace function privado.es_directiva()
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from public.perfiles
@@ -136,7 +144,7 @@ returns boolean language sql stable security definer set search_path = '' as $$
   );
 $$;
 
-create or replace function public.entrena_equipo(eq uuid)
+create or replace function privado.entrena_equipo(eq uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from public.equipo_entrenadores
@@ -145,16 +153,41 @@ returns boolean language sql stable security definer set search_path = '' as $$
 $$;
 
 -- Al registrarse un usuario, se crea su perfil como 'entrenador'.
--- La directiva se asigna a mano desde el panel de Supabase.
-create or replace function public.crear_perfil()
+-- Sin equipo asignado no ve nada: la directiva le "aprueba" asignándole uno.
+create or replace function privado.crear_perfil()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
-  insert into public.perfiles (id, nombre) values (new.id, coalesce(new.raw_user_meta_data ->> 'nombre', ''));
+  insert into public.perfiles (id, email, nombre)
+  values (new.id, new.email, left(coalesce(new.raw_user_meta_data ->> 'nombre', ''), 40));
   return new;
 end;
 $$;
 create trigger al_registrarse after insert on auth.users
-  for each row execute function public.crear_perfil();
+  for each row execute function privado.crear_perfil();
+
+-- La directiva puede cambiar el rol de otro usuario (nunca el suyo,
+-- para que el club no se quede sin directiva por error).
+create or replace function public.cambiar_rol(usuario uuid, nuevo_rol public.rol_usuario)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if not privado.es_directiva() then
+    raise exception 'Solo la directiva puede cambiar roles';
+  end if;
+  if usuario = (select auth.uid()) then
+    raise exception 'No puedes cambiar tu propio rol';
+  end if;
+  update public.perfiles set rol = nuevo_rol where id = usuario;
+end;
+$$;
+
+-- Quién puede llamar a cada función
+revoke execute on function privado.crear_perfil() from public, anon, authenticated;
+revoke execute on function privado.es_directiva() from public, anon;
+revoke execute on function privado.entrena_equipo(uuid) from public, anon;
+revoke execute on function public.cambiar_rol(uuid, public.rol_usuario) from public, anon;
+grant execute on function privado.es_directiva() to authenticated;
+grant execute on function privado.entrena_equipo(uuid) to authenticated;
+grant execute on function public.cambiar_rol(uuid, public.rol_usuario) to authenticated;
 
 -- ---------- 4. SEGURIDAD POR FILAS (RLS) ----------
 alter table public.perfiles            enable row level security;
@@ -169,27 +202,32 @@ alter table public.ejercicios          enable row level security;
 -- Nadie sin iniciar sesión puede tocar nada
 revoke all on all tables in schema public from anon;
 
--- Perfiles: ves el tuyo (la directiva, todos). Solo puedes cambiar tu NOMBRE, nunca tu rol.
+-- Perfiles: ves el tuyo (la directiva, todos). Solo puedes cambiar tu NOMBRE;
+-- el rol solo se cambia con la función cambiar_rol (directiva).
 create policy "perfil: ver" on public.perfiles for select to authenticated
-  using (id = (select auth.uid()) or (select public.es_directiva()));
+  using (id = (select auth.uid()) or (select privado.es_directiva()));
 create policy "perfil: editar el propio" on public.perfiles for update to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
-revoke update on public.perfiles from authenticated;
+revoke insert, update, delete on public.perfiles from authenticated;
 grant update (nombre) on public.perfiles to authenticated;
-create policy "perfil: directiva gestiona" on public.perfiles for all to authenticated
-  using ((select public.es_directiva())) with check ((select public.es_directiva()));
 
--- Equipos: los ves si los entrenas; solo la directiva los crea o cambia
+-- Equipos: los ves si los entrenas; solo la directiva los crea, cambia o borra
 create policy "equipos: ver" on public.equipos for select to authenticated
-  using ((select public.es_directiva()) or public.entrena_equipo(id));
-create policy "equipos: directiva gestiona" on public.equipos for all to authenticated
-  using ((select public.es_directiva())) with check ((select public.es_directiva()));
+  using ((select privado.es_directiva()) or privado.entrena_equipo(id));
+create policy "equipos: crear" on public.equipos for insert to authenticated
+  with check ((select privado.es_directiva()));
+create policy "equipos: editar" on public.equipos for update to authenticated
+  using ((select privado.es_directiva())) with check ((select privado.es_directiva()));
+create policy "equipos: borrar" on public.equipos for delete to authenticated
+  using ((select privado.es_directiva()));
 
--- Asignaciones entrenador-equipo: ves las tuyas; solo la directiva asigna
+-- Asignaciones entrenador-equipo: ves las tuyas; solo la directiva asigna o quita
 create policy "asignaciones: ver" on public.equipo_entrenadores for select to authenticated
-  using (entrenador_id = (select auth.uid()) or (select public.es_directiva()));
-create policy "asignaciones: directiva gestiona" on public.equipo_entrenadores for all to authenticated
-  using ((select public.es_directiva())) with check ((select public.es_directiva()));
+  using (entrenador_id = (select auth.uid()) or (select privado.es_directiva()));
+create policy "asignaciones: crear" on public.equipo_entrenadores for insert to authenticated
+  with check ((select privado.es_directiva()));
+create policy "asignaciones: borrar" on public.equipo_entrenadores for delete to authenticated
+  using ((select privado.es_directiva()));
 
 -- Datos de equipo (jugadores, sesiones, preparaciones, partidos):
 -- mismas 4 reglas para cada tabla. Entrenador de ese equipo o directiva.
@@ -198,24 +236,24 @@ declare t text;
 begin
   foreach t in array array['jugadores', 'sesiones', 'preparaciones', 'partidos'] loop
     execute format($f$create policy "%1$s: ver" on public.%1$I for select to authenticated
-      using ((select public.es_directiva()) or public.entrena_equipo(equipo_id))$f$, t);
+      using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))$f$, t);
     execute format($f$create policy "%1$s: crear" on public.%1$I for insert to authenticated
-      with check ((select public.es_directiva()) or public.entrena_equipo(equipo_id))$f$, t);
+      with check ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))$f$, t);
     execute format($f$create policy "%1$s: editar" on public.%1$I for update to authenticated
-      using ((select public.es_directiva()) or public.entrena_equipo(equipo_id))
-      with check ((select public.es_directiva()) or public.entrena_equipo(equipo_id))$f$, t);
+      using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))
+      with check ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))$f$, t);
     execute format($f$create policy "%1$s: borrar" on public.%1$I for delete to authenticated
-      using ((select public.es_directiva()) or public.entrena_equipo(equipo_id))$f$, t);
+      using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))$f$, t);
   end loop;
 end $$;
 
 -- Ejercicios propios: los tuyos, los compartidos y (directiva) todos
 create policy "ejercicios: ver" on public.ejercicios for select to authenticated
-  using (autor_id = (select auth.uid()) or compartido or (select public.es_directiva()));
+  using (autor_id = (select auth.uid()) or compartido or (select privado.es_directiva()));
 create policy "ejercicios: crear" on public.ejercicios for insert to authenticated
   with check (autor_id = (select auth.uid()));
 create policy "ejercicios: editar" on public.ejercicios for update to authenticated
-  using (autor_id = (select auth.uid()) or (select public.es_directiva()))
-  with check (autor_id = (select auth.uid()) or (select public.es_directiva()));
+  using (autor_id = (select auth.uid()) or (select privado.es_directiva()))
+  with check (autor_id = (select auth.uid()) or (select privado.es_directiva()));
 create policy "ejercicios: borrar" on public.ejercicios for delete to authenticated
-  using (autor_id = (select auth.uid()) or (select public.es_directiva()));
+  using (autor_id = (select auth.uid()) or (select privado.es_directiva()));

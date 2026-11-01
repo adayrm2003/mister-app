@@ -50,7 +50,7 @@ Vistas.ajustes = {
 
       <section class="tarjeta">
         <h2>Privacidad</h2>
-        <p class="texto-suave peq">Esta app trata datos de menores. Solo se guarda nombre de pila o mote, categoría, edad, altura, peso, posición y dorsal. No guardes apellidos, DNI, direcciones, teléfonos ni fotos. Los datos no salen de este dispositivo salvo que tú descargues una copia o compartas una convocatoria.</p>
+        <p class="texto-suave peq">Esta app trata datos de menores. Solo se guarda nombre de pila o mote, categoría, edad, altura, peso, posición y dorsal. No guardes apellidos, DNI, direcciones, teléfonos ni fotos. Se guardan en este dispositivo y en la nube del club (Supabase, servidores en la Unión Europea), donde cada entrenador solo accede a los de su equipo y la directiva a todos.</p>
       </section>
 
       <section class="tarjeta">

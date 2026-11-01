@@ -9,7 +9,7 @@
    número de VERSION. Así los móviles descargan la versión nueva.
    ============================================================= */
 
-const VERSION = 'tranvia-v6';
+const VERSION = 'tranvia-v7';
 
 // Archivos que forman la app (el "esqueleto")
 const ARCHIVOS = [
@@ -34,6 +34,7 @@ const ARCHIVOS = [
   './js/vistas/asistente.js',
   './js/vistas/ajustes.js',
   './js/nube.js',
+  './js/vistas/cuenta.js',
   './assets/icons/escudo-512.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
@@ -62,10 +63,12 @@ self.addEventListener('fetch', (evento) => {
   if (peticion.method !== 'GET') return;
   const url = new URL(peticion.url);
 
-  // Tipografías de Google: usamos la copia guardada y la actualizamos en segundo plano
-  if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+  // Tipografías de Google y librería de Supabase (jsDelivr): usamos la copia
+  // guardada y la actualizamos en segundo plano. Así funcionan sin conexión.
+  // (Las peticiones de DATOS a supabase.co no se guardan nunca.)
+  if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com') || url.hostname === 'cdn.jsdelivr.net') {
     evento.respondWith(
-      caches.open(VERSION + '-fuentes').then(async (cache) => {
+      caches.open(VERSION + '-externos').then(async (cache) => {
         const guardada = await cache.match(peticion);
         const red = fetch(peticion).then((r) => { cache.put(peticion, r.clone()); return r; }).catch(() => guardada);
         return guardada || red;

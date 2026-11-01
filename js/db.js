@@ -98,6 +98,7 @@ const DB = (() => {
       const nuevo = { id: UI.id(), creado: new Date().toISOString(), ...objeto };
       datos[coleccion].push(nuevo);
       guardar();
+      this.avisar(coleccion, 'guardar', nuevo);
       return nuevo;
     },
     // Cambia algunos campos de un elemento
@@ -106,11 +107,28 @@ const DB = (() => {
       if (!el) return null;
       Object.assign(el, cambios);
       guardar();
+      this.avisar(coleccion, 'guardar', el);
       return el;
     },
     // Elimina un elemento
     borrar(coleccion, id) {
+      const el = this.obtener(coleccion, id);
       datos[coleccion] = datos[coleccion].filter((x) => x.id !== id);
+      guardar();
+      if (el) this.avisar(coleccion, 'borrar', el);
+    },
+
+    /* ---------- AVISOS PARA LA NUBE ----------
+       Cada cambio se "anuncia" aquí. nube.js se apunta a estos avisos
+       para enviar el cambio a Supabase. Sin nube, no pasa nada. */
+    alCambiar: null,
+    avisar(coleccion, tipo, objeto) {
+      if (this.alCambiar && !objeto.ejemplo) this.alCambiar(coleccion, tipo, objeto);
+    },
+    // Sustituye una colección entera con lo descargado de la nube
+    // (sin anunciarlo, para no volver a subirlo). Los datos de ejemplo se conservan.
+    reemplazar(coleccion, lista) {
+      datos[coleccion] = (datos[coleccion] || []).filter((x) => x.ejemplo).concat(lista);
       guardar();
     },
 

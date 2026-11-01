@@ -31,9 +31,18 @@ const UI = {
     return `<svg class="ico ${clase}"><use href="#i-${nombre}"/></svg>`;
   },
 
-  /* Crea un identificador único para cada cosa que guardamos */
+  /* Crea un identificador único para cada cosa que guardamos.
+     Usamos el formato UUID (ej.: 3f2c9a1e-…), el mismo que la base de datos en la nube. */
   id() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    if (window.crypto?.randomUUID) return crypto.randomUUID();
+    // Navegadores antiguos o archivo abierto con doble clic: UUID "casero"
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+  },
+  esUuid(texto) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(texto));
   },
 
   /* Mensaje corto que aparece abajo unos segundos */

@@ -2,7 +2,7 @@
 
 App web (PWA) para los entrenadores del fútbol base del C.D. El Tranvía (Santa Cruz de Tenerife): plantilla, entrenamientos, partidos, evolución de cada jugador y un asistente que propone sesiones y redacta crónicas.
 
-Está hecha con **HTML, CSS y JavaScript**, sin frameworks y sin librerías externas. Funciona sin internet y los datos se guardan en el navegador.
+Está hecha con **HTML, CSS y JavaScript**, sin frameworks. La única librería externa es `supabase-js` (la oficial de Supabase), para las cuentas y la nube. Funciona sin internet: los datos se guardan en el navegador y se sincronizan con la nube del club.
 
 ---
 
@@ -24,7 +24,8 @@ js/ejercicios.js      Biblioteca de 44 ejercicios por edad, parte y objetivo.
 js/datos-ejemplo.js   Datos inventados para probar (se pueden borrar).
 js/asistente.js       El "cerebro" del asistente (reglas y plantillas).
 js/ia.js              Conexión con una IA real · preparada, DESACTIVADA.
-js/nube.js            Conexión con Supabase · preparada, DESACTIVADA.
+js/nube.js            Conexión con Supabase: cuentas y sincronización (Fase 6).
+js/vistas/cuenta.js   Pantalla de acceso, panel del club y estado de la cuenta.
 js/app.js             El arranque y el "router" (qué pantalla mostrar).
 
 js/vistas/            Una pieza por cada pantalla:
@@ -85,8 +86,22 @@ assets/icons/         Escudo e iconos de la app, generados del escudo original.
 
 Aparecerá el escudo del club como icono y se abrirá a pantalla completa, también sin conexión.
 
-**Importante:** cada móvil guarda sus propios datos. Usa *Ajustes → Descargar copia* de vez en cuando, y *Restaurar copia* para pasarlos a otro dispositivo (hasta activar la fase 6).
+**Con la fase 6 activa**, cada entrenador entra con su cuenta y sus datos se sincronizan entre dispositivos. La copia de seguridad sigue disponible en *Ajustes*.
 
-## 5. Privacidad
+## 5. Todo el club en la nube (fase 6)
 
-Los jugadores son menores: la app solo guarda nombre de pila o mote, categoría, edad, altura, peso, posición y dorsal. No guardes apellidos, DNI, direcciones, teléfonos ni fotos. Los datos no salen del dispositivo salvo que descargues una copia o compartas una convocatoria.
+La app usa **Supabase** (plan gratuito, servidores en Irlanda). La seguridad está en la propia base de datos (`supabase/esquema.sql`): cada entrenador solo recibe los datos de sus equipos y la directiva, todos.
+
+**Cómo se usa:**
+1. Cada entrenador abre la app y pulsa *Crear cuenta* (email y contraseña). Supabase le envía un email para confirmarla.
+2. Su cuenta queda **pendiente**: no ve nada hasta que la directiva le asigna un equipo.
+3. La directiva entra en *Ajustes → Panel del club*: crea los equipos (ej.: «Alevín A»), asigna entrenadores y puede nombrar a otros directivos.
+4. La app funciona igual sin internet: los cambios esperan en una cola y se envían al volver la conexión.
+
+**Límite a tener en cuenta:** en la app se trabaja por categoría. Si un entrenador lleva dos equipos de la *misma* categoría (Alevín A y Alevín B), lo nuevo que cree se guarda en el primero.
+
+**Configuración pendiente en Supabase** (*Authentication → URL Configuration*): pon en *Site URL* la dirección de Netlify y añade `http://localhost:8080` en *Redirect URLs*, para que el enlace del email de confirmación vuelva a la app.
+
+## 6. Privacidad
+
+Los jugadores son menores: la app solo guarda nombre de pila o mote, categoría, edad, altura, peso, posición y dorsal. No guardes apellidos, DNI, direcciones, teléfonos ni fotos. Los datos se guardan en el dispositivo y en la nube del club (servidores en la UE), con acceso restringido por equipo. Las notas privadas las ven los entrenadores del equipo y la directiva.

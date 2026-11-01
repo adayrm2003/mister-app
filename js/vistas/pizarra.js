@@ -126,7 +126,7 @@ Vistas.pizarra = {
     const banquillo = ctx.disponibles.filter((j) => !enCampo.has(j.id));
     const sel = this.seleccion;
     return `
-      <div class="campo" id="campo">
+      <div class="campo-futbol" id="campo">
         ${Vistas.pizarra.lineasCampo()}
         ${ctx.al.puestos.map((p, i) => {
           const j = p.jugador ? DB.obtener('jugadores', p.jugador) : null;

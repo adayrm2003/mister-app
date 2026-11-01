@@ -16,8 +16,10 @@ const App = {
   iniciar() {
     const primeraVez = DB.cargar();
     // La primera vez metemos datos de ejemplo para poder probar
-    if (primeraVez) DB.cargarEjemplo(DatosEjemplo.generar());
+    // (con la nube activa no, para no mezclarlos con los datos reales del club)
+    if (primeraVez && !Nube.disponible()) DB.cargarEjemplo(DatosEjemplo.generar());
 
+    Nube.iniciar(); // sesión y sincronización con Supabase (fase 6)
     App.aplicarTema();
     App.escucharBotones();
 
@@ -36,7 +38,11 @@ const App = {
   pintar() {
     const hash = location.hash.replace(/^#\/?/, '') || 'inicio';
     const [nombre, ...parametros] = hash.split('/').map(decodeURIComponent);
-    const vista = Vistas[nombre] || Vistas.inicio;
+    let vista = Vistas[nombre] || Vistas.inicio;
+    // Con la nube activa, sin sesión iniciada solo se ve la pantalla de acceso
+    if (Nube.disponible() && !Nube.conectado()) vista = Vistas.entrar;
+    else if (vista === Vistas.entrar) vista = Vistas.inicio;
+    document.body.classList.toggle('sin-menu', !!vista.sinMenu);
     App.rutaActual = hash;
 
     UI.cerrarModal();
