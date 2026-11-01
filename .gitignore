@@ -1,0 +1,10 @@
+# Archivos que git debe ignorar (no forman parte de la app)
+.claude/
+__pycache__/
+*.log
+.DS_Store
+Thumbs.db
+# Nunca subas claves ni copias de seguridad con datos reales
+.env
+*.env
+tranvia-copia-*.json

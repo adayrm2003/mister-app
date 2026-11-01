@@ -1,0 +1,23 @@
+# Configuración para publicar en Netlify (gratis).
+# No hay que "compilar" nada: la app son archivos tal cual.
+[build]
+  publish = "."
+
+# El service worker nunca debe quedarse "viejo" en la caché del navegador
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+# Cabeceras de seguridad básicas
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
