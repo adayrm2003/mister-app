@@ -33,15 +33,12 @@ const DB = (() => {
     { id: 'regional',    nombre: 'Regional',    edades: '19+',  min: 19, max: 99, futbol: 11, color: '#33414F', color2: '#0A0F17' },
   ];
 
-  /* Las 4 valoraciones de cada jugador (del 1 al 10) */
-  const ASPECTOS = [
-    { id: 'defensa',   nombre: 'Defensa',   color: '#0272BB' },
-    { id: 'ataque',    nombre: 'Ataque',    color: '#CF2633' },
-    { id: 'velocidad', nombre: 'Velocidad', color: '#12A150' },
-    { id: 'fuerza',    nombre: 'Fuerza',    color: '#F2B705' },
+  /* Pierna dominante de cada jugador (es su único dato, junto al nombre) */
+  const PIERNAS = [
+    { id: 'derecha',   nombre: 'Derecha',   corto: 'D' },
+    { id: 'izquierda', nombre: 'Izquierda', corto: 'I' },
+    { id: 'ambas',     nombre: 'Ambas',     corto: 'A' },
   ];
-
-  const POSICIONES = ['Portero', 'Defensa', 'Centrocampista', 'Delantero'];
 
   const MODALIDADES = [7, 8, 11];
 
@@ -51,9 +48,9 @@ const DB = (() => {
   // Cómo son los datos cuando la app está recién instalada
   function datosVacios() {
     return {
-      version: 2,
+      version: 3,
       equipos: [],        // { id, nombre, categoria, modalidad, duracion }
-      jugadores: [],
+      jugadores: [],      // { id, nombre, pierna } (solo eso: son menores)
       ejercicios: [],     // ejercicios creados por el entrenador (los precargados están en ejercicios.js)
       sesiones: [],       // entrenamientos
       preparaciones: [],  // preparación del partido de la semana
@@ -92,6 +89,20 @@ const DB = (() => {
     guardar();
   }
 
+  /* ---------- JUGADORES SIMPLES ----------
+     Antes cada jugador tenía edad, altura, peso, posición, dorsal,
+     valoraciones, evolución y notas. Ahora solo nombre y pierna:
+     conservamos el nombre y borramos todo lo demás. */
+  const CAMPOS_VIEJOS = ['edad', 'altura', 'peso', 'posicion', 'dorsal', 'valoraciones', 'historial', 'notas'];
+  function simplificarJugadores() {
+    let cambiado = false;
+    datos.jugadores.forEach((j) => {
+      CAMPOS_VIEJOS.forEach((c) => { if (c in j) { delete j[c]; cambiado = true; } });
+      if (!PIERNAS.some((p) => p.id === j.pierna)) { j.pierna = 'derecha'; cambiado = true; }
+    });
+    if (cambiado) guardar();
+  }
+
   // Lee los datos del navegador (o crea unos vacíos la primera vez)
   function cargar() {
     try {
@@ -100,6 +111,7 @@ const DB = (() => {
         // "Mezclamos" con los datos vacíos por si en versiones nuevas añadimos colecciones
         datos = Object.assign(datosVacios(), JSON.parse(texto));
         migrarAEquipos();
+        simplificarJugadores();
         return false; // no es la primera vez
       }
     } catch (e) {
@@ -119,7 +131,7 @@ const DB = (() => {
   }
 
   return {
-    CATEGORIAS, ASPECTOS, POSICIONES, MODALIDADES, DEL_EQUIPO,
+    CATEGORIAS, PIERNAS, MODALIDADES, DEL_EQUIPO,
     cargar, guardar,
 
     // Lista completa de una colección. Ej: DB.lista('jugadores')
@@ -223,18 +235,9 @@ const DB = (() => {
     categoria(id) {
       return CATEGORIAS.find((c) => c.id === id) || CATEGORIAS[0];
     },
-    // Sugiere la categoría según la edad
-    categoriaPorEdad(edad) {
-      const e = Number(edad);
-      if (!e) return null;
-      if (e < 6) return CATEGORIAS[0];
-      return CATEGORIAS.find((c) => e >= c.min && e <= c.max) || CATEGORIAS[CATEGORIAS.length - 1];
-    },
-    // Media de las 4 valoraciones
-    mediaJugador(j) {
-      const v = j.valoraciones || {};
-      const notas = ASPECTOS.map((a) => Number(v[a.id]) || 0);
-      return notas.reduce((s, n) => s + n, 0) / ASPECTOS.length;
+    // Datos de una pierna: DB.pierna('izquierda').nombre -> "Izquierda"
+    pierna(id) {
+      return PIERNAS.find((p) => p.id === id) || PIERNAS[0];
     },
     // Jugadores de un equipo (por defecto, el activo), ordenados por nombre
     jugadoresDe(equipoId = this.equipo()?.id) {
@@ -275,6 +278,7 @@ const DB = (() => {
       }
       datos = Object.assign(datosVacios(), obj.datos);
       migrarAEquipos(); // las copias antiguas (sin equipos) también se adaptan
+      simplificarJugadores();
       guardar();
     },
     // Borra absolutamente todo

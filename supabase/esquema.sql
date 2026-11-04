@@ -326,3 +326,19 @@ create policy "ejercicios: editar" on public.ejercicios for update to authentica
   with check ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));
 create policy "ejercicios: borrar" on public.ejercicios for delete to authenticated
   using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));
+
+-- =============================================================
+-- MIGRACIÓN "jugadores_simples" (noviembre 2026)
+-- De cada jugador solo se guarda su nombre (o mote) y su pierna
+-- dominante, más el comentario del informe de temporada.
+-- =============================================================
+alter table public.jugadores
+  drop column edad,
+  drop column altura,
+  drop column peso,
+  drop column posicion,
+  drop column dorsal,
+  drop column valoraciones,
+  drop column historial,
+  drop column notas,
+  add column pierna text not null default 'derecha' check (pierna in ('derecha', 'izquierda', 'ambas'));

@@ -89,7 +89,7 @@ const Partidos = {
   textoConvocatoria(p) {
     const cat = DB.categoria(p.categoria);
     const convocados = (p.convocados || []).map((id) => DB.obtener('jugadores', id)).filter(Boolean)
-      .sort((a, b) => (Number(a.dorsal) || 99) - (Number(b.dorsal) || 99));
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     const entrenador = DB.ajuste('entrenador');
     let t = `⚽ *C.D. EL TRANVÍA · ${cat.nombre.toUpperCase()}*\n`;
     t += `📋 *CONVOCATORIA*\n\n`;
@@ -99,7 +99,7 @@ const Partidos = {
     t += `⏰ Partido: *${p.hora || 'por confirmar'}*${p.citacion ? ` · Citación: *${p.citacion}*` : ''}\n`;
     if (p.campo) t += `📍 ${p.campo}\n`;
     t += `\n👥 *Convocados (${convocados.length}):*\n`;
-    convocados.forEach((j, i) => { t += `${i + 1}. ${j.nombre}${j.dorsal ? ` (${j.dorsal})` : ''}\n`; });
+    convocados.forEach((j, i) => { t += `${i + 1}. ${j.nombre}\n`; });
     t += `\n🎒 Traer: equipación completa, espinilleras, botas y agua.\n`;
     t += `❗ Si alguien no puede venir, avisad cuanto antes.\n\n`;
     t += `¡Vamos Tranvía! 🔴🔵${entrenador ? `\n_${entrenador}_` : ''}`;
@@ -236,7 +236,7 @@ Vistas.partido = {
         <section class="tarjeta">
           <div class="parte-cab"><div class="icono-parte" style="--c:#25D366">${UI.icono('equipo')}</div>
             <div style="flex:1"><h3>Convocatoria</h3><span class="texto-suave peq">${convocados.length} convocados${p.citacion ? ' · citación ' + p.citacion : ''}</span></div></div>
-          <div class="convocados mt">${convocados.map((j) => `<span class="etiqueta gris">${j.dorsal ? j.dorsal + ' · ' : ''}${UI.esc(j.nombre)}</span>`).join('') || '<p class="texto-suave peq">Aún no hay convocados.</p>'}</div>
+          <div class="convocados mt">${convocados.map((j) => `<span class="etiqueta gris">${UI.esc(j.nombre)}</span>`).join('') || '<p class="texto-suave peq">Aún no hay convocados.</p>'}</div>
           <div class="fila-botones mt">
             <button class="btn btn-primario btn-peq" data-accion="convocar" data-id="${p.id}">${UI.icono('check')} Elegir</button>
             ${convocados.length ? `<button class="btn btn-whatsapp btn-peq" data-accion="convocatoria-whatsapp" data-id="${p.id}">${UI.icono('whatsapp')} WhatsApp</button>
@@ -388,7 +388,7 @@ Acciones['convocar'] = (el) => {
           return `<label class="fila-check">
             <input type="checkbox" name="j-${j.id}" ${elegidos.has(j.id) ? 'checked' : ''}>
             ${UI.avatar(j)}
-            <span class="asis-nombre">${UI.esc(j.nombre)}<small class="texto-suave"> · ${UI.posicionCorta(j.posicion)}</small></span>
+            <span class="asis-nombre">${UI.esc(j.nombre)}<small class="texto-suave"> · ${DB.pierna(j.pierna).nombre}</small></span>
             ${asis.pct !== null ? `<span class="etiqueta ${asis.pct >= 80 ? 'verde' : asis.pct >= 60 ? 'amarilla' : 'roja'}" title="Asistencia a entrenos">${asis.pct}%</span>` : ''}
             <span class="marca">${UI.icono('check')}</span>
           </label>`;

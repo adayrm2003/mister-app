@@ -177,29 +177,15 @@ const UI = {
   iniciales(nombre) {
     return String(nombre || '?').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
   },
-  // Cuadrado con iniciales, del color de su categoría
+  // Cuadrado con iniciales, del color de la categoría de su equipo
   avatar(jugador, grande = false) {
     const cat = DB.categoria(jugador.categoria);
-    return `<div class="avatar ${grande ? 'gran' : ''}" style="--c1:${cat.color};--c2:${cat.color2}">
-      ${UI.esc(UI.iniciales(jugador.nombre))}
-      ${jugador.dorsal && !grande ? `<span class="dorsal">${UI.esc(jugador.dorsal)}</span>` : ''}
-    </div>`;
+    return `<div class="avatar ${grande ? 'gran' : ''}" style="--c1:${cat.color};--c2:${cat.color2}">${UI.esc(UI.iniciales(jugador.nombre))}</div>`;
   },
-  // Posición abreviada, como en las apps deportivas
-  posicionCorta(posicion) {
-    return { Portero: 'POR', Defensa: 'DEF', Centrocampista: 'MED', Delantero: 'DEL' }[posicion] || '—';
-  },
-  // Color según la nota: rojo (baja), amarillo (media), verde (alta)
-  colorNota(v) {
-    if (v >= 7.5) return 'var(--verde)';
-    if (v >= 5) return 'var(--azul)';
-    if (v >= 3.5) return 'var(--amarillo)';
-    return 'var(--rojo)';
-  },
-  // Círculo con la media del jugador
-  media(valor) {
-    const v = Number(valor) || 0;
-    return `<div class="media" style="--v:${v};--color-media:${UI.colorNota(v)}" title="Media ${v.toFixed(1)}"><span>${v.toFixed(1)}</span></div>`;
+  // Etiqueta con la pierna dominante: "Izquierda", con su letra en un círculo
+  etiquetaPierna(pierna) {
+    const p = DB.pierna(pierna);
+    return `<span class="etiqueta pierna-${p.id}" title="Pierna dominante"><b class="letra-pierna">${p.corto}</b>${p.nombre}</span>`;
   },
 
   // Pantalla vacía con mensaje (cuando todavía no hay datos)

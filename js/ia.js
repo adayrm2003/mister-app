@@ -17,7 +17,7 @@
    La plantilla de esa función está en: preparado/netlify-functions/ia.js
 
    PRIVACIDAD: si algún día se activa, envía solo lo imprescindible
-   (estadísticas, dorsales) y evita mandar nombres de menores.
+   (estadísticas, iniciales) y evita mandar nombres de menores.
 
    PARA ACTIVARLA (cuando lo decidas):
    1. Copia preparado/netlify-functions/ia.js a netlify/functions/ia.js

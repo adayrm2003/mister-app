@@ -60,7 +60,7 @@ const Pizarra = {
   texto(al, categoria, titulo) {
     const nombre = (id) => {
       const j = DB.obtener('jugadores', id);
-      return j ? `${j.nombre}${j.dorsal ? ' (' + j.dorsal + ')' : ''}` : '—';
+      return j ? j.nombre : '—';
     };
     // Agrupamos por altura en el campo: portería, defensa, medio, ataque
     const ordenados = al.puestos.filter((p) => p.jugador).sort((a, b) => b.y - a.y || a.x - b.x);
@@ -144,7 +144,7 @@ Vistas.pizarra = {
           const elegido = sel && sel.tipo === 'puesto' && sel.valor === String(i);
           return `<div class="ficha-campo ${j ? '' : 'vacia'} ${i === 0 ? 'portero' : ''} ${elegido ? 'elegida' : ''}"
             style="left:${p.x}%;top:${p.y}%" data-ficha="puesto" data-valor="${i}">
-            <span class="ficha-circulo">${j ? UI.esc(j.dorsal || UI.iniciales(j.nombre)) : '+'}</span>
+            <span class="ficha-circulo">${j ? UI.esc(UI.iniciales(j.nombre)) : '+'}</span>
             ${j ? `<span class="ficha-nombre">${UI.esc(j.nombre)}</span>` : ''}
           </div>`;
         }).join('')}
@@ -153,7 +153,7 @@ Vistas.pizarra = {
         <div class="banquillo-titulo">Banquillo · ${banquillo.length}</div>
         <div class="banquillo-lista">
           ${banquillo.map((j) => `<div class="ficha-banco ${sel && sel.tipo === 'banco' && sel.valor === j.id ? 'elegida' : ''}" data-ficha="banco" data-valor="${j.id}">
-            <span class="ficha-circulo">${UI.esc(j.dorsal || UI.iniciales(j.nombre))}</span><span>${UI.esc(j.nombre)}</span><small>${UI.posicionCorta(j.posicion)}</small></div>`).join('')
+            <span class="ficha-circulo">${UI.esc(UI.iniciales(j.nombre))}</span><span>${UI.esc(j.nombre)}</span><small title="Pierna ${DB.pierna(j.pierna).nombre.toLowerCase()}">${DB.pierna(j.pierna).corto}</small></div>`).join('')
             || '<p class="texto-suave peq" style="margin:4px">Todos en el campo 👍</p>'}
         </div>
       </div>`;

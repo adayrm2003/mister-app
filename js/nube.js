@@ -169,7 +169,7 @@ const Nube = {
     const num = (n) => (n === '' || n === undefined || n === null ? null : Number(n));
     if (coleccion === 'equipos') {
       return { id: o.id, nombre: o.nombre, categoria: o.categoria, modalidad: Number(o.modalidad) || 7, duracion: Number(o.duracion) || 75,
-        temporada: o.temporada || Evolucion.temporada() };
+        temporada: o.temporada || Informe.temporada() };
     }
     const equipo_id = o.equipoId;
     if (!UI.esUuid(equipo_id)) throw new Error('Dato sin equipo válido');
@@ -178,9 +178,7 @@ const Nube = {
         material: o.material || null, descripcion: o.descripcion || null, datos: o.datos || {} };
     }
     if (coleccion === 'jugadores') {
-      return { id: o.id, equipo_id, nombre: o.nombre, edad: num(o.edad), altura: num(o.altura), peso: num(o.peso),
-        posicion: o.posicion || null, dorsal: o.dorsal || null, valoraciones: o.valoraciones || {}, historial: o.historial || [],
-        notas: o.notas || [], comentario_informe: o.comentarioInforme || null };
+      return { id: o.id, equipo_id, nombre: o.nombre, pierna: DB.pierna(o.pierna).id, comentario_informe: o.comentarioInforme || null };
     }
     if (coleccion === 'sesiones') {
       return { id: o.id, equipo_id, titulo: o.titulo || null, fecha: o.fecha, hora: hora(o.hora), partes: o.partes || {},
@@ -211,9 +209,7 @@ const Nube = {
         material: f.material || '', descripcion: f.descripcion || '', datos: f.datos || {} };
     }
     if (coleccion === 'jugadores') {
-      return { ...comun, nombre: f.nombre, edad: f.edad, altura: f.altura ?? '', peso: f.peso !== null ? Number(f.peso) : '',
-        posicion: f.posicion || '', dorsal: f.dorsal || '', valoraciones: f.valoraciones, historial: f.historial, notas: f.notas,
-        comentarioInforme: f.comentario_informe || '' };
+      return { ...comun, nombre: f.nombre, pierna: f.pierna, comentarioInforme: f.comentario_informe || '' };
     }
     if (coleccion === 'sesiones') {
       return { ...comun, titulo: f.titulo || '', fecha: f.fecha, hora: hora(f.hora), partes: f.partes, asistencia: f.asistencia,

@@ -16,75 +16,36 @@ const DatosEjemplo = (() => {
   };
   const entre = (min, max) => Math.round(min + azar() * (max - min));
 
-  // Plantillas por categoría: [nombre, posición, dorsal]
+  // Plantillas por categoría: [nombre, posición, pierna]
+  // (la posición NO se guarda: solo sirve para inventar goles y alineaciones creíbles)
   const PLANTILLAS = {
     alevin: [
-      ['Yeray', 'Portero', 1], ['Acoidán', 'Defensa', 2], ['Nayra', 'Defensa', 4], ['Hugo', 'Defensa', 5],
-      ['Leo', 'Centrocampista', 6], ['Aythami', 'Centrocampista', 8], ['Sara', 'Centrocampista', 10],
-      ['Mateo', 'Delantero', 7], ['Iker', 'Delantero', 9], ['Airam', 'Defensa', 3], ['Daniela', 'Delantero', 11], ['Jonay', 'Portero', 13],
+      ['Yeray', 'Portero', 'derecha'], ['Acoidán', 'Defensa', 'derecha'], ['Nayra', 'Defensa', 'izquierda'], ['Hugo', 'Defensa', 'derecha'],
+      ['Leo', 'Centrocampista', 'ambas'], ['Aythami', 'Centrocampista', 'derecha'], ['Sara', 'Centrocampista', 'izquierda'],
+      ['Mateo', 'Delantero', 'derecha'], ['Iker', 'Delantero', 'derecha'], ['Airam', 'Defensa', 'izquierda'], ['Daniela', 'Delantero', 'derecha'], ['Jonay', 'Portero', 'derecha'],
     ],
     infantil: [
-      ['Echedey', 'Portero', 1], ['Tanausú', 'Defensa', 2], ['Carla', 'Defensa', 3], ['Dani', 'Defensa', 4], ['Pablo', 'Defensa', 5],
-      ['Ancor', 'Centrocampista', 6], ['Beneharo', 'Centrocampista', 8], ['Lucía', 'Centrocampista', 10], ['Iván', 'Delantero', 7],
-      ['Kevin', 'Delantero', 9], ['Nauzet', 'Delantero', 11], ['Adrián', 'Centrocampista', 14], ['Fran', 'Defensa', 15], ['Saúl', 'Portero', 13],
+      ['Echedey', 'Portero', 'derecha'], ['Tanausú', 'Defensa', 'derecha'], ['Carla', 'Defensa', 'izquierda'], ['Dani', 'Defensa', 'derecha'], ['Pablo', 'Defensa', 'derecha'],
+      ['Ancor', 'Centrocampista', 'ambas'], ['Beneharo', 'Centrocampista', 'derecha'], ['Lucía', 'Centrocampista', 'izquierda'], ['Iván', 'Delantero', 'derecha'],
+      ['Kevin', 'Delantero', 'derecha'], ['Nauzet', 'Delantero', 'izquierda'], ['Adrián', 'Centrocampista', 'derecha'], ['Fran', 'Defensa', 'derecha'], ['Saúl', 'Portero', 'derecha'],
     ],
   };
 
-  // Valoraciones según la posición (un portero suele defender mejor que atacar…)
-  function valoracionesPara(posicion) {
-    const base = { Portero: [7, 3, 5, 6], Defensa: [7, 4, 6, 7], Centrocampista: [5, 6, 6, 5], Delantero: [3, 7, 7, 6] }[posicion];
-    const v = base.map((n) => Math.min(10, Math.max(1, n + entre(-2, 2))));
-    return { defensa: v[0], ataque: v[1], velocidad: v[2], fuerza: v[3] };
-  }
+  // Posición de cada jugador de ejemplo (solo para este archivo)
+  const POSICION = {};
 
   function jugadores() {
     const lista = [];
     let n = 0;
     Object.entries(PLANTILLAS).forEach(([catId, plantilla]) => {
-      const cat = DB.categoria(catId);
-      plantilla.forEach(([nombre, posicion, dorsal]) => {
+      plantilla.forEach(([nombre, posicion, pierna]) => {
         n++;
-        const edad = entre(cat.min, Math.min(cat.max, cat.min + 2));
-        const crece = Math.min(edad, 17) - 6; // los niños crecen hasta los 17 aprox.
-        const valoraciones = valoracionesPara(posicion);
-        lista.push({
-          id: 'ej-j' + n,
-          ejemplo: true,
-          nombre, posicion, dorsal: String(dorsal),
-          categoria: catId,
-          edad,
-          altura: Math.round(116 + crece * 5.5 + entre(-5, 6)),
-          peso: Math.round(21 + crece * 4.2 + entre(-3, 4)),
-          valoraciones,
-          historial: historialHasta(valoraciones),
-          notas: NOTAS[nombre] ? NOTAS[nombre].map(([dias, tipo, texto], i) => ({ id: `ej-n${n}-${i}`, fecha: UI.sumarDias(UI.hoyISO(), dias), tipo, texto })) : [],
-        });
+        POSICION['ej-j' + n] = posicion;
+        lista.push({ id: 'ej-j' + n, ejemplo: true, nombre, pierna, categoria: catId });
       });
     });
     return lista;
   }
-
-  /* Historial: 4 valoraciones mensuales que van mejorando hasta la actual */
-  function historialHasta(actual) {
-    const hoy = UI.hoyISO();
-    return [-60, -40, -20, 0].map((dias, i) => {
-      const punto = { fecha: UI.sumarDias(hoy, dias) };
-      DB.ASPECTOS.forEach((a) => {
-        const atras = 3 - i; // cuanto más antiguo, algo más bajo
-        punto[a.id] = Math.max(1, Math.min(10, actual[a.id] - Math.round(atras * azar() * 0.9)));
-      });
-      if (dias === 0) Object.assign(punto, actual);
-      return punto;
-    });
-  }
-
-  /* Algunas notas privadas de ejemplo */
-  const NOTAS = {
-    Sara: [[-30, 'Actitud', 'Muy buena actitud, anima a sus compañeros.'], [-6, 'Técnica', 'Ha mejorado mucho el pase con la izquierda.']],
-    Iker: [[-25, 'Táctica', 'Le cuesta volver a defender tras pérdida. Trabajarlo.'], [-4, 'Físico', 'Muy rápido en los primeros metros.']],
-    Lucía: [[-18, 'General', 'Líder en el campo. Candidata a capitana.']],
-    Kevin: [[-10, 'Técnica', 'Mejorar el control orientado antes de rematar.']],
-  };
 
   /* Sesiones de entrenamiento (fechas relativas a hoy) */
   const PLANES = [
@@ -156,7 +117,7 @@ const DatosEjemplo = (() => {
         if (jugado) {
           convocados.forEach((id) => { stats[id] = { goles: 0, asistencias: 0, minutos: entre(Math.round(duracion * 0.4), duracion), amarillas: azar() < 0.07 ? 1 : 0, rojas: 0 }; });
           // Repartimos los goles entre delanteros y medios
-          const atacantes = equipo.filter((j) => convocados.includes(j.id) && ['Delantero', 'Centrocampista'].includes(j.posicion));
+          const atacantes = equipo.filter((j) => convocados.includes(j.id) && ['Delantero', 'Centrocampista'].includes(POSICION[j.id]));
           for (let g = 0; g < gf; g++) {
             const goleador = atacantes[entre(0, atacantes.length - 1)];
             stats[goleador.id].goles++;
@@ -171,9 +132,9 @@ const DatosEjemplo = (() => {
         if (!jugado && cat === 'alevin') {
           alineacion = Pizarra.nueva('3-2-1');
           const orden = ['Portero', 'Defensa', 'Centrocampista', 'Delantero'];
-          const titulares = equipo.filter((j) => convocados.includes(j.id)).sort((a, b) => orden.indexOf(a.posicion) - orden.indexOf(b.posicion));
-          const porteros = titulares.filter((j) => j.posicion === 'Portero');
-          const resto = titulares.filter((j) => j.posicion !== 'Portero');
+          const titulares = equipo.filter((j) => convocados.includes(j.id)).sort((a, b) => orden.indexOf(POSICION[a.id]) - orden.indexOf(POSICION[b.id]));
+          const porteros = titulares.filter((j) => POSICION[j.id] === 'Portero');
+          const resto = titulares.filter((j) => POSICION[j.id] !== 'Portero');
           alineacion.puestos.forEach((p, i) => { p.jugador = (i === 0 ? porteros[0] : resto[i - 1])?.id || null; });
         }
         lista.push({

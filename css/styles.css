@@ -321,17 +321,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .rejilla-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 .rejilla-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 10px; }
 
-/* Deslizador de valoraciones (1 al 10) */
-.valoracion { margin-bottom: 16px; }
-.valoracion-cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
-.valoracion-cab output { font-family: var(--fuente-titulos); font-size: 22px; font-weight: 800; min-width: 30px; text-align: right; }
-input[type=range] {
-  -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 8px;
-  background: linear-gradient(90deg, var(--azul) var(--p, 50%), var(--borde) var(--p, 50%));
-}
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid var(--azul); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
-input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--azul); }
-
 /* Control segmentado (botones juntos tipo pestañas) */
 .segmentado { display: flex; background: var(--superficie-2); border: 1px solid var(--borde); border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 14px; }
 .segmentado button { flex: 1; border: 0; background: transparent; padding: 9px 8px; border-radius: 10px; font-weight: 600; font-size: 13px; color: var(--texto-suave); }
@@ -362,19 +351,28 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
   background: linear-gradient(135deg, var(--c1, #0272BB), var(--c2, #0B2545));
   position: relative;
 }
-.avatar .dorsal { position: absolute; right: -5px; bottom: -5px; background: var(--superficie); color: var(--texto); border: 1px solid var(--borde); border-radius: 8px; font-size: 11px; padding: 0 5px; font-family: var(--fuente); font-weight: 700; }
 .avatar.gran { width: 84px; height: 84px; border-radius: 24px; font-size: 38px; }
 
-/* Insignia de nota media */
-.media {
-  flex: none; width: 48px; height: 48px; border-radius: 50%;
-  display: grid; place-items: center;
-  font-family: var(--fuente-titulos); font-weight: 800; font-size: 20px;
-  background: conic-gradient(var(--color-media, var(--azul)) calc(var(--v, 5) * 10%), var(--borde) 0);
-  position: relative;
+/* Pierna dominante: etiqueta con su letra (D, I, A) */
+.letra-pierna { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: currentColor; font-size: 10px; margin-right: 2px; }
+.letra-pierna { color: var(--superficie); background: var(--c-pierna); }
+.etiqueta[class*="pierna-"] { background: color-mix(in srgb, var(--c-pierna) 14%, transparent); color: var(--c-pierna); }
+.pierna-derecha { --c-pierna: var(--azul); }
+.pierna-izquierda { --c-pierna: var(--rojo); }
+.pierna-ambas { --c-pierna: var(--verde); }
+
+/* Elegir pierna dominante: tres botones grandes */
+.opciones-pierna { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0 8px; }
+.opcion-pierna input { position: absolute; opacity: 0; pointer-events: none; }
+.opcion-pierna span {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 6px;
+  border: 2px solid var(--borde); border-radius: var(--radio-peq); background: var(--superficie-2);
+  font-weight: 700; font-size: 14px; cursor: pointer; transition: all .15s;
 }
-.media::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--superficie); }
-.media span { position: relative; }
+.opcion-pierna b { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--fuente-titulos); font-size: 18px; background: var(--borde); color: var(--texto-suave); transition: all .15s; }
+.opcion-pierna input:checked + span { border-color: var(--azul); background: var(--azul-suave); color: var(--azul); }
+.opcion-pierna input:checked + span b { background: var(--azul); color: #fff; }
+.opcion-pierna input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--azul) 50%, transparent); }
 
 /* Cifras grandes (estadísticas) */
 .cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
@@ -416,7 +414,10 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .modal::before { content: ""; display: block; width: 40px; height: 5px; border-radius: 5px; background: var(--borde); margin: 4px auto 10px; }
 .modal-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; position: sticky; top: -8px; background: var(--superficie); padding: 6px 0; z-index: 2; }
 .modal-pie { display: flex; gap: 10px; margin-top: 8px; position: sticky; bottom: calc(-18px - var(--seguro-abajo)); background: var(--superficie); padding: 10px 0 4px; }
+.modal-pie { flex-wrap: wrap; }
 .modal-pie .btn { flex: 1; }
+/* Con tres botones, el primero (ej.: "Añadir y otro") va en su propia fila */
+.modal-pie > .btn:first-child:nth-last-child(3) { flex-basis: 100%; }
 @keyframes aparecer { from { opacity: 0; } }
 @keyframes subir { from { transform: translateY(40px); opacity: 0; } }
 
@@ -440,13 +441,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 /* Ficha del jugador */
 .ficha-cab { display: flex; gap: 16px; align-items: center; }
 .ficha-cab h1 { font-size: 34px; }
-.datos-fila { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
-.dato { background: rgba(255,255,255,.1); border-radius: 12px; padding: 10px 6px; text-align: center; }
-.dato b { display: block; font-family: var(--fuente-titulos); font-size: 22px; font-weight: 800; }
-.dato span { font-size: 11px; opacity: .75; }
-.val-lista { display: flex; flex-direction: column; gap: 12px; }
-.val-fila { display: grid; grid-template-columns: 90px 1fr 30px; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-.val-fila b { font-family: var(--fuente-titulos); font-size: 20px; text-align: right; }
 
 /* ---------- 6. PANTALLAS CONCRETAS ---------- */
 
@@ -603,12 +597,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .ficha-banco small { color: var(--texto-suave); font-size: 10.5px; }
 .fantasma { position: fixed !important; left: 0 !important; top: 0 !important; z-index: 90; pointer-events: none; opacity: .95; }
 
-/* ----- Evolución: notas privadas ----- */
-.notas { display: flex; flex-direction: column; gap: 8px; }
-.nota { padding: 10px 12px; border-radius: var(--radio-peq); background: var(--superficie-2); border-left: 3px solid var(--azul); }
-.nota-cab { display: flex; align-items: center; gap: 8px; }
-.nota p { margin: 6px 0 0; white-space: pre-line; }
-details summary { color: var(--azul); }
 
 /* ----- Informe de temporada (una "hoja de papel") ----- */
 .informe {
