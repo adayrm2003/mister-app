@@ -56,6 +56,10 @@ Vistas.inicio = {
         ${UI.icono('chispa', 'gran')}
         <span><b>Crear sesión de hoy</b><small>${cat.nombre} · ${eq.duracion} min · objetivo al azar</small></span>
       </button>
+      <details class="ajustar">
+        <summary>${UI.icono('ajustes', 'peq')} Ajustar</summary>
+        <form id="ajustar-hoy" novalidate>${Entrenos.camposAjustar()}</form>
+      </details>
 
       <div class="seccion-titulo"><h2>Última sesión</h2><a href="#/sesiones">Todas</a></div>
       ${ultima ? `<div class="lista">${Entrenos.item(ultima)}</div>
@@ -107,23 +111,14 @@ Vistas.inicio = {
 };
 
 /* ---------- CREAR SESIÓN DE HOY ----------
-   Usa el generador del Asistente con los datos del equipo activo:
-   su categoría, su duración habitual y un objetivo al azar. */
+   Usa el generador con los datos del equipo activo (categoría,
+   modalidad, duración y jugadores) y con lo elegido en "Ajustar".
+   Sin tocar "Ajustar", el objetivo sale al azar. */
 Acciones['crear-sesion-hoy'] = async () => {
-  const eq = DB.equipo();
-  const hoy = UI.hoyISO();
-  if (Entrenos.sesiones().some((s) => s.fecha === hoy)
+  if (Entrenos.sesiones().some((s) => s.fecha === UI.hoyISO())
     && !(await UI.confirmar('Ya hay una sesión hoy para este equipo. ¿Crear otra?', 'Crear otra'))) return;
-  // Objetivo al azar entre los que tienen ejercicios para esta categoría
-  const posibles = Biblioteca.OBJETIVOS.filter((o) => Biblioteca.para(eq.categoria).some((e) => (e.objetivos || [])[0] === o.id));
-  const objetivo = posibles[Math.floor(Math.random() * posibles.length)]?.id || 'pase';
-  const propuesta = Asistente.generarSesion({ categoria: eq.categoria, objetivo, duracion: eq.duracion, semilla: (Date.now() % 1000) + 1 });
-  const partes = {};
-  Biblioteca.PARTES.forEach((p) => { partes[p.id] = { duracion: propuesta.partes[p.id].duracion, ejercicios: propuesta.partes[p.id].ejercicios.map((x) => x.id) }; });
-  const nueva = DB.crear('sesiones', {
-    titulo: Biblioteca.objetivo(objetivo).nombre, fecha: hoy, hora: '18:00', partes, asistencia: {},
-    notas: 'Puntos clave:\n- ' + propuesta.puntosClave.join('\n- '),
-  });
-  UI.aviso(`Sesión de hoy creada: ${Biblioteca.objetivo(objetivo).nombre}`);
+  const opciones = Entrenos.leerAjustar(document.getElementById('ajustar-hoy'));
+  const nueva = Entrenos.crearSesion(opciones, { fecha: UI.hoyISO() });
+  UI.aviso(`Sesión de hoy creada: ${nueva.titulo}`);
   location.hash = '#/sesion/' + nueva.id;
 };

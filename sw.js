@@ -9,7 +9,7 @@
    número de VERSION. Así los móviles descargan la versión nueva.
    ============================================================= */
 
-const VERSION = 'tranvia-v11';
+const VERSION = 'tranvia-v13';
 
 // Archivos que forman la app (el "esqueleto")
 const ARCHIVOS = [

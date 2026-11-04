@@ -676,14 +676,54 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
   .inf-dos { grid-template-columns: 1fr; }
 }
 
-/* ----- Asistente ----- */
-.asistente-hero { background: linear-gradient(135deg, #0B2545 0%, #4a1f6e 55%, #CF2633 100%); }
-.propuesta { margin-top: 12px; border: 2px solid color-mix(in srgb, var(--rojo) 35%, var(--borde)); }
-.propuesta-parte { margin-top: 12px; padding-left: 12px; border-left: 4px solid var(--c); display: flex; flex-direction: column; gap: 6px; }
-.propuesta-parte-cab { display: flex; justify-content: space-between; font-size: 14px; }
-.propuesta-parte-cab span { font-family: var(--fuente-titulos); font-weight: 800; font-size: 18px; color: var(--c); }
-.lista-puntos { margin: 6px 0 0; padding-left: 20px; }
-.lista-puntos li { margin-bottom: 4px; }
+/* ----- Sesiones profesionales ----- */
+/* "Ajustar": opciones plegadas bajo "Crear sesión de hoy" */
+.ajustar { margin-top: 8px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 4px 14px; }
+.ajustar summary { cursor: pointer; padding: 10px 0; font-weight: 700; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; list-style: none; }
+.ajustar summary::-webkit-details-marker { display: none; }
+.ajustar[open] summary { color: var(--azul); }
+.ajustar form { padding-bottom: 12px; }
+/* Ficha de la sesión (datos en rejilla dentro de la cabecera) */
+.ficha-datos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+.ficha-dato { background: rgba(255,255,255,.1); border-radius: 12px; padding: 8px 10px; min-width: 0; }
+.ficha-dato span { display: block; font-size: 11px; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
+.ficha-dato b { font-size: 14px; display: block; overflow-wrap: anywhere; }
+.ficha-dato.ancho { grid-column: 1 / -1; }
+.ficha-dato.ancho b { font-weight: 600; font-size: 13px; }
+@media (min-width: 640px) { .ficha-datos { grid-template-columns: repeat(3, 1fr); } }
+.acciones-sesion { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.acciones-sesion::-webkit-scrollbar { display: none; }
+.acciones-sesion .btn { flex: none; }
+/* Cada bloque de la sesión */
+.grupo-bloques { margin-top: 26px; }
+.tarjeta.bloque { border-left: 5px solid var(--c); margin-top: 10px; }
+.bloque-cab { display: flex; justify-content: space-between; align-items: center; }
+.bloque-min { font-family: var(--fuente-titulos); font-size: 26px; color: var(--c); line-height: 1; }
+.bloque-nombre { font-size: 18px; margin: 10px 0 4px; }
+.bloque-desc { color: var(--texto-suave); }
+.bloque-lista { margin-top: 10px; }
+.bloque-lista b { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--texto-suave); }
+.bloque-lista ul { margin: 4px 0 0; padding-left: 18px; }
+.bloque-lista li { margin-bottom: 3px; }
+.bloque-lista.consignas { background: var(--amarillo-suave); border-radius: var(--radio-peq); padding: 10px 12px; }
+.bloque-lista.consignas b { color: #B88600; }
+.guia summary { cursor: pointer; }
+.valoracion textarea { min-height: 70px; }
+.item-boton { width: 100%; text-align: left; font: inherit; }
+/* Ficha limpia para imprimir */
+.pdf-ficha { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+.pdf-ficha td { border: 1px solid var(--borde); padding: 6px 8px; vertical-align: top; }
+.pdf-ficha td:nth-child(odd) { background: var(--superficie-2); font-weight: 700; width: 18%; color: var(--texto-suave); }
+.pdf-aviso { font-weight: 700; color: #0B2545; }
+.pdf-bloque { border-left: 4px solid var(--c); padding: 4px 0 6px 12px; margin-bottom: 12px; break-inside: avoid; }
+.pdf-bloque-cab { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.pdf-bloque-cab span { font-family: var(--fuente-titulos); font-size: 20px; color: var(--c); }
+.pdf-bloque p { margin: 4px 0; font-size: 13.5px; }
+.pdf-listas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 12.5px; }
+.pdf-listas .bloque-lista { margin-top: 6px; }
+.pdf-listas .bloque-lista.consignas { padding: 6px 8px; }
+.pdf-mini { color: var(--texto-suave); font-size: 12px !important; }
+@media (max-width: 640px) { .pdf-listas { grid-template-columns: 1fr; } }
 .cronica p { line-height: 1.6; }
 code { font-size: 12.5px; background: var(--superficie-2); padding: 1px 5px; border-radius: 5px; }
 
@@ -766,4 +806,5 @@ body.sin-menu main { padding-bottom: 32px; }
   /* En papel, el informe siempre en dos columnas */
   .inf-dos { grid-template-columns: 1fr 1fr !important; }
   .inf-cifras { grid-template-columns: repeat(4, 1fr) !important; }
+  .pdf-listas { grid-template-columns: repeat(3, 1fr) !important; }
 }

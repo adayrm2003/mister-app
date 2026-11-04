@@ -47,31 +47,33 @@ const DatosEjemplo = (() => {
     return lista;
   }
 
-  /* Sesiones de entrenamiento (fechas relativas a hoy) */
-  const PLANES = [
-    { titulo: 'Pase y control orientado', ej: { calentamiento: ['b-c06'], tecnica: ['b-t03', 'b-t08'], tactica: ['b-k02'], vuelta: ['b-v02'] } },
-    { titulo: 'Finalización', ej: { calentamiento: ['b-c09'], tecnica: ['b-t10', 'b-t07'], tactica: ['b-k13'], vuelta: ['b-v06'] } },
-    { titulo: 'Presión tras pérdida', ej: { calentamiento: ['b-c03'], tecnica: ['b-t06'], tactica: ['b-k04', 'b-k08'], vuelta: ['b-v02'] } },
-    { titulo: 'Salida de balón', ej: { calentamiento: ['b-c08'], tecnica: ['b-t08'], tactica: ['b-k03', 'b-k12'], vuelta: ['b-v06'] } },
+  /* Sesiones de entrenamiento (fechas relativas a hoy), hechas con el generador */
+  const OBJETIVOS_SEMANA = ['pase', 'finalizacion', 'presion', 'salida', 'regate', 'posesion'];
+  const VALORACIONES = [
+    ['Muy buena intensidad en el juego reducido.', 'Explicar más corto: perdimos tiempo en la técnica.'],
+    ['Se entendió bien el objetivo.', 'Más balones para que no haya colas.'],
+    ['Buena actitud de todo el grupo.', 'Cuidar los tiempos de descanso.'],
   ];
   function sesiones(listaJugadores) {
     const hoy = UI.hoyISO();
     const lista = [];
     let n = 0;
-    ['alevin', 'infantil'].forEach((cat) => {
+    [['alevin', 7, 75], ['infantil', 11, 90]].forEach(([cat, modalidad, duracion]) => {
       const delEquipo = listaJugadores.filter((j) => j.categoria === cat);
       [-12, -9, -5, -2, 1, 3].forEach((dias, i) => {
         n++;
-        const plan = PLANES[i % PLANES.length];
-        const partes = {};
-        Biblioteca.PARTES.forEach((p) => { partes[p.id] = { duracion: { calentamiento: 15, tecnica: 25, tactica: 25, vuelta: 10 }[p.id], ejercicios: [...plan.ej[p.id]] }; });
-        // A las sesiones ya pasadas les ponemos asistencia
+        const propuesta = Asistente.generarSesion({
+          categoria: cat, modalidad, duracion, jugadores: delEquipo.length,
+          objetivo: OBJETIVOS_SEMANA[i % OBJETIVOS_SEMANA.length], piernaMala: i === 2, semilla: n * 13,
+        });
+        // A las sesiones ya pasadas les ponemos asistencia y, a algunas, valoración
         const asistencia = {};
         if (dias < 0) delEquipo.forEach((j) => { const r = azar(); asistencia[j.id] = r < 0.82 ? 'si' : r < 0.92 ? 'just' : 'no'; });
+        const v = dias < 0 && i % 2 === 0 ? VALORACIONES[i % VALORACIONES.length] : ['', ''];
         lista.push({
-          id: 'ej-s' + n, ejemplo: true, titulo: plan.titulo, categoria: cat,
+          ...propuesta, id: 'ej-s' + n, ejemplo: true, categoria: cat,
           fecha: UI.sumarDias(hoy, dias + (cat === 'infantil' ? 0 : -1)), hora: cat === 'alevin' ? '17:30' : '19:00',
-          partes, asistencia, notas: '',
+          asistencia, valoracion: { bien: v[0], mejorar: v[1] }, notas: '',
         });
       });
     });

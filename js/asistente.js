@@ -6,7 +6,8 @@
    y funciona sin conexión.
 
    1. Asistente.generarSesion(): propone un entrenamiento completo
-      eligiendo ejercicios de la biblioteca.
+      (5 bloques) eligiendo ejercicios de la biblioteca.
+      Asistente.otroEjercicio(): cambia el ejercicio de un bloque.
    2. Asistente.resumenPartido(): redacta la crónica de un partido
       a partir de sus estadísticas.
    ============================================================= */
@@ -14,8 +15,21 @@
 const Asistente = (() => {
   /* ---------- 1. GENERADOR DE SESIONES ---------- */
 
-  // Qué porcentaje del tiempo dedicamos a cada parte
-  const REPARTO = { calentamiento: 0.2, tecnica: 0.3, tactica: 0.37, vuelta: 0.13 };
+  // Qué parte del tiempo va a cada bloque según la edad:
+  // los pequeños, más juego; los mayores, más táctica.
+  const REPARTOS = {
+    pequenos: { calentamiento: 0.15, tecnica: 0.3, tactica: 0.1, juego: 0.35, vuelta: 0.1 },
+    medianos: { calentamiento: 0.15, tecnica: 0.25, tactica: 0.2, juego: 0.3, vuelta: 0.1 },
+    mayores: { calentamiento: 0.15, tecnica: 0.2, tactica: 0.3, juego: 0.25, vuelta: 0.1 },
+  };
+  const grupoEdad = (categoria) => (['prebenjamin', 'benjamin'].includes(categoria) ? 'pequenos'
+    : ['alevin', 'infantil'].includes(categoria) ? 'medianos' : 'mayores');
+
+  // Espacio habitual según la modalidad del equipo
+  const ESPACIO = { 7: 'Medio campo de fútbol 7', 8: 'Medio campo de fútbol 8', 11: 'Medio campo de fútbol 11' };
+
+  // Consigna que se añade a la técnica cuando se trabaja la pierna mala
+  const CONSIGNA_PIERNA = 'Hoy, con la pierna mala: los diestros golpean y controlan con la izquierda; los zurdos, con la derecha';
 
   // Objetivos "primos": si no hay ejercicio exacto, estos también ayudan
   const RELACIONADOS = {
@@ -36,7 +50,7 @@ const Asistente = (() => {
     presion: ['Presionar en grupo, no solo', 'Orientar al rival hacia la banda', 'Cerrar líneas de pase', 'Reaccionar rápido tras pérdida'],
     defensa: ['Perfil defensivo: no ponerse de frente', 'Temporizar, no tirarse al suelo', 'Comunicación y coberturas'],
     posesion: ['Ofrecer apoyos constantes', 'Amplitud y profundidad', 'Paciencia: no perder el balón por precipitarse'],
-    transicion: ['Los primeros 5 segundos tras robar/perder son clave', 'Atacar rápido el espacio', 'Repliegue por dentro'],
+    transicion: ['Los primeros 5 segundos tras robar o perder son clave', 'Atacar rápido el espacio', 'Repliegue por dentro'],
     salida: ['Portero como un jugador más', 'Defensas abiertos', 'Si presionan, buscar al hombre libre'],
     centros: ['Levantar la cabeza antes de centrar', 'Llegadas al primer y segundo palo', 'Centro tenso entre portero y defensas'],
     'balon-parado': ['Cada uno conoce su función', 'Atacar el balón en el punto más alto', 'Vigilar el rechace'],
@@ -55,75 +69,158 @@ const Asistente = (() => {
     regional: ['Ajusta la carga a la competición del fin de semana.', 'Detalle táctico y balón parado.', 'Gestiona descansos y molestias.'],
   };
 
-  // Generador de números con semilla (para que "Otra propuesta" cambie)
+  // Carga recomendada según la edad
+  const CARGA_EDAD = {
+    prebenjamin: 'Juego continuo con pausas para beber cada 15 minutos. Nada de correr sin balón.',
+    benjamin: 'Intensidad moderada y mucho balón. Pausas breves entre juegos.',
+    alevin: 'Intensidad moderada-alta en juegos reducidos, con series cortas.',
+    infantil: 'Controla la carga por el estirón: calidad antes que cantidad.',
+    cadete: 'Intensidad alta en tareas cortas. Fuerza con el propio peso.',
+    juvenil: 'Intensidad de partido. Más carga a mitad de semana que el día antes del partido.',
+    regional: 'Carga alta a mitad de semana y activación suave el día antes del partido.',
+  };
+
+  // Generador de números con semilla (para que cada propuesta sea distinta)
   function azarCon(semilla) {
     let s = semilla % 2147483647 || 1;
     return () => (s = (s * 16807) % 2147483647) / 2147483647;
   }
 
-  // Puntuación de un ejercicio para un objetivo
-  function puntuar(e, objetivo) {
+  // Puntuación de un ejercicio según lo que pide el entrenador
+  function puntuar(e, { objetivo, objetivo2, foco, estilos = [] }, parte) {
     const objs = e.objetivos || [];
-    if (objs[0] === objetivo) return 12;
-    if (objs.includes(objetivo)) return 9;
-    if ((RELACIONADOS[objetivo] || []).some((r) => objs.includes(r))) return 4;
-    return 1;
+    let p = 1;
+    if (objs[0] === objetivo) p += 12;
+    else if (objs.includes(objetivo)) p += 9;
+    else if ((RELACIONADOS[objetivo] || []).some((r) => objs.includes(r))) p += 4;
+    if (objetivo2 && objs.includes(objetivo2)) p += 5;
+    const principal = parte === 'tactica' || parte === 'juego';
+    if (foco && principal && objs.includes(foco)) p += 10;
+    if (estilos.length && principal) p += 8 * (e.contra || []).filter((c) => estilos.includes(c)).length;
+    return p;
   }
 
-  const redondear5 = (n) => Math.max(5, Math.round(n / 5) * 5);
-
-  function generarSesion({ categoria, objetivo, duracion, semilla = 1 }) {
-    const azar = azarCon(semilla);
-    const total = Number(duracion);
-    const partes = {};
-    const usados = new Set();
-    const explicacion = [];
-
-    // Minutos de cada parte (la táctica absorbe el redondeo)
-    const minutos = {};
+  // Minutos de cada bloque (múltiplos de 5; el juego reducido se queda el resto)
+  function minutosBloques(categoria, total) {
+    const r = REPARTOS[grupoEdad(categoria)];
+    const m = {};
     let asignado = 0;
-    ['calentamiento', 'tecnica', 'vuelta'].forEach((p) => { minutos[p] = redondear5(total * REPARTO[p]); asignado += minutos[p]; });
-    minutos.tactica = Math.max(10, total - asignado);
+    ['calentamiento', 'tecnica', 'tactica', 'vuelta'].forEach((p) => { m[p] = Math.max(5, Math.round((total * r[p]) / 5) * 5); asignado += m[p]; });
+    m.juego = Math.max(5, total - asignado);
+    return m;
+  }
 
-    Biblioteca.PARTES.forEach((p) => {
-      // Candidatos: ejercicios de esa parte y categoría, ordenados por puntuación (+ un poco de azar)
-      const candidatos = Biblioteca.para(categoria, p.id)
-        .filter((e) => !usados.has(e.id))
-        .map((e) => ({ e, nota: puntuar(e, objetivo) + azar() * 3 }))
-        .sort((a, b) => b.nota - a.nota);
-
-      const elegidos = [];
-      let restante = minutos[p.id];
-      for (const { e } of candidatos) {
-        if (restante < 5) break;
-        // Evitamos meter ejercicios muy largos en huecos pequeños
-        if (e.duracion > restante + 5 && elegidos.length) continue;
-        const dur = Math.min(e.duracion, restante);
-        elegidos.push({ id: e.id, duracion: dur, encaja: puntuar(e, objetivo) >= 9 });
-        usados.add(e.id);
-        restante -= dur;
-        if (p.id === 'calentamiento' || p.id === 'vuelta') break; // un ejercicio basta
-        if (elegidos.length >= 3) break;
-      }
-      partes[p.id] = { duracion: minutos[p.id], ejercicios: elegidos };
-    });
-
-    // Explicación de la propuesta
-    const obj = Biblioteca.objetivo(objetivo).nombre;
-    const cat = DB.categoria(categoria);
-    const directos = Object.values(partes).flatMap((x) => x.ejercicios).filter((x) => x.encaja).length;
-    explicacion.push(`Sesión de ${total} minutos para ${cat.nombre} centrada en ${obj.toLowerCase()}.`);
-    explicacion.push(directos
-      ? `${directos} ejercicio${directos > 1 ? 's trabajan' : ' trabaja'} directamente el objetivo; el resto lo complementan.`
-      : 'No hay ejercicios específicos de este objetivo para esta edad: he elegido los más parecidos. Puedes crear uno propio en la Biblioteca.');
-    explicacion.push('Reparto: ' + Biblioteca.PARTES.map((p) => `${p.nombre.toLowerCase()} ${partes[p.id].duracion}'`).join(', ') + '.');
-
+  // Convierte un ejercicio en un bloque de la sesión. Copiamos su contenido:
+  // así el entrenador puede editarlo en SU sesión sin cambiar la biblioteca.
+  function bloqueDe(e, parte, minutos) {
+    if (!e) return { parte, minutos, ejercicioId: null, nombre: '', descripcion: '', reglas: [], variantes: [], consignas: [], material: '', espacio: '' };
     return {
-      titulo: `${obj} · ${cat.nombre}`,
-      categoria, objetivo, duracion: total, partes, explicacion,
-      puntosClave: PUNTOS_CLAVE[objetivo] || [],
-      consejos: CONSEJOS_EDAD[categoria] || [],
+      parte, minutos, ejercicioId: e.id, nombre: e.nombre, descripcion: e.descripcion || '',
+      reglas: [...(e.reglas || [])], variantes: [...(e.variantes || [])], consignas: [...(e.consignas || [])],
+      material: e.material || '', espacio: e.espacio || '',
     };
+  }
+
+  // Ejercicios posibles para un bloque, del más adecuado al menos
+  function candidatos(categoria, parte, opciones, azar) {
+    return Biblioteca.para(categoria, parte)
+      .map((e) => ({ e, nota: puntuar(e, opciones, parte) + azar() * 3 }))
+      .sort((a, b) => b.nota - a.nota)
+      .map((x) => x.e);
+  }
+
+  // Junta el material de todos los bloques sin repetir.
+  // Para comparar quitamos cantidades y plurales: "4 conos", "Conos" y "cono" son lo mismo.
+  function juntarMaterial(bloques) {
+    const sinCantidad = (x) => x.replace(/^(\d+(-\d+)?|un|una|unos|unas)\s+/i, '').replace(/\s+(por|cada)\s+.*$/i, '').replace(/\s*\(.*\)$/, '').trim();
+    // Cada palabra en singular: "conos para 3 zonas" → "cono para 3 zona"
+    const clave = (x) => UI.normalizar(sinCantidad(x)).replace(/(es|s)\b/g, '');
+    const vistos = new Map();
+    bloques.forEach((b) => String(b.material || '').split(/,| y /).map((x) => x.trim())
+      .filter((x) => x && !/^(ninguno|portero)$/i.test(x)).forEach((x) => {
+        const k = clave(x);
+        const texto = UI.mayuscula(sinCantidad(x));
+        // Nos quedamos con la forma más larga ("Balones" mejor que "Balón")
+        if (!vistos.has(k) || texto.length > vistos.get(k).length) vistos.set(k, texto);
+      }));
+    // Quitamos lo que ya está incluido en otro ("Petos" si ya hay "Petos de 3 colores")
+    const claves = [...vistos.keys()];
+    return claves.filter((k) => !claves.some((o) => o !== k && o.startsWith(k + ' '))).map((k) => vistos.get(k)).join(', ');
+  }
+
+  /* Genera una sesión completa.
+     opciones: { categoria, duracion, modalidad, objetivo ('azar' o un objetivo),
+                 objetivo2, foco, preparacionId, piernaMala, jugadores, semilla } */
+  function generarSesion(op) {
+    const azar = azarCon(op.semilla || 1);
+    const categoria = op.categoria;
+    const total = Number(op.duracion) || 75;
+    let objetivo = op.objetivo;
+    if (!objetivo || objetivo === 'azar') {
+      const posibles = Biblioteca.objetivosPara(categoria);
+      objetivo = posibles[Math.floor(azar() * posibles.length)]?.id || 'pase';
+    }
+    const prep = op.preparacionId ? DB.obtener('preparaciones', op.preparacionId) : null;
+    const opciones = { objetivo, objetivo2: op.objetivo2 || '', foco: op.foco || '', estilos: prep?.estilos || [] };
+    const minutos = minutosBloques(categoria, total);
+    const usados = new Set();
+    const bloques = Biblioteca.PARTES.map((p) => {
+      const e = candidatos(categoria, p.id, opciones, azar).find((x) => !usados.has(x.id));
+      if (e) usados.add(e.id);
+      return bloqueDe(e, p.id, minutos[p.id]);
+    });
+    if (op.piernaMala) bloques.find((b) => b.parte === 'tecnica').consignas.unshift(CONSIGNA_PIERNA);
+    return {
+      titulo: Biblioteca.objetivo(objetivo).nombre + (prep ? ' · vs ' + prep.rival : ''),
+      objetivo, objetivo2: opciones.objetivo2, foco: opciones.foco, preparacionId: prep?.id || null,
+      material: juntarMaterial(bloques), espacio: ESPACIO[op.modalidad] || 'Medio campo',
+      jugadores: op.jugadores || '', piernaMala: !!op.piernaMala, bloques,
+    };
+  }
+
+  // "Otro ejercicio": cambia el de un bloque por el siguiente posible (va rotando).
+  // Devuelve el bloque nuevo, o null si no hay alternativa.
+  function otroEjercicio(sesion, indice) {
+    const b = sesion.bloques[indice];
+    const prep = sesion.preparacionId ? DB.obtener('preparaciones', sesion.preparacionId) : null;
+    const opciones = { objetivo: sesion.objetivo, objetivo2: sesion.objetivo2, foco: sesion.foco, estilos: prep?.estilos || [] };
+    const enUso = new Set(sesion.bloques.filter((x, i) => i !== indice).map((x) => x.ejercicioId).filter(Boolean));
+    const libres = candidatos(sesion.categoria, b.parte, opciones, () => 0).filter((e) => !enUso.has(e.id));
+    const pos = libres.findIndex((e) => e.id === b.ejercicioId);
+    const siguiente = libres[(pos + 1) % libres.length];
+    if (!siguiente || siguiente.id === b.ejercicioId) return null;
+    const nuevo = bloqueDe(siguiente, b.parte, b.minutos);
+    if (sesion.piernaMala && b.parte === 'tecnica') nuevo.consignas.unshift(CONSIGNA_PIERNA);
+    return nuevo;
+  }
+
+  // Ayuda para la ficha: consejos y carga de la edad, puntos clave del objetivo
+  function guia(categoria, objetivo) {
+    return { consejos: CONSEJOS_EDAD[categoria] || [], carga: CARGA_EDAD[categoria] || '', puntosClave: PUNTOS_CLAVE[objetivo] || [] };
+  }
+
+  // Texto de la sesión para WhatsApp o para copiar (en WhatsApp, *texto* sale en negrita)
+  function textoSesion(s, numero) {
+    const eq = DB.obtener('equipos', s.equipoId);
+    const total = s.bloques.reduce((t, b) => t + (Number(b.minutos) || 0), 0);
+    const lista = (titulo, items) => (items?.length ? `${titulo}: ${items.join('; ')}\n` : '');
+    let t = `⚽ *C.D. EL TRANVÍA${eq ? ' · ' + eq.nombre.toUpperCase() : ''}*\n`;
+    t += `📋 *SESIÓN Nº ${numero}* · ${UI.mayuscula(UI.fechaLarga(s.fecha))}${s.hora ? ' · ' + s.hora : ''}\n`;
+    t += `🎯 Objetivo: *${Biblioteca.objetivo(s.objetivo).nombre}*${s.objetivo2 ? ' · Secundario: ' + Biblioteca.objetivo(s.objetivo2).nombre : ''}\n`;
+    t += `⏱️ ${total} min${s.jugadores ? ' · 👥 ' + UI.plural(Number(s.jugadores), 'jugador', 'jugadores') : ''}${s.espacio ? ' · 📍 ' + s.espacio : ''}\n`;
+    if (s.material) t += `🎒 Material: ${s.material}\n`;
+    if (s.piernaMala) t += `🦶 *Hoy, trabajo con la pierna mala*\n`;
+    let grupo = '';
+    let n = 0;
+    s.bloques.forEach((b) => {
+      const p = Biblioteca.parte(b.parte);
+      if (p.grupo !== grupo) { grupo = p.grupo; n++; t += `\n*${n}. ${grupo.toUpperCase()}*\n`; }
+      if (!b.nombre) return;
+      t += `${p.grupo === 'Parte principal' ? '_' + p.nombre + '_ · ' : ''}*${b.nombre}* (${b.minutos}')\n`;
+      if (b.descripcion) t += `${b.descripcion}\n`;
+      t += lista('• Reglas', b.reglas) + lista('• Variantes', b.variantes) + lista('• Consignas', b.consignas);
+    });
+    return t.trim();
   }
 
   /* ---------- 2. RESUMEN AUTOMÁTICO DEL PARTIDO ---------- */
@@ -231,5 +328,5 @@ const Asistente = (() => {
     return `*${r.titular.toUpperCase()}*\n${DB.categoria(p.categoria).nombre} · C.D. El Tranvía ${p.golesFavor}-${p.golesContra} ${p.rival}\n\n${r.parrafos.join('\n\n')}`;
   }
 
-  return { generarSesion, resumenPartido, textoResumen, PUNTOS_CLAVE };
+  return { generarSesion, otroEjercicio, guia, textoSesion, resumenPartido, textoResumen, CONSIGNA_PIERNA };
 })();

@@ -175,14 +175,18 @@ const Nube = {
     if (!UI.esUuid(equipo_id)) throw new Error('Dato sin equipo válido');
     if (coleccion === 'ejercicios') {
       return { id: o.id, equipo_id, nombre: o.nombre, parte: o.parte, objetivos: o.objetivos || [], duracion: num(o.duracion) || 10,
-        material: o.material || null, descripcion: o.descripcion || null, datos: o.datos || {} };
+        material: o.material || null, descripcion: o.descripcion || null,
+        datos: { tipo: o.tipo, espacio: o.espacio || '', reglas: o.reglas || [], variantes: o.variantes || [], consignas: o.consignas || [] } };
     }
     if (coleccion === 'jugadores') {
       return { id: o.id, equipo_id, nombre: o.nombre, pierna: DB.pierna(o.pierna).id, comentario_informe: o.comentarioInforme || null };
     }
     if (coleccion === 'sesiones') {
-      return { id: o.id, equipo_id, titulo: o.titulo || null, fecha: o.fecha, hora: hora(o.hora), partes: o.partes || {},
-        asistencia: o.asistencia || {}, notas: o.notas || null, preparacion_id: UI.esUuid(o.preparacionId) ? o.preparacionId : null };
+      return { id: o.id, equipo_id, titulo: o.titulo || null, fecha: o.fecha, hora: hora(o.hora), bloques: o.bloques || [],
+        ficha: { objetivo: o.objetivo || '', objetivo2: o.objetivo2 || '', foco: o.foco || '', material: o.material || '',
+          espacio: o.espacio || '', jugadores: o.jugadores || '', piernaMala: !!o.piernaMala },
+        valoracion: o.valoracion || {}, asistencia: o.asistencia || {}, notas: o.notas || null,
+        preparacion_id: UI.esUuid(o.preparacionId) ? o.preparacionId : null };
     }
     if (coleccion === 'preparaciones') {
       return { id: o.id, equipo_id, rival: o.rival, fecha: o.fecha, sistema: o.sistema || null, estilos: o.estilos || [],
@@ -205,15 +209,17 @@ const Nube = {
     // La categoría de cada dato es la de su equipo (los equipos se descargan primero)
     const comun = { ...base, equipoId: f.equipo_id, categoria: DB.obtener('equipos', f.equipo_id)?.categoria || 'alevin' };
     if (coleccion === 'ejercicios') {
+      const d = f.datos || {};
       return { ...comun, nombre: f.nombre, parte: f.parte, objetivos: f.objetivos, duracion: f.duracion,
-        material: f.material || '', descripcion: f.descripcion || '', datos: f.datos || {} };
+        material: f.material || '', descripcion: f.descripcion || '', tipo: d.tipo || 'tecnico', espacio: d.espacio || '',
+        reglas: d.reglas || [], variantes: d.variantes || [], consignas: d.consignas || [] };
     }
     if (coleccion === 'jugadores') {
       return { ...comun, nombre: f.nombre, pierna: f.pierna, comentarioInforme: f.comentario_informe || '' };
     }
     if (coleccion === 'sesiones') {
-      return { ...comun, titulo: f.titulo || '', fecha: f.fecha, hora: hora(f.hora), partes: f.partes, asistencia: f.asistencia,
-        notas: f.notas || '', preparacionId: f.preparacion_id };
+      return { ...comun, ...(f.ficha || {}), titulo: f.titulo || '', fecha: f.fecha, hora: hora(f.hora), bloques: f.bloques || [],
+        valoracion: f.valoracion || {}, asistencia: f.asistencia, notas: f.notas || '', preparacionId: f.preparacion_id };
     }
     if (coleccion === 'preparaciones') {
       return { ...comun, rival: f.rival, fecha: f.fecha, sistema: f.sistema || '', estilos: f.estilos, ejercicios: f.ejercicios,

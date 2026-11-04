@@ -342,3 +342,14 @@ alter table public.jugadores
   drop column historial,
   drop column notas,
   add column pierna text not null default 'derecha' check (pierna in ('derecha', 'izquierda', 'ambas'));
+
+-- =============================================================
+-- MIGRACIÓN "sesiones_profesionales" (noviembre 2026)
+-- Cada sesión tiene una ficha, 5 bloques con su contenido y la
+-- valoración del entreno.
+-- =============================================================
+alter table public.sesiones
+  drop column partes,
+  add column bloques jsonb not null default '[]',      -- [{parte, minutos, nombre, descripcion, reglas[], variantes[], consignas[], material}]
+  add column ficha jsonb not null default '{}',        -- {objetivo, objetivo2, focoTactico, material, espacio, jugadores, piernaMala}
+  add column valoracion jsonb not null default '{}';   -- {bien, mejorar}

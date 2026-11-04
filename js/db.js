@@ -103,6 +103,41 @@ const DB = (() => {
     if (cambiado) guardar();
   }
 
+  /* ---------- SESIONES PROFESIONALES ----------
+     Antes una sesión tenía 4 partes con una lista de ejercicios.
+     Ahora tiene bloques con el contenido copiado de cada ejercicio.
+     Pasamos cada ejercicio antiguo a un bloque: no se pierde nada. */
+  function migrarSesiones() {
+    let cambiado = false;
+    datos.sesiones.forEach((s) => {
+      if (s.bloques || !s.partes) return;
+      const bloques = [];
+      ['calentamiento', 'tecnica', 'tactica', 'vuelta'].forEach((parte) => {
+        const p = s.partes[parte] || { duracion: 0, ejercicios: [] };
+        const ejercicios = (p.ejercicios || []).map((id) => Biblioteca.obtener(id)).filter(Boolean);
+        ejercicios.forEach((e) => {
+          bloques.push({
+            parte: e.parte, minutos: ejercicios.length === 1 ? Number(p.duracion) || e.duracion : e.duracion,
+            ejercicioId: e.id, nombre: e.nombre, descripcion: e.descripcion || '', reglas: [...(e.reglas || [])],
+            variantes: [...(e.variantes || [])], consignas: [...(e.consignas || [])], material: e.material || '', espacio: e.espacio || '',
+          });
+        });
+        if (!ejercicios.length && Number(p.duracion)) {
+          bloques.push({ parte, minutos: Number(p.duracion), ejercicioId: null, nombre: '', descripcion: '', reglas: [], variantes: [], consignas: [], material: '', espacio: '' });
+        }
+      });
+      // Ordenamos los bloques como en una sesión: calentamiento, técnica, táctica, juego, vuelta
+      const orden = Biblioteca.PARTES.map((p) => p.id);
+      s.bloques = bloques.sort((a, b) => orden.indexOf(a.parte) - orden.indexOf(b.parte));
+      const primera = Biblioteca.obtener(s.bloques.find((b) => b.parte === 'tecnica')?.ejercicioId);
+      s.objetivo = s.objetivo || primera?.objetivos?.[0] || '';
+      s.valoracion = s.valoracion || { bien: '', mejorar: '' };
+      delete s.partes;
+      cambiado = true;
+    });
+    if (cambiado) guardar();
+  }
+
   // Lee los datos del navegador (o crea unos vacíos la primera vez)
   function cargar() {
     try {
@@ -112,6 +147,7 @@ const DB = (() => {
         datos = Object.assign(datosVacios(), JSON.parse(texto));
         migrarAEquipos();
         simplificarJugadores();
+        migrarSesiones();
         return false; // no es la primera vez
       }
     } catch (e) {
@@ -279,6 +315,7 @@ const DB = (() => {
       datos = Object.assign(datosVacios(), obj.datos);
       migrarAEquipos(); // las copias antiguas (sin equipos) también se adaptan
       simplificarJugadores();
+      migrarSesiones();
       guardar();
     },
     // Borra absolutamente todo
