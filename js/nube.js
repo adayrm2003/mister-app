@@ -33,13 +33,14 @@ const Nube = {
   },
 
   // Colecciones de db.js que se guardan en la nube (y su tabla)
-  TABLAS: { jugadores: 'jugadores', sesiones: 'sesiones', preparaciones: 'preparaciones', partidos: 'partidos', ejercicios: 'ejercicios' },
+  // El orden importa: primero los equipos, porque lo demás pertenece a ellos
+  TABLAS: { equipos: 'equipos', jugadores: 'jugadores', sesiones: 'sesiones', preparaciones: 'preparaciones', partidos: 'partidos', ejercicios: 'ejercicios' },
   CLAVE: 'tranvia-nube-v1',
 
   cliente: null,
   sincronizando: false,
-  // Lo que recordamos entre visitas: quién eres, tus equipos y los cambios pendientes
-  estado: { usuario: null, perfil: null, equipos: [], cola: [], ultimaSync: null },
+  // Lo que recordamos entre visitas: quién eres y los cambios pendientes
+  estado: { usuario: null, perfil: null, cola: [], ultimaSync: null },
 
   /* ---------- ESTADO GUARDADO EN EL NAVEGADOR ---------- */
   leerEstado() {
@@ -53,8 +54,6 @@ const Nube = {
   conectado() { return !!Nube.estado.usuario; },
   usuarioId() { return Nube.estado.usuario?.id || null; },
   esDirectiva() { return Nube.estado.perfil?.rol === 'directiva'; },
-  // Entrenador registrado al que todavía no le han asignado equipo
-  pendiente() { return Nube.conectado() && !Nube.esDirectiva() && !Nube.estado.equipos.length; },
 
   /* ---------- ARRANQUE ---------- */
   iniciar() {
@@ -142,7 +141,7 @@ const Nube = {
   // Borra la sesión y los datos del club de este dispositivo
   olvidar() {
     Nube.vaciarDatosLocales();
-    Nube.estado = { usuario: null, perfil: null, equipos: [], cola: [], ultimaSync: null };
+    Nube.estado = { usuario: null, perfil: null, cola: [], ultimaSync: null };
     Nube.guardarEstado();
     location.hash = '#/entrar';
     App.refrescar();
@@ -163,31 +162,21 @@ const Nube = {
     return m;
   },
 
-  /* ---------- EQUIPOS ----------
-     En la app trabajamos por categoría; en la nube, por equipo.
-     Cada dato se asigna al primer equipo tuyo de esa categoría. */
-  equipoPara(categoria) {
-    return Nube.estado.equipos.find((e) => e.categoria === categoria) || null;
-  },
-  categoriaDe(equipoId) {
-    return Nube.estado.equipos.find((e) => e.id === equipoId)?.categoria || null;
-  },
-  equipoDe(obj) {
-    if (obj.equipoId && Nube.categoriaDe(obj.equipoId) === obj.categoria) return obj.equipoId;
-    return Nube.equipoPara(obj.categoria)?.id || null;
-  },
-
   /* ---------- TRADUCCIÓN app <-> base de datos ----------
      La app usa nombres como golesFavor; la base de datos, goles_favor. */
   aFila(coleccion, o) {
     const hora = (h) => (h ? h : null);
     const num = (n) => (n === '' || n === undefined || n === null ? null : Number(n));
-    if (coleccion === 'ejercicios') {
-      return { id: o.id, nombre: o.nombre, parte: o.parte, objetivos: o.objetivos || [], categorias: o.categorias || [],
-        duracion: num(o.duracion) || 10, material: o.material || null, descripcion: o.descripcion || null, compartido: !!o.compartido };
+    if (coleccion === 'equipos') {
+      return { id: o.id, nombre: o.nombre, categoria: o.categoria, modalidad: Number(o.modalidad) || 7, duracion: Number(o.duracion) || 75,
+        temporada: o.temporada || Evolucion.temporada() };
     }
-    const equipo_id = Nube.equipoDe(o);
-    if (!equipo_id) throw Object.assign(new Error(`No tienes ningún equipo de ${DB.categoria(o.categoria).nombre}`), { sinEquipo: true });
+    const equipo_id = o.equipoId;
+    if (!UI.esUuid(equipo_id)) throw new Error('Dato sin equipo válido');
+    if (coleccion === 'ejercicios') {
+      return { id: o.id, equipo_id, nombre: o.nombre, parte: o.parte, objetivos: o.objetivos || [], duracion: num(o.duracion) || 10,
+        material: o.material || null, descripcion: o.descripcion || null, datos: o.datos || {} };
+    }
     if (coleccion === 'jugadores') {
       return { id: o.id, equipo_id, nombre: o.nombre, edad: num(o.edad), altura: num(o.altura), peso: num(o.peso),
         posicion: o.posicion || null, dorsal: o.dorsal || null, valoraciones: o.valoraciones || {}, historial: o.historial || [],
@@ -210,12 +199,17 @@ const Nube = {
 
   aLocal(coleccion, f) {
     const hora = (h) => (h ? String(h).slice(0, 5) : '');
-    const base = { id: f.id, creado: f.creado };
-    if (coleccion === 'ejercicios') {
-      return { ...base, nombre: f.nombre, parte: f.parte, objetivos: f.objetivos, categorias: f.categorias, duracion: f.duracion,
-        material: f.material || '', descripcion: f.descripcion || '', compartido: f.compartido, autorId: f.autor_id };
+    // "nube: true" = este dato ya está guardado en la nube
+    const base = { id: f.id, creado: f.creado, nube: true };
+    if (coleccion === 'equipos') {
+      return { ...base, nombre: f.nombre, categoria: f.categoria, modalidad: f.modalidad, duracion: f.duracion, temporada: f.temporada };
     }
-    const comun = { ...base, equipoId: f.equipo_id, categoria: Nube.categoriaDe(f.equipo_id) || 'alevin' };
+    // La categoría de cada dato es la de su equipo (los equipos se descargan primero)
+    const comun = { ...base, equipoId: f.equipo_id, categoria: DB.obtener('equipos', f.equipo_id)?.categoria || 'alevin' };
+    if (coleccion === 'ejercicios') {
+      return { ...comun, nombre: f.nombre, parte: f.parte, objetivos: f.objetivos, duracion: f.duracion,
+        material: f.material || '', descripcion: f.descripcion || '', datos: f.datos || {} };
+    }
     if (coleccion === 'jugadores') {
       return { ...comun, nombre: f.nombre, edad: f.edad, altura: f.altura ?? '', peso: f.peso !== null ? Number(f.peso) : '',
         posicion: f.posicion || '', dorsal: f.dorsal || '', valoraciones: f.valoraciones, historial: f.historial, notas: f.notas,
@@ -250,8 +244,9 @@ const Nube = {
   async procesarCola() {
     if (!Nube.conectado() || !navigator.onLine || !Nube.estado.cola.length) return;
     await Nube.conectar();
-    const cola = [...Nube.estado.cola];
-    let sinEquipo = 0;
+    // Orden: primero crear equipos, luego sus datos, y borrar equipos al final
+    const peso = (op) => (op.coleccion === 'equipos' ? (op.tipo === 'borrar' ? 2 : 0) : 1);
+    const cola = [...Nube.estado.cola].sort((a, b) => peso(a) - peso(b));
     for (const op of cola) {
       const tabla = Nube.TABLAS[op.coleccion];
       let error = null;
@@ -264,11 +259,7 @@ const Nube = {
             const fila = Nube.aFila(op.coleccion, obj);
             ({ error } = await Nube.cliente.from(tabla).upsert(fila));
             // Marcamos el elemento como "ya está en la nube"
-            if (!error) {
-              if (fila.equipo_id) obj.equipoId = fila.equipo_id;
-              if (op.coleccion === 'ejercicios') obj.autorId = obj.autorId || Nube.usuarioId();
-              DB.guardar();
-            }
+            if (!error) { obj.nube = true; DB.guardar(); }
           }
         }
       } catch (e) {
@@ -278,37 +269,30 @@ const Nube = {
       // Hecho (o rechazado por la base de datos): lo quitamos de la cola
       Nube.estado.cola = Nube.estado.cola.filter((x) => !(x.id === op.id && x.tipo === op.tipo));
       Nube.guardarEstado();
-      if (error?.sinEquipo) sinEquipo++;
-      else if (error) {
+      if (error) {
         console.warn('Nube rechazó un cambio', op, error);
         UI.aviso('La nube no aceptó un cambio: ' + Nube.traducir(error), 'error');
       }
     }
-    if (sinEquipo) UI.aviso(`${sinEquipo} elemento(s) sin equipo asignado: se quedan solo en este dispositivo`, 'error');
   },
 
   /* ---------- DESCARGA ---------- */
   async descargar() {
     await Nube.conectar();
-    const yo = Nube.usuarioId();
-    const [perfil, equipos] = await Promise.all([
-      Nube.cliente.from('perfiles').select('*').eq('id', yo).maybeSingle(),
-      Nube.cliente.from('equipos').select('*').order('categoria'),
-    ]);
+    const perfil = await Nube.cliente.from('perfiles').select('*').eq('id', Nube.usuarioId()).maybeSingle();
     if (perfil.error) throw perfil.error;
     if (!perfil.data) { Nube.olvidar(); return; } // la cuenta ya no existe
     Nube.estado.perfil = perfil.data;
-    // Un entrenador ve solo sus equipos; la directiva los ve todos
-    Nube.estado.equipos = equipos.data || [];
 
+    // Un entrenador recibe solo sus equipos (y lo suyo); la directiva, todo el club
     const pendientes = new Set(Nube.estado.cola.map((x) => x.id));
     for (const [coleccion, tabla] of Object.entries(Nube.TABLAS)) {
       const { data, error } = await Nube.cliente.from(tabla).select('*');
       if (error) throw error;
       const deLaNube = data.map((f) => Nube.aLocal(coleccion, f));
       // Se conserva tal cual lo que aún no se ha subido desde este móvil:
-      // cambios en cola y datos creados antes de usar la nube (sin equipoId/autorId)
-      const locales = DB.lista(coleccion).filter((x) => !x.ejemplo && (pendientes.has(x.id) || (!x.equipoId && !x.autorId)));
+      // cambios en cola y datos que nunca llegaron a la nube
+      const locales = DB.lista(coleccion).filter((x) => !x.ejemplo && (pendientes.has(x.id) || !x.nube));
       const ids = new Set(locales.map((x) => x.id));
       DB.reemplazar(coleccion, deLaNube.filter((x) => !ids.has(x.id)).concat(locales));
     }
@@ -339,7 +323,8 @@ const Nube = {
      los cambiamos por UUID (también en todas las referencias) y lo
      ponemos en la cola. Los datos de ejemplo no se suben. */
   locales() {
-    return Object.keys(Nube.TABLAS).flatMap((c) => DB.lista(c).filter((x) => !x.ejemplo && !x.equipoId && !x.autorId).map((x) => ({ c, x })));
+    const pendientes = new Set(Nube.estado.cola.map((x) => x.id));
+    return Object.keys(Nube.TABLAS).flatMap((c) => DB.lista(c).filter((x) => !x.ejemplo && !x.nube && !pendientes.has(x.id)).map((x) => ({ c, x })));
   },
   async subirLocales() {
     const items = Nube.locales();
@@ -376,7 +361,6 @@ const Nube = {
     const { error } = await promesa;
     if (error) throw new Error(Nube.traducir(error));
   },
-  crearEquipo(datos) { return Nube.consulta(Nube.cliente.from('equipos').insert(datos)); },
   borrarEquipo(id) { return Nube.consulta(Nube.cliente.from('equipos').delete().eq('id', id)); },
   asignar(equipo_id, entrenador_id) { return Nube.consulta(Nube.cliente.from('equipo_entrenadores').insert({ equipo_id, entrenador_id })); },
   quitar(equipo_id, entrenador_id) { return Nube.consulta(Nube.cliente.from('equipo_entrenadores').delete().eq('equipo_id', equipo_id).eq('entrenador_id', entrenador_id)); },

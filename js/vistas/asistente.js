@@ -13,10 +13,19 @@ Vistas.asistente = {
   eleccion: { categoria: null, objetivo: 'pase', duracion: 75 },
   propuesta: null,
   semilla: 1,
+  equipoId: null, // equipo para el que se hizo la última propuesta
 
   pintar() {
     const e = this.eleccion;
-    if (!e.categoria) e.categoria = DB.ajuste('categoria') && DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin';
+    const eq = DB.equipo();
+    // Al cambiar de equipo, el generador toma su categoría y su duración habitual
+    if (this.equipoId !== eq.id) {
+      this.equipoId = eq.id;
+      this.propuesta = null;
+      e.duracion = eq.duracion;
+    }
+    e.categoria = eq.categoria;
+    const duraciones = [...new Set([45, 60, 75, 90, eq.duracion])].sort((a, b) => a - b);
     const jugados = Partidos.lista().filter((p) => p.jugado).reverse().slice(0, 6);
 
     return `
@@ -29,15 +38,14 @@ Vistas.asistente = {
 
       <div class="seccion-titulo"><h2>Generador de sesiones</h2></div>
       <section class="tarjeta">
-        <div class="campo"><label for="g-cat">Categoría</label>
-          <select id="g-cat">${DB.CATEGORIAS.map((c) => `<option value="${c.id}" ${e.categoria === c.id ? 'selected' : ''}>${c.nombre} (${c.edades})</option>`).join('')}</select></div>
+        <p class="texto-suave peq" style="margin-bottom:12px">Para ${UI.esc(eq.nombre)} · ${DB.categoria(eq.categoria).nombre}</p>
         <span class="etiqueta-campo">Objetivo principal</span>
         <div class="chips-check" style="margin-top:6px">
           ${Biblioteca.OBJETIVOS.map((o) => `<label class="chip-check"><input type="radio" name="g-obj" value="${o.id}" ${e.objetivo === o.id ? 'checked' : ''}><span>${o.nombre}</span></label>`).join('')}
         </div>
         <span class="etiqueta-campo">Duración</span>
         <div class="segmentado" style="margin-top:6px">
-          ${[45, 60, 75, 90].map((d) => `<button type="button" class="${e.duracion === d ? 'activo' : ''}" data-accion="g-duracion" data-min="${d}">${d} min</button>`).join('')}
+          ${duraciones.map((d) => `<button type="button" class="${e.duracion === d ? 'activo' : ''}" data-accion="g-duracion" data-min="${d}">${d} min</button>`).join('')}
         </div>
         <button class="btn btn-rojo btn-bloque" data-accion="generar-sesion">${UI.icono('chispa')} Generar entrenamiento</button>
       </section>
@@ -120,7 +128,7 @@ Vistas.asistente = {
 // Lee lo elegido en el formulario del generador
 function leerEleccion() {
   const e = Vistas.asistente.eleccion;
-  e.categoria = document.getElementById('g-cat').value;
+  e.categoria = DB.equipo().categoria;
   e.objetivo = document.querySelector('input[name="g-obj"]:checked')?.value || 'pase';
 }
 

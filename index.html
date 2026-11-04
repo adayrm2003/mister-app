@@ -55,11 +55,12 @@
     </button>
     <a href="#/inicio" class="cab-marca" aria-label="Inicio">
       <img src="assets/icons/escudo-512.png" alt="Escudo C.D. El Tranvía" class="cab-escudo">
-      <div class="cab-textos">
-        <span class="cab-club">C.D. El Tranvía</span>
-        <span class="cab-titulo" id="titulo-vista">Inicio</span>
-      </div>
     </a>
+    <!-- SELECTOR DE EQUIPO: muestra el equipo activo; al tocarlo, se cambia de equipo -->
+    <button class="cab-equipo" id="selector-equipo" data-accion="elegir-equipo" aria-label="Cambiar de equipo">
+      <span class="cab-club" id="equipo-detalle">C.D. El Tranvía</span>
+      <span class="cab-titulo"><span id="titulo-vista">Inicio</span><svg class="ico peq"><use href="#i-abajo"/></svg></span>
+    </button>
     <div class="cab-acciones">
       <button class="cab-btn" id="btn-tema" aria-label="Cambiar modo claro/oscuro">
         <svg class="ico"><use href="#i-luna"/></svg>
@@ -104,6 +105,7 @@
       <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
       <symbol id="i-atras" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
       <symbol id="i-adelante" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+      <symbol id="i-abajo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
       <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
       <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
       <symbol id="i-editar" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
@@ -152,6 +154,7 @@
   <script src="js/ia.js"></script>
   <script src="js/vistas/asistente.js"></script>
   <script src="js/vistas/ajustes.js"></script>
+  <script src="js/vistas/equipos.js"></script>
   <script src="js/nube.js"></script>
   <script src="js/vistas/cuenta.js"></script>
   <script src="js/app.js"></script>

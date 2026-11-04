@@ -149,6 +149,10 @@ const UI = {
     if (!iso) return '';
     return new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   },
+  // "1 jugador", "3 jugadores"
+  plural(n, singular, plural = singular + 's') {
+    return `${n} ${n === 1 ? singular : plural}`;
+  },
   // Pone en mayúscula la primera letra: "sábado" -> "Sábado"
   mayuscula(texto) {
     return texto ? texto[0].toUpperCase() + texto.slice(1) : '';

@@ -143,11 +143,21 @@ img { max-width: 100%; }
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
   background: linear-gradient(90deg, var(--rojo) 0 50%, #0272BB 50% 100%);
 }
-.cab-marca { display: flex; align-items: center; gap: 10px; color: #fff; flex: 1; min-width: 0; }
+.cab-marca { display: flex; align-items: center; flex: none; }
 .cab-escudo { width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
-.cab-textos { display: flex; flex-direction: column; min-width: 0; }
-.cab-club { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .7; font-weight: 600; }
-.cab-titulo { font-family: var(--fuente-titulos); font-size: 22px; font-weight: 700; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Selector de equipo: el nombre del equipo activo con una flecha */
+.cab-equipo {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start;
+  border: 0; background: transparent; color: #fff; text-align: left; padding: 4px 8px; border-radius: 12px;
+  transition: background .2s;
+}
+.cab-equipo:hover, .cab-equipo:active { background: rgba(255,255,255,.1); }
+.cab-equipo.sin-equipo { pointer-events: none; }
+.cab-equipo.sin-equipo .ico { display: none; }
+.cab-club { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; opacity: .7; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.cab-titulo { font-family: var(--fuente-titulos); font-size: 22px; font-weight: 700; letter-spacing: .4px; display: flex; align-items: center; gap: 4px; max-width: 100%; }
+.cab-titulo > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cab-titulo .ico { width: 18px; height: 18px; opacity: .8; }
 .cab-acciones { display: flex; gap: 4px; }
 .cab-btn {
   display: grid; place-items: center; width: 42px; height: 42px;
@@ -656,6 +666,23 @@ details summary { color: var(--azul); }
 .cronica p { line-height: 1.6; }
 code { font-size: 12.5px; background: var(--superficie-2); padding: 1px 5px; border-radius: 5px; }
 
+/* ----- Mis equipos ----- */
+/* Categorías como tarjetas de color (formulario de equipo) */
+.opciones-cat { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin: 6px 0 16px; }
+.opcion-cat input { position: absolute; opacity: 0; pointer-events: none; }
+.opcion-cat span {
+  display: flex; flex-direction: column; gap: 1px; padding: 10px 12px; border-radius: var(--radio-peq);
+  border: 2px solid var(--borde); background: var(--superficie-2); cursor: pointer; transition: all .15s;
+  border-left: 5px solid var(--c);
+}
+.opcion-cat b { font-size: 13.5px; overflow-wrap: anywhere; }
+.opcion-cat small { font-size: 11.5px; color: var(--texto-suave); }
+.opcion-cat input:checked + span { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, var(--superficie)); }
+.opcion-cat input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--azul) 50%, transparent); }
+.chips-check .duracion-libre { width: 90px; min-height: 38px; padding: 6px 10px; }
+.equipo-fila.activo { border-color: var(--verde); box-shadow: 0 0 0 1px var(--verde), var(--sombra); }
+.acceso .tarjeta form { text-align: left; }
+
 /* ----- Fase 6: acceso y club ----- */
 .acceso { max-width: 420px; margin: 0 auto; text-align: center; padding-top: 10px; }
 .acceso .tarjeta { text-align: left; }
@@ -680,7 +707,8 @@ body.sin-menu main { padding-bottom: 32px; }
 @media (min-width: 900px) {
   body { padding-left: 240px; }
   .cabecera { margin-left: -240px; padding-left: 20px; }
-  .cab-marca { flex: none; width: 236px; }
+  .cab-marca { width: 52px; }
+  .cab-equipo { flex: none; width: 260px; }
   .cab-acciones { margin-left: auto; }
   .menu {
     top: calc(var(--alto-cabecera) + var(--seguro-arriba)); bottom: 0; right: auto; width: 240px; height: auto;

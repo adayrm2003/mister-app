@@ -217,7 +217,7 @@ const Asistente = (() => {
     const aviso = golesApuntados !== gf ? `Ojo: hay ${golesApuntados} goles apuntados a jugadores y el marcador dice ${gf}${golesApuntados < gf ? ' (¿algún gol en propia puerta del rival?)' : ''}.` : null;
 
     // Siguiente partido
-    const siguiente = Partidos.lista(p.categoria).find((x) => !x.jugado && x.fecha > p.fecha);
+    const siguiente = Partidos.lista(p.equipoId).find((x) => !x.jugado && x.fecha > p.fecha);
     if (siguiente) parrafos.push(`Próxima cita: ${UI.fechaCorta(siguiente.fecha)} ante ${siguiente.rival}. ¡Vamos Tranvía! 🔴🔵`);
     else parrafos.push('¡Vamos Tranvía! 🔴🔵');
 

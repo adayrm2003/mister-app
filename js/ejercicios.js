@@ -179,9 +179,11 @@ const Biblioteca = (() => {
     estilo(id) { return ESTILOS_RIVAL.find((o) => o.id === id) || { id, nombre: id }; },
 
     // Ejercicios adecuados para una categoría (y opcionalmente para una parte)
+    // (los propios: solo los del equipo activo, que ya son de su categoría)
     para(categoria, parte) {
+      const equipoId = DB.equipo()?.id;
       return this.todos().filter((e) =>
-        (!categoria || categoria === 'todas' || (e.categorias || TODAS).includes(categoria)) &&
+        (e.propio ? e.equipoId === equipoId : !categoria || (e.categorias || TODAS).includes(categoria)) &&
         (!parte || e.parte === parte));
     },
 

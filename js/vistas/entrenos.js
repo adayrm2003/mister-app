@@ -45,10 +45,9 @@ const Entrenos = {
     return { total, presentes, pct: total ? Math.round((presentes / total) * 100) : null };
   },
 
-  // Sesiones de la categoría elegida, ordenadas por fecha
-  sesiones(categoria = DB.ajuste('categoria')) {
-    return DB.lista('sesiones')
-      .filter((s) => !categoria || categoria === 'todas' || s.categoria === categoria)
+  // Sesiones de un equipo (por defecto, el activo), ordenadas por fecha
+  sesiones(equipoId = DB.equipo()?.id) {
+    return DB.delEquipo('sesiones', equipoId)
       .sort((a, b) => (a.fecha + (a.hora || '')).localeCompare(b.fecha + (b.hora || '')));
   },
 
@@ -114,7 +113,6 @@ Vistas.entrenos = {
       <div class="segmentado">
         ${pestañas.map(([id, t]) => `<a href="#/entrenos/${id}" class="${seccion === id ? 'activo' : ''}">${t}</a>`).join('')}
       </div>
-      ${Vistas.plantilla.chipsCategorias('filtrar-categoria')}
       ${cuerpo}
     `;
   },
@@ -159,16 +157,14 @@ Vistas.entrenos = {
   },
   listaEjercicios() {
     const q = UI.normalizar(this.busqueda);
-    const lista = Biblioteca.para(DB.ajuste('categoria'), this.parteFiltro === 'todas' ? null : this.parteFiltro)
+    const lista = Biblioteca.para(DB.equipo().categoria, this.parteFiltro === 'todas' ? null : this.parteFiltro)
       .filter((e) => !q || UI.normalizar(e.nombre + ' ' + (e.objetivos || []).map((o) => Biblioteca.objetivo(o).nombre).join(' ') + ' ' + e.descripcion).includes(q));
     return lista.map((e) => Entrenos.itemEjercicio(e)).join('') || UI.vacio('balon', 'Sin ejercicios', 'Prueba con otra categoría o crea uno propio.');
   },
 
   /* --- Sección: preparar rival --- */
   rivales() {
-    const cat = DB.ajuste('categoria');
-    const lista = DB.lista('preparaciones')
-      .filter((p) => !cat || cat === 'todas' || p.categoria === cat)
+    const lista = DB.delEquipo('preparaciones')
       .sort((a, b) => b.fecha.localeCompare(a.fecha));
     return `
       <div class="aviso-info azul">${UI.icono('diana')}<div>Apunta cómo juega el rival y la app te sugiere <b>ejercicios para contrarrestarlo</b>. Luego puedes convertirlos en una sesión.</div></div>
@@ -257,7 +253,7 @@ Vistas.sesion = {
 
   // Lista para pasar asistencia
   asistenciaHTML(s) {
-    const jugadores = DB.jugadoresDe(s.categoria);
+    const jugadores = DB.jugadoresDe(s.equipoId);
     const r = Entrenos.resumenAsistencia(s);
     return `
       <div class="seccion-titulo"><h2>Asistencia</h2>
@@ -339,16 +335,13 @@ Vistas.rival = {
 
 /* ---------- FORMULARIOS ---------- */
 function formularioSesion(s = {}) {
-  const cat = s.categoria || (DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin');
   const partes = s.partes || Entrenos.partesVacias();
   return `
     <div class="campo"><label for="s-titulo">Título</label>
       <input type="text" id="s-titulo" name="titulo" maxlength="60" value="${UI.esc(s.titulo)}" placeholder="Ej.: Pase y desmarque"></div>
-    <div class="rejilla-3">
+    <div class="rejilla-2">
       <div class="campo"><label for="s-fecha">Fecha *</label><input type="date" id="s-fecha" name="fecha" value="${s.fecha || UI.hoyISO()}"></div>
       <div class="campo"><label for="s-hora">Hora</label><input type="time" id="s-hora" name="hora" value="${s.hora || '18:00'}"></div>
-      <div class="campo"><label for="s-cat">Categoría</label>
-        <select id="s-cat" name="categoria">${DB.CATEGORIAS.map((c) => `<option value="${c.id}" ${cat === c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}</select></div>
     </div>
     <span class="etiqueta-campo">Duración de cada parte (minutos)</span>
     <div class="rejilla-2 mt" style="margin-top:6px">
@@ -364,11 +357,10 @@ function leerSesion(form, anterior = {}) {
   if (!d.fecha) { UI.aviso('Indica la fecha', 'error'); return null; }
   const partes = anterior.partes ? JSON.parse(JSON.stringify(anterior.partes)) : Entrenos.partesVacias();
   Biblioteca.PARTES.forEach((p) => { partes[p.id].duracion = Number(d['dur-' + p.id]) || 0; });
-  return { titulo: d.titulo || 'Entrenamiento', fecha: d.fecha, hora: d.hora, categoria: d.categoria, notas: d.notas, partes };
+  return { titulo: d.titulo || 'Entrenamiento', fecha: d.fecha, hora: d.hora, notas: d.notas, partes };
 }
 
 function formularioEjercicio(e = {}) {
-  const cats = e.categorias || [DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin'];
   return `
     <div class="campo"><label for="e-nombre">Nombre *</label><input type="text" id="e-nombre" name="nombre" maxlength="60" value="${UI.esc(e.nombre)}"></div>
     <div class="rejilla-2">
@@ -380,32 +372,23 @@ function formularioEjercicio(e = {}) {
       <div class="campo"><label for="e-material">Material</label><input type="text" id="e-material" name="material" maxlength="80" value="${UI.esc(e.material)}" placeholder="Conos, petos…"></div>
     </div>
     <div class="campo"><label for="e-desc">Descripción</label><textarea id="e-desc" name="descripcion" placeholder="Cómo se organiza, reglas, variantes…">${UI.esc(e.descripcion)}</textarea></div>
-    <span class="etiqueta-campo">Categorías para las que sirve</span>
-    <div class="chips-check mt" style="margin-top:6px">
-      ${DB.CATEGORIAS.map((c) => `<label class="chip-check"><input type="checkbox" name="cat-${c.id}" ${cats.includes(c.id) ? 'checked' : ''}><span>${c.nombre}</span></label>`).join('')}
-    </div>
-    ${Nube.conectado() ? `<label class="chip-check"><input type="checkbox" name="compartido" ${e.compartido ? 'checked' : ''}><span>${UI.icono('compartir', 'peq')} Compartir con todo el club</span></label>` : ''}
+    <p class="texto-suave peq">Se guarda en la biblioteca de ${UI.esc(DB.equipo().nombre)}.</p>
   `;
 }
 
 function leerEjercicio(form) {
   const d = UI.leerFormulario(form);
   if (!d.nombre) { UI.aviso('Escribe un nombre', 'error'); return null; }
-  const categorias = DB.CATEGORIAS.filter((c) => d['cat-' + c.id]).map((c) => c.id);
-  if (!categorias.length) { UI.aviso('Marca al menos una categoría', 'error'); return null; }
-  return { nombre: d.nombre, parte: d.parte, objetivos: [d.objetivo], duracion: Number(d.duracion) || 10, material: d.material, descripcion: d.descripcion, categorias, compartido: !!d.compartido };
+  return { nombre: d.nombre, parte: d.parte, objetivos: [d.objetivo], duracion: Number(d.duracion) || 10, material: d.material, descripcion: d.descripcion };
 }
 
 function formularioPreparacion(p = {}) {
-  const cat = p.categoria || (DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin');
   // Por defecto, el próximo sábado
   const sabado = UI.sumarDias(UI.hoyISO(), (6 - new Date().getDay() + 7) % 7 || 7);
   return `
     <div class="campo"><label for="p-rival">Rival *</label><input type="text" id="p-rival" name="rival" maxlength="40" value="${UI.esc(p.rival)}" placeholder="Ej.: U.D. Ofra"></div>
-    <div class="rejilla-3">
+    <div class="rejilla-2">
       <div class="campo"><label for="p-fecha">Fecha</label><input type="date" id="p-fecha" name="fecha" value="${p.fecha || sabado}"></div>
-      <div class="campo"><label for="p-cat">Categoría</label>
-        <select id="p-cat" name="categoria">${DB.CATEGORIAS.map((c) => `<option value="${c.id}" ${cat === c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}</select></div>
       <div class="campo"><label for="p-sistema">Su sistema</label><input type="text" id="p-sistema" name="sistema" maxlength="12" value="${UI.esc(p.sistema)}" placeholder="1-4-4-2"></div>
     </div>
     <span class="etiqueta-campo">¿Cómo juega?</span>
@@ -423,7 +406,7 @@ function leerPreparacion(form) {
   const d = UI.leerFormulario(form);
   if (!d.rival) { UI.aviso('Escribe el nombre del rival', 'error'); return null; }
   return {
-    rival: d.rival, fecha: d.fecha || UI.hoyISO(), categoria: d.categoria, sistema: d.sistema,
+    rival: d.rival, fecha: d.fecha || UI.hoyISO(), sistema: d.sistema,
     estilos: Biblioteca.ESTILOS_RIVAL.filter((e) => d['est-' + e.id]).map((e) => e.id),
     fuertes: d.fuertes, debiles: d.debiles, vigilar: d.vigilar, notas: d.notas,
   };
@@ -460,7 +443,7 @@ Acciones['editar-sesion'] = (el) => {
 Acciones['duplicar-sesion'] = (el) => {
   const s = DB.obtener('sesiones', el.dataset.id);
   const copia = JSON.parse(JSON.stringify(s));
-  delete copia.id; delete copia.ejemplo; delete copia.creado;
+  delete copia.id; delete copia.ejemplo; delete copia.creado; delete copia.nube;
   copia.fecha = UI.sumarDias(s.fecha, 7); // la misma sesión, una semana después
   copia.asistencia = {};
   const nueva = DB.crear('sesiones', copia);
@@ -520,7 +503,7 @@ Acciones['asistencia'] = (el) => {
 Acciones['todos-presentes'] = (el) => {
   const s = DB.obtener('sesiones', el.dataset.id);
   const asistencia = {};
-  DB.jugadoresDe(s.categoria).forEach((j) => { asistencia[j.id] = 'si'; });
+  DB.jugadoresDe(s.equipoId).forEach((j) => { asistencia[j.id] = 'si'; });
   DB.actualizar('sesiones', s.id, { asistencia });
   UI.aviso('Todos marcados como presentes');
   App.refrescar();
@@ -549,10 +532,9 @@ Acciones['ver-ejercicio'] = (el, ev) => {
       </div>
       <h3>Descripción</h3><p class="mt" style="margin-top:6px;white-space:pre-line">${UI.esc(e.descripcion || '—')}</p>
       <h3 class="mt">Material</h3><p style="margin-top:6px">${UI.esc(e.material || '—')}</p>
-      <h3 class="mt">Categorías</h3><p style="margin-top:6px">${(e.categorias || Biblioteca.ORDEN).map((c) => DB.categoria(c).nombre).join(', ')}</p>
+      ${e.propio ? `<p class="texto-suave peq mt">Ejercicio propio de ${UI.esc(DB.obtener('equipos', e.equipoId)?.nombre || 'tu equipo')}.</p>` : `<h3 class="mt">Categorías</h3><p style="margin-top:6px">${(e.categorias || Biblioteca.ORDEN).map((c) => DB.categoria(c).nombre).join(', ')}</p>`}
       ${(e.contra || []).length ? `<h3 class="mt">Útil contra rivales que…</h3><p style="margin-top:6px">${e.contra.map((c) => Biblioteca.estilo(c).nombre.toLowerCase()).join(', ')}</p>` : ''}
-      ${e.autorId && e.autorId !== Nube.usuarioId() ? '<p class="texto-suave peq mt">Compartido por otro entrenador del club.</p>' : ''}
-      ${e.propio && (!e.autorId || e.autorId === Nube.usuarioId()) ? `<div class="fila-botones mt">
+      ${e.propio ? `<div class="fila-botones mt">
         <button type="button" class="btn btn-primario" data-accion="editar-ejercicio" data-id="${e.id}">${UI.icono('editar')} Editar</button>
         <button type="button" class="btn btn-peligro" data-accion="borrar-ejercicio" data-id="${e.id}">${UI.icono('papelera')} Borrar</button></div>` : ''}
     `,
@@ -661,7 +643,7 @@ Acciones['sesion-desde-rival'] = (el) => {
   // La sesión, dos días antes del partido (o hoy si ya no da tiempo)
   const fecha = UI.diasHasta(p.fecha) > 2 ? UI.sumarDias(p.fecha, -2) : UI.hoyISO();
   const nueva = DB.crear('sesiones', {
-    titulo: 'Preparación vs ' + p.rival, fecha, hora: '18:00', categoria: p.categoria,
+    titulo: 'Preparación vs ' + p.rival, fecha, hora: '18:00', equipoId: p.equipoId,
     partes, asistencia: {}, preparacionId: p.id,
     notas: [p.debiles && 'Atacar: ' + p.debiles, p.fuertes && 'Cuidado con: ' + p.fuertes].filter(Boolean).join('\n'),
   });

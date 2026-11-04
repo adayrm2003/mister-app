@@ -7,8 +7,9 @@
    se pierde. Por eso existe la copia de seguridad.)
 
    Los datos se organizan en "colecciones" (listas):
-     jugadores, ejercicios, sesiones, preparaciones, partidos
-   y un apartado de "ajustes".
+     equipos, y de cada equipo: jugadores, ejercicios, sesiones,
+     preparaciones y partidos (cada uno lleva el "equipoId" de su equipo)
+   y un apartado de "ajustes" (tema, equipo activo…).
 
    El resto de la app NUNCA toca localStorage directamente:
    siempre pasa por DB.lista(), DB.crear(), DB.actualizar()…
@@ -20,7 +21,8 @@ const DB = (() => {
   const CLAVE = 'tranvia-datos-v1'; // nombre del "cajón" en el navegador
 
   /* Categorías del fútbol base en Tenerife.
-     "futbol" indica si juegan fútbol 7 o fútbol 11 (para la pizarra). */
+     "futbol" es la modalidad que se propone al crear un equipo (7 u 11);
+     luego cada equipo elige la suya (7, 8 u 11). */
   const CATEGORIAS = [
     { id: 'prebenjamin', nombre: 'Prebenjamín', edades: '6-7',  min: 6,  max: 7,  futbol: 7,  color: '#F2B705', color2: '#C77700' },
     { id: 'benjamin',    nombre: 'Benjamín',    edades: '8-9',  min: 8,  max: 9,  futbol: 7,  color: '#12A150', color2: '#0B6B35' },
@@ -41,20 +43,54 @@ const DB = (() => {
 
   const POSICIONES = ['Portero', 'Defensa', 'Centrocampista', 'Delantero'];
 
+  const MODALIDADES = [7, 8, 11];
+
+  // Colecciones cuyos elementos pertenecen a un equipo
+  const DEL_EQUIPO = ['jugadores', 'ejercicios', 'sesiones', 'preparaciones', 'partidos'];
+
   // Cómo son los datos cuando la app está recién instalada
   function datosVacios() {
     return {
-      version: 1,
+      version: 2,
+      equipos: [],        // { id, nombre, categoria, modalidad, duracion }
       jugadores: [],
       ejercicios: [],     // ejercicios creados por el entrenador (los precargados están en ejercicios.js)
       sesiones: [],       // entrenamientos
       preparaciones: [],  // preparación del partido de la semana
       partidos: [],
-      ajustes: { tema: 'auto', categoria: 'todas', entrenador: '' },
+      ajustes: { tema: 'auto', equipoActivo: null, entrenador: '' },
     };
   }
 
   let datos = null;
+
+  /* ---------- PASO A "MIS EQUIPOS" ----------
+     Antes los datos se separaban solo por categoría. Si hay datos sin
+     equipo, creamos un equipo por cada categoría usada y los metemos
+     ahí. Así no se pierde nada. (Lo de ejemplo va a equipos de ejemplo.) */
+  function migrarAEquipos() {
+    const sinEquipo = DEL_EQUIPO.flatMap((c) => datos[c].filter((x) => !x.equipoId).map((x) => ({ c, x })));
+    if (!sinEquipo.length) return;
+    const equipoPara = (categoria, ejemplo) => {
+      let eq = datos.equipos.find((e) => e.categoria === categoria && !!e.ejemplo === !!ejemplo);
+      if (!eq) {
+        const cat = CATEGORIAS.find((c) => c.id === categoria) || CATEGORIAS[2];
+        eq = { id: UI.id(), creado: new Date().toISOString(), nombre: cat.nombre + (ejemplo ? ' (ejemplo)' : ''),
+          categoria: cat.id, modalidad: cat.futbol, duracion: 75, ...(ejemplo ? { ejemplo: true } : {}) };
+        datos.equipos.push(eq);
+      }
+      return eq;
+    };
+    sinEquipo.forEach(({ x }) => {
+      // Los ejercicios propios tenían una lista de categorías: usamos la primera
+      const categoria = x.categoria || (x.categorias || [])[0] || 'alevin';
+      const eq = equipoPara(categoria, x.ejemplo);
+      x.equipoId = eq.id;
+      x.categoria = eq.categoria;
+    });
+    delete datos.ajustes.categoria;
+    guardar();
+  }
 
   // Lee los datos del navegador (o crea unos vacíos la primera vez)
   function cargar() {
@@ -63,6 +99,7 @@ const DB = (() => {
       if (texto) {
         // "Mezclamos" con los datos vacíos por si en versiones nuevas añadimos colecciones
         datos = Object.assign(datosVacios(), JSON.parse(texto));
+        migrarAEquipos();
         return false; // no es la primera vez
       }
     } catch (e) {
@@ -82,20 +119,29 @@ const DB = (() => {
   }
 
   return {
-    CATEGORIAS, ASPECTOS, POSICIONES,
+    CATEGORIAS, ASPECTOS, POSICIONES, MODALIDADES, DEL_EQUIPO,
     cargar, guardar,
 
     // Lista completa de una colección. Ej: DB.lista('jugadores')
     lista(coleccion) {
       return datos[coleccion] || [];
     },
+    // Lo de una colección que pertenece al equipo activo. Ej: DB.delEquipo('partidos')
+    delEquipo(coleccion, equipoId = this.equipo()?.id) {
+      return (datos[coleccion] || []).filter((x) => x.equipoId === equipoId);
+    },
     // Busca un elemento por su id
     obtener(coleccion, id) {
       return (datos[coleccion] || []).find((x) => x.id === id);
     },
-    // Añade un elemento nuevo y lo devuelve (con su id)
+    // Añade un elemento nuevo y lo devuelve (con su id).
+    // Si es de un equipo, se apunta al equipo activo y toma su categoría.
     crear(coleccion, objeto) {
-      const nuevo = { id: UI.id(), creado: new Date().toISOString(), ...objeto };
+      let nuevo = { id: UI.id(), creado: new Date().toISOString(), ...objeto };
+      if (DEL_EQUIPO.includes(coleccion)) {
+        const eq = this.obtener('equipos', nuevo.equipoId) || this.equipo();
+        nuevo = { ...nuevo, equipoId: eq?.id, categoria: eq?.categoria };
+      }
       datos[coleccion].push(nuevo);
       guardar();
       this.avisar(coleccion, 'guardar', nuevo);
@@ -132,9 +178,46 @@ const DB = (() => {
       guardar();
     },
 
-    // Ajustes (tema, categoría elegida…)
+    // Ajustes (tema, equipo activo…)
     ajuste(clave) { return datos.ajustes[clave]; },
     cambiarAjuste(clave, valor) { datos.ajustes[clave] = valor; guardar(); },
+
+    /* ---------- EQUIPOS ---------- */
+    // Lista de equipos, por orden alfabético
+    equipos() {
+      return [...datos.equipos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    },
+    // El equipo activo (si el guardado ya no existe, el primero de la lista)
+    equipo() {
+      const eq = this.obtener('equipos', datos.ajustes.equipoActivo) || this.equipos()[0] || null;
+      if (eq && datos.ajustes.equipoActivo !== eq.id) this.cambiarAjuste('equipoActivo', eq.id);
+      return eq;
+    },
+    cambiarEquipo(id) { this.cambiarAjuste('equipoActivo', id); },
+    // Categoría del equipo activo (objeto con nombre, edades…)
+    categoriaActiva() {
+      return this.categoria(this.equipo()?.categoria);
+    },
+    // Cambia los datos de un equipo. Si cambia la categoría, sus datos la heredan.
+    actualizarEquipo(id, cambios) {
+      const eq = this.actualizar('equipos', id, cambios);
+      if (eq && cambios.categoria) {
+        DEL_EQUIPO.forEach((c) => datos[c].forEach((x) => { if (x.equipoId === id) x.categoria = eq.categoria; }));
+        guardar();
+      }
+      return eq;
+    },
+    // Borra un equipo y todo lo suyo. En la nube, la base de datos borra
+    // lo del equipo sola ("en cascada"), así que aquí solo se avisa del equipo.
+    borrarEquipo(id) {
+      DEL_EQUIPO.forEach((c) => { datos[c] = datos[c].filter((x) => x.equipoId !== id); });
+      this.borrar('equipos', id);
+      if (datos.ajustes.equipoActivo === id) this.cambiarAjuste('equipoActivo', this.equipos()[0]?.id || null);
+    },
+    // Cuántas cosas tiene un equipo (para avisar antes de borrarlo)
+    resumenEquipo(id) {
+      return { jugadores: this.delEquipo('jugadores', id).length, sesiones: this.delEquipo('sesiones', id).length, partidos: this.delEquipo('partidos', id).length };
+    },
 
     /* ---------- AYUDAS DE CATEGORÍAS Y JUGADORES ---------- */
     categoria(id) {
@@ -153,30 +236,29 @@ const DB = (() => {
       const notas = ASPECTOS.map((a) => Number(v[a.id]) || 0);
       return notas.reduce((s, n) => s + n, 0) / ASPECTOS.length;
     },
-    // Jugadores filtrados por categoría ('todas' = todos), ordenados por nombre
-    jugadoresDe(categoria) {
-      return datos.jugadores
-        .filter((j) => !categoria || categoria === 'todas' || j.categoria === categoria)
-        .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    // Jugadores de un equipo (por defecto, el activo), ordenados por nombre
+    jugadoresDe(equipoId = this.equipo()?.id) {
+      return this.delEquipo('jugadores', equipoId).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     },
 
     /* ---------- DATOS DE EJEMPLO ---------- */
     // Todo lo inventado lleva la marca "ejemplo: true"
     hayEjemplo() {
-      return ['jugadores', 'sesiones', 'partidos', 'preparaciones', 'ejercicios']
-        .some((c) => (datos[c] || []).some((x) => x.ejemplo));
+      return ['equipos', ...DEL_EQUIPO].some((c) => (datos[c] || []).some((x) => x.ejemplo));
     },
     borrarEjemplo() {
-      ['jugadores', 'sesiones', 'partidos', 'preparaciones', 'ejercicios'].forEach((c) => {
+      ['equipos', ...DEL_EQUIPO].forEach((c) => {
         datos[c] = (datos[c] || []).filter((x) => !x.ejemplo);
       });
+      if (!this.obtener('equipos', datos.ajustes.equipoActivo)) datos.ajustes.equipoActivo = this.equipos()[0]?.id || null;
       guardar();
     },
-    // Mete los datos de ejemplo (ver datos-ejemplo.js)
+    // Mete los datos de ejemplo (ver datos-ejemplo.js) y activa el primer equipo de ejemplo
     cargarEjemplo(paquete) {
       Object.keys(paquete).forEach((c) => {
         datos[c] = (datos[c] || []).filter((x) => !x.ejemplo).concat(paquete[c]);
       });
+      if (paquete.equipos?.length) datos.ajustes.equipoActivo = paquete.equipos[0].id;
       guardar();
     },
 
@@ -192,6 +274,7 @@ const DB = (() => {
         throw new Error('El archivo no es una copia de esta app');
       }
       datos = Object.assign(datosVacios(), obj.datos);
+      migrarAEquipos(); // las copias antiguas (sin equipos) también se adaptan
       guardar();
     },
     // Borra absolutamente todo

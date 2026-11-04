@@ -19,11 +19,13 @@
 const Pizarra = {
   FORMACIONES: {
     7: ['3-2-1', '2-3-1', '3-1-2', '2-1-2-1'],
+    8: ['3-3-1', '3-2-2', '2-3-2', '3-1-3'],
     11: ['4-4-2', '4-3-3', '4-2-3-1', '3-5-2', '5-3-2', '4-1-4-1'],
   },
 
-  formacionesDe(categoria) {
-    return Pizarra.FORMACIONES[DB.categoria(categoria).futbol];
+  // Formaciones según la modalidad del equipo (fútbol 7, 8 u 11)
+  formacionesDe(equipo) {
+    return Pizarra.FORMACIONES[equipo?.modalidad] || Pizarra.FORMACIONES[7];
   },
 
   /* Calcula dónde va cada puesto según la formación.
@@ -78,22 +80,32 @@ Vistas.pizarra = {
   atras: '#/partidos',
   seleccion: null, // lo que se ha tocado (para el modo "tocar y colocar")
 
-  // Reúne todo lo necesario: categoría, alineación y jugadores disponibles
+  // Reúne todo lo necesario: equipo, alineación y jugadores disponibles
   contexto(partidoId) {
+    let p = null;
+    let al;
+    let disponibles;
     if (partidoId) {
-      const p = DB.obtener('partidos', partidoId);
+      p = DB.obtener('partidos', partidoId);
       if (!p) return null;
-      const disponibles = p.convocados?.length ? p.convocados.map((id) => DB.obtener('jugadores', id)).filter(Boolean) : DB.jugadoresDe(p.categoria);
-      return { partido: p, categoria: p.categoria, al: p.alineacion || Pizarra.nueva(Pizarra.formacionesDe(p.categoria)[0]), disponibles };
+      al = p.alineacion;
+      disponibles = p.convocados?.length ? p.convocados.map((id) => DB.obtener('jugadores', id)).filter(Boolean) : DB.jugadoresDe(p.equipoId);
     }
-    const cat = DB.ajuste('categoria') && DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin';
-    const guardadas = DB.ajuste('pizarras') || {};
-    return { partido: null, categoria: cat, al: guardadas[cat] || Pizarra.nueva(Pizarra.formacionesDe(cat)[0]), disponibles: DB.jugadoresDe(cat) };
+    const equipo = DB.obtener('equipos', p?.equipoId) || DB.equipo();
+    if (!p) {
+      al = (DB.ajuste('pizarras') || {})[equipo.id];
+      disponibles = DB.jugadoresDe(equipo.id);
+    }
+    const formaciones = Pizarra.formacionesDe(equipo);
+    if (!al) al = Pizarra.nueva(formaciones[0]);
+    // Si el equipo cambió de modalidad (ej.: de F7 a F8), adaptamos la alineación
+    else if (al.puestos.length !== Number(equipo.modalidad)) al = Pizarra.cambiarFormacion(al, formaciones[0]);
+    return { partido: p, equipo, categoria: equipo.categoria, al, disponibles };
   },
 
   guardar(partidoId, ctx) {
     if (partidoId) DB.actualizar('partidos', partidoId, { alineacion: ctx.al });
-    else DB.cambiarAjuste('pizarras', { ...(DB.ajuste('pizarras') || {}), [ctx.categoria]: ctx.al });
+    else DB.cambiarAjuste('pizarras', { ...(DB.ajuste('pizarras') || {}), [ctx.equipo.id]: ctx.al });
   },
 
   pintar(partidoId) {
@@ -105,11 +117,10 @@ Vistas.pizarra = {
     return `
       <div class="pantalla-cab">
         <div><h1>${ctx.partido ? 'Alineación' : 'Pizarra'}</h1>
-        <p>${ctx.partido ? 'vs ' + UI.esc(ctx.partido.rival) + ' · ' : ''}${cat.nombre} · Fútbol ${cat.futbol}</p></div>
+        <p>${ctx.partido ? 'vs ' + UI.esc(ctx.partido.rival) + ' · ' : ''}${cat.nombre} · Fútbol ${ctx.equipo.modalidad}</p></div>
       </div>
-      ${ctx.partido ? '' : Vistas.plantilla.chipsCategorias('pizarra-categoria', ctx.categoria, false)}
       <div class="chips">
-        ${Pizarra.formacionesDe(ctx.categoria).map((f) => `<button class="chip ${ctx.al.formacion === f ? 'activo' : ''}" data-accion="pizarra-formacion" data-formacion="${f}" data-partido="${partidoId || ''}">${f}</button>`).join('')}
+        ${Pizarra.formacionesDe(ctx.equipo).map((f) => `<button class="chip ${ctx.al.formacion === f ? 'activo' : ''}" data-accion="pizarra-formacion" data-formacion="${f}" data-partido="${partidoId || ''}">${f}</button>`).join('')}
       </div>
       <p class="texto-suave peq" style="margin:0 0 10px">${UI.icono('info', 'peq')} Arrastra jugadores al campo, o toca uno y después su puesto.</p>
       <div id="pizarra-zona" data-partido="${partidoId || ''}">${this.zonaHTML(ctx)}</div>
@@ -278,11 +289,6 @@ Acciones['pizarra-formacion'] = (el) => {
   const ctx = Vistas.pizarra.contexto(pid);
   ctx.al = Pizarra.cambiarFormacion(ctx.al, el.dataset.formacion);
   Vistas.pizarra.guardar(pid, ctx);
-  App.refrescar();
-};
-
-Acciones['pizarra-categoria'] = (el) => {
-  DB.cambiarAjuste('categoria', el.dataset.cat);
   App.refrescar();
 };
 

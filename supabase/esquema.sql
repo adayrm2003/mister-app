@@ -257,3 +257,72 @@ create policy "ejercicios: editar" on public.ejercicios for update to authentica
   with check (autor_id = (select auth.uid()) or (select privado.es_directiva()));
 create policy "ejercicios: borrar" on public.ejercicios for delete to authenticated
   using (autor_id = (select auth.uid()) or (select privado.es_directiva()));
+
+-- =============================================================
+-- MIGRACIÓN "mis_equipos" (noviembre 2026)
+-- Cada entrenador crea sus propios equipos; los ejercicios propios
+-- pasan a ser de cada equipo.
+-- =============================================================
+alter table public.equipos
+  add column modalidad smallint not null default 7 check (modalidad in (7, 8, 11)),
+  add column duracion smallint not null default 75 check (duracion between 20 and 240),
+  add column creado_por uuid default auth.uid() references public.perfiles (id) on delete set null;
+create index on public.equipos (creado_por);
+
+-- Quien crea un equipo queda asignado como su entrenador
+create or replace function privado.asignar_creador()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if new.creado_por is not null then
+    insert into public.equipo_entrenadores (equipo_id, entrenador_id)
+    values (new.id, new.creado_por) on conflict do nothing;
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function privado.asignar_creador() from public, anon, authenticated;
+create trigger asignar_creador after insert on public.equipos
+  for each row execute function privado.asignar_creador();
+
+-- Cualquier entrenador crea equipos a su nombre; los ve y edita quien los creó,
+-- quien los entrena y la directiva
+drop policy "equipos: ver" on public.equipos;
+drop policy "equipos: crear" on public.equipos;
+drop policy "equipos: editar" on public.equipos;
+drop policy "equipos: borrar" on public.equipos;
+create policy "equipos: ver" on public.equipos for select to authenticated
+  using ((select privado.es_directiva()) or creado_por = (select auth.uid()) or privado.entrena_equipo(id));
+create policy "equipos: crear" on public.equipos for insert to authenticated
+  with check (creado_por = (select auth.uid()));
+create policy "equipos: editar" on public.equipos for update to authenticated
+  using ((select privado.es_directiva()) or creado_por = (select auth.uid()) or privado.entrena_equipo(id))
+  with check ((select privado.es_directiva()) or creado_por = (select auth.uid()) or privado.entrena_equipo(id));
+create policy "equipos: borrar" on public.equipos for delete to authenticated
+  using ((select privado.es_directiva()) or creado_por = (select auth.uid()) or privado.entrena_equipo(id));
+
+-- Ejercicios propios por equipo (la tabla anterior estaba vacía)
+drop table public.ejercicios;
+create table public.ejercicios (
+  id           uuid primary key default gen_random_uuid(),
+  equipo_id    uuid not null references public.equipos (id) on delete cascade,
+  nombre       text not null,
+  parte        text not null,
+  objetivos    text[] not null default '{}',
+  duracion     smallint not null default 10,
+  material     text,
+  descripcion  text,
+  datos        jsonb not null default '{}',   -- tipo, reglas, variantes, consignas…
+  creado       timestamptz not null default now()
+);
+create index on public.ejercicios (equipo_id);
+alter table public.ejercicios enable row level security;
+revoke all on public.ejercicios from anon;
+create policy "ejercicios: ver" on public.ejercicios for select to authenticated
+  using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));
+create policy "ejercicios: crear" on public.ejercicios for insert to authenticated
+  with check ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));
+create policy "ejercicios: editar" on public.ejercicios for update to authenticated
+  using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id))
+  with check ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));
+create policy "ejercicios: borrar" on public.ejercicios for delete to authenticated
+  using ((select privado.es_directiva()) or privado.entrena_equipo(equipo_id));

@@ -17,9 +17,9 @@ const Partidos = {
     { id: 'rojas', nombre: 'Rojas', corto: '🟥', max: 1 },
   ],
 
-  lista(categoria = DB.ajuste('categoria')) {
-    return DB.lista('partidos')
-      .filter((p) => !categoria || categoria === 'todas' || p.categoria === categoria)
+  // Partidos de un equipo (por defecto, el activo), ordenados por fecha
+  lista(equipoId = DB.equipo()?.id) {
+    return DB.delEquipo('partidos', equipoId)
       .sort((a, b) => (a.fecha + (a.hora || '')).localeCompare(b.fecha + (b.hora || '')));
   },
 
@@ -120,7 +120,6 @@ Vistas.partidos = {
       <div class="pantalla-cab"><div><h1>Partidos</h1><p>Calendario, convocatorias y estadísticas</p></div>
         <a class="btn btn-borde" href="#/pizarra">${UI.icono('pizarra')} <span>Pizarra</span></a></div>
       <div class="segmentado">${pestañas.map(([id, t]) => `<a href="#/partidos/${id}" class="${seccion === id ? 'activo' : ''}">${t}</a>`).join('')}</div>
-      ${Vistas.plantilla.chipsCategorias('filtrar-categoria')}
       ${seccion === 'calendario' ? this.calendario() : this.lista()}
     `;
   },
@@ -155,9 +154,8 @@ Vistas.partidos = {
     const primero = new Date(anio, m - 1, 1);
     const diasMes = new Date(anio, m, 0).getDate();
     const hueco = (primero.getDay() + 6) % 7; // semana empieza en lunes
-    const cat = DB.ajuste('categoria');
-    const partidos = Partidos.lista(cat).filter((p) => p.fecha.startsWith(mes));
-    const sesiones = Entrenos.sesiones(cat).filter((s) => s.fecha.startsWith(mes));
+    const partidos = Partidos.lista().filter((p) => p.fecha.startsWith(mes));
+    const sesiones = Entrenos.sesiones().filter((s) => s.fecha.startsWith(mes));
     const hoy = UI.hoyISO();
 
     let celdas = '';
@@ -212,7 +210,7 @@ Vistas.partido = {
     const m = Partidos.marcador(p);
     const r = Partidos.resultado(p);
     const convocados = (p.convocados || []).map((cid) => DB.obtener('jugadores', cid)).filter(Boolean);
-    const prep = DB.lista('preparaciones').find((x) => x.categoria === p.categoria && UI.normalizar(x.rival) === UI.normalizar(p.rival) && Math.abs(UI.diasHasta(x.fecha) - UI.diasHasta(p.fecha)) <= 3);
+    const prep = DB.lista('preparaciones').find((x) => x.equipoId === p.equipoId && UI.normalizar(x.rival) === UI.normalizar(p.rival) && Math.abs(UI.diasHasta(x.fecha) - UI.diasHasta(p.fecha)) <= 3);
     const enCampo = (p.alineacion?.puestos || []).filter((x) => x.jugador).length;
 
     return `
@@ -287,16 +285,11 @@ Vistas.partido = {
 
 /* ---------- FORMULARIOS ---------- */
 function formularioPartido(p = {}) {
-  const cat = p.categoria || (DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin');
   const sabado = UI.sumarDias(UI.hoyISO(), (6 - new Date().getDay() + 7) % 7 || 7);
   return `
     <div class="campo"><label for="m-rival">Rival *</label><input type="text" id="m-rival" name="rival" maxlength="40" value="${UI.esc(p.rival)}" placeholder="Ej.: U.D. Las Torres"></div>
-    <div class="rejilla-2">
-      <div class="campo"><label for="m-cat">Categoría</label>
-        <select id="m-cat" name="categoria">${DB.CATEGORIAS.map((c) => `<option value="${c.id}" ${cat === c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}</select></div>
       <div class="campo"><label for="m-comp">Competición</label>
         <select id="m-comp" name="competicion">${Partidos.COMPETICIONES.map((c) => `<option ${p.competicion === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-    </div>
     <div class="rejilla-3">
       <div class="campo"><label for="m-fecha">Fecha *</label><input type="date" id="m-fecha" name="fecha" value="${p.fecha || sabado}"></div>
       <div class="campo"><label for="m-hora">Hora</label><input type="time" id="m-hora" name="hora" value="${p.hora || '10:00'}"></div>
@@ -315,7 +308,7 @@ function leerPartido(form) {
   const d = UI.leerFormulario(form);
   if (!d.rival) { UI.aviso('Escribe el nombre del rival', 'error'); return null; }
   if (!d.fecha) { UI.aviso('Indica la fecha', 'error'); return null; }
-  return { rival: d.rival, categoria: d.categoria, competicion: d.competicion, fecha: d.fecha, hora: d.hora, citacion: d.citacion, lugar: d.lugar, campo: d.campo, notas: d.notas };
+  return { rival: d.rival, competicion: d.competicion, fecha: d.fecha, hora: d.hora, citacion: d.citacion, lugar: d.lugar, campo: d.campo, notas: d.notas };
 }
 
 /* ---------- ACCIONES ---------- */
@@ -339,8 +332,6 @@ Acciones['editar-partido'] = (el) => {
     alGuardar: (f) => {
       const datos = leerPartido(f);
       if (!datos) return false;
-      // Si cambia de categoría, la convocatoria y la alineación ya no sirven
-      if (datos.categoria !== p.categoria) Object.assign(datos, { convocados: [], alineacion: null, stats: {} });
       DB.actualizar('partidos', p.id, datos);
       UI.aviso('Partido guardado');
       App.refrescar();
@@ -380,7 +371,7 @@ Acciones['resultado-partido'] = (el) => {
 // Elegir convocados con casillas
 Acciones['convocar'] = (el) => {
   const p = DB.obtener('partidos', el.dataset.id);
-  const jugadores = DB.jugadoresDe(p.categoria);
+  const jugadores = DB.jugadoresDe(p.equipoId);
   const elegidos = new Set(p.convocados || []);
   const form = UI.modal({
     titulo: 'Convocatoria',
@@ -424,9 +415,9 @@ Acciones['convocatoria-copiar'] = (el) => UI.copiar(Partidos.textoConvocatoria(D
 // Estadísticas de cada jugador
 Acciones['editar-stats'] = (el) => {
   const p = DB.obtener('partidos', el.dataset.id);
-  const ids = p.convocados?.length ? p.convocados : DB.jugadoresDe(p.categoria).map((j) => j.id);
+  const ids = p.convocados?.length ? p.convocados : DB.jugadoresDe(p.equipoId).map((j) => j.id);
   const jugadores = ids.map((id) => DB.obtener('jugadores', id)).filter(Boolean);
-  const minDefecto = DB.categoria(p.categoria).futbol === 7 ? 50 : 70;
+  const minDefecto = { 7: 50, 8: 60, 11: 70 }[DB.obtener('equipos', p.equipoId)?.modalidad] || 60;
   UI.modal({
     titulo: 'Estadísticas',
     cuerpo: `
@@ -466,7 +457,7 @@ Acciones['editar-stats'] = (el) => {
 // Crea la preparación del rival a partir del partido
 Acciones['preparar-desde-partido'] = (el) => {
   const p = DB.obtener('partidos', el.dataset.id);
-  const nueva = DB.crear('preparaciones', { rival: p.rival, fecha: p.fecha, categoria: p.categoria, sistema: '', estilos: [], ejercicios: [], fuertes: '', debiles: '', vigilar: '', notas: '' });
+  const nueva = DB.crear('preparaciones', { rival: p.rival, fecha: p.fecha, equipoId: p.equipoId, sistema: '', estilos: [], ejercicios: [], fuertes: '', debiles: '', vigilar: '', notas: '' });
   location.hash = '#/rival/' + nueva.id;
   setTimeout(() => Acciones['editar-preparacion']({ dataset: { id: nueva.id } }), 350);
 };

@@ -41,7 +41,9 @@ const App = {
     let vista = Vistas[nombre] || Vistas.inicio;
     // Con la nube activa, sin sesión iniciada solo se ve la pantalla de acceso
     if (Nube.disponible() && !Nube.conectado()) vista = Vistas.entrar;
-    else if (vista === Vistas.entrar) vista = Vistas.inicio;
+    // Sin ningún equipo, lo primero es crear uno
+    else if (!DB.equipo()) vista = Vistas.bienvenida;
+    else if (vista === Vistas.entrar || vista === Vistas.bienvenida) vista = Vistas.inicio;
     document.body.classList.toggle('sin-menu', !!vista.sinMenu);
     App.rutaActual = hash;
 
@@ -53,9 +55,14 @@ const App = {
     main.classList.add('entrar');
     if (vista.montar) vista.montar(...parametros); // cosas que hacer tras pintar (gráficos, arrastrar…)
 
-    // Título de la cabecera
+    // Cabecera: el equipo activo (o el nombre de la pantalla si aún no hay equipo)
     const titulo = typeof vista.titulo === 'function' ? vista.titulo(...parametros) : vista.titulo;
-    document.getElementById('titulo-vista').textContent = titulo || 'Inicio';
+    const eq = DB.equipo();
+    const selector = document.getElementById('selector-equipo');
+    selector.classList.toggle('sin-equipo', !eq || !!vista.sinMenu);
+    document.getElementById('titulo-vista').textContent = eq && !vista.sinMenu ? eq.nombre : titulo || 'C.D. El Tranvía';
+    document.getElementById('equipo-detalle').textContent = eq && !vista.sinMenu
+      ? `${DB.categoria(eq.categoria).nombre} · Fútbol ${eq.modalidad}` : 'C.D. El Tranvía';
     document.title = `${titulo} · C.D. El Tranvía`;
 
     // Marca en el menú la pestaña activa

@@ -11,6 +11,7 @@ Vistas.ajustes = {
     const n = (c) => DB.lista(c).length;
     return `
       <div class="pantalla-cab"><div><h1>Ajustes</h1><p>Preferencias y copia de seguridad</p></div></div>
+      ${(Vistas.ajustes.primero || []).map((fn) => fn()).join('')}
 
       <section class="tarjeta">
         <h2>Tu perfil</h2>

@@ -35,7 +35,7 @@ Vistas.entrar = {
             <button type="submit" class="btn btn-primario btn-bloque">${registro ? 'Crear cuenta' : 'Entrar'}</button>
           </form>
           ${registro
-            ? `<p class="texto-suave peq mt">Al registrarte, la directiva del club tendrá que asignarte tu equipo antes de que puedas ver datos.</p>`
+            ? `<p class="texto-suave peq mt">Después de registrarte crearás tu primer equipo.</p>`
             : `<button class="btn btn-peq btn-borde mt" data-accion="olvide-contrasena">¿Has olvidado la contraseña?</button>`}
         </section>
         <p class="texto-suave peq centrado mt">${UI.icono('candado', 'peq')} Cada entrenador solo ve los datos de su equipo.</p>
@@ -103,8 +103,7 @@ Vistas.club = {
   pintar() {
     if (!Nube.esDirectiva()) return UI.vacio('candado', 'Solo para la directiva', 'Esta sección es para gestionar equipos y entrenadores.');
     return `
-      <div class="pantalla-cab"><div><h1>Club</h1><p>Equipos, entrenadores y permisos</p></div>
-        <button class="btn btn-primario" data-accion="nuevo-equipo">${UI.icono('mas')} Equipo</button></div>
+      <div class="pantalla-cab"><div><h1>Club</h1><p>Equipos, entrenadores y permisos</p></div></div>
       <div id="club">${UI.vacio('nube', 'Cargando…', 'Consultando la nube.')}</div>`;
   },
 
@@ -116,11 +115,8 @@ Vistas.club = {
       if (!document.getElementById('club')) return; // ya cambiaste de pantalla
       const nombre = (p) => UI.esc(p.nombre || p.email);
       const equiposDe = (uid) => asignaciones.filter((a) => a.entrenador_id === uid).length;
-      const pendientes = perfiles.filter((p) => p.rol === 'entrenador' && !equiposDe(p.id));
 
       caja.innerHTML = `
-        ${pendientes.length ? `<div class="aviso-info">${UI.icono('info')}<div><b>${pendientes.length} entrenador(es) esperando equipo:</b> ${pendientes.map(nombre).join(', ')}. Asígnales uno para que puedan trabajar.</div></div>` : ''}
-
         <div class="seccion-titulo"><h2>Equipos</h2><span class="texto-suave peq">${equipos.length}</span></div>
         <div class="lista en-rejilla">
           ${equipos.map((e) => {
@@ -129,8 +125,8 @@ Vistas.club = {
             return `<section class="tarjeta" style="margin:0">
               <div class="parte-cab">
                 <div class="icono-parte" style="--c:${cat.color}">${UI.icono('escudo')}</div>
-                <div style="flex:1"><h3>${UI.esc(e.nombre)}</h3><span class="texto-suave peq">${cat.nombre} · ${UI.esc(e.temporada)}</span></div>
-                <button class="btn btn-icono" style="background:none" data-accion="borrar-equipo" data-id="${e.id}" data-nombre="${UI.esc(e.nombre)}" aria-label="Borrar equipo">${UI.icono('papelera')}</button>
+                <div style="flex:1"><h3>${UI.esc(e.nombre)}</h3><span class="texto-suave peq">${cat.nombre} · F${e.modalidad} · ${UI.esc(e.temporada)}</span></div>
+                <button class="btn btn-icono" style="background:none" data-accion="club-borrar-equipo" data-id="${e.id}" data-nombre="${UI.esc(e.nombre)}" aria-label="Borrar equipo">${UI.icono('papelera')}</button>
               </div>
               <div class="convocados mt">
                 ${suyos.map((p) => `<span class="etiqueta gris">${nombre(p)}
@@ -138,7 +134,7 @@ Vistas.club = {
               </div>
               <button class="btn btn-borde btn-peq mt" data-accion="asignar-entrenador" data-equipo="${e.id}">${UI.icono('mas')} Asignar entrenador</button>
             </section>`;
-          }).join('') || UI.vacio('escudo', 'Sin equipos', 'Crea los equipos del club (ej.: Alevín A, Infantil B).')}
+          }).join('') || UI.vacio('escudo', 'Sin equipos', 'Cada entrenador crea sus equipos desde el selector de arriba.')}
         </div>
 
         <div class="seccion-titulo"><h2>Usuarios</h2><span class="texto-suave peq">${perfiles.length}</span></div>
@@ -150,7 +146,7 @@ Vistas.club = {
               : `<button class="btn btn-peq btn-borde" data-accion="cambiar-rol" data-id="${p.id}" data-rol="${p.rol === 'directiva' ? 'entrenador' : 'directiva'}">${p.rol === 'directiva' ? 'Hacer entrenador' : 'Hacer directiva'}</button>`}
           </div>`).join('')}
         </section>
-        <p class="texto-suave peq mt">Los nuevos entrenadores se registran ellos mismos desde la pantalla de acceso. Después aparecen aquí para asignarles su equipo.</p>`;
+        <p class="texto-suave peq mt">Cada entrenador se registra y crea sus equipos. Aquí puedes añadir a otro entrenador a un equipo (por ejemplo, un ayudante) o nombrar directivos.</p>`;
       Vistas.club.datos = { perfiles, equipos, asignaciones };
     } catch (e) {
       caja.innerHTML = UI.vacio('nube', 'No se pudo cargar', Nube.traducir(e) + '. El panel del club necesita internet.');
@@ -170,26 +166,7 @@ async function cambioClub(promesa, mensaje) {
   }
 }
 
-Acciones['nuevo-equipo'] = () => {
-  UI.modal({
-    titulo: 'Nuevo equipo',
-    textoGuardar: 'Crear',
-    cuerpo: `
-      <div class="campo"><label for="q-nombre">Nombre *</label><input type="text" id="q-nombre" name="nombre" maxlength="40" placeholder="Ej.: Alevín A"></div>
-      <div class="rejilla-2">
-        <div class="campo"><label for="q-cat">Categoría</label>
-          <select id="q-cat" name="categoria">${DB.CATEGORIAS.map((c) => `<option value="${c.id}">${c.nombre} (${c.edades})</option>`).join('')}</select></div>
-        <div class="campo"><label for="q-temp">Temporada</label><input type="text" id="q-temp" name="temporada" maxlength="7" value="${Evolucion.temporada()}"></div>
-      </div>`,
-    alGuardar: (f) => {
-      const d = UI.leerFormulario(f);
-      if (!d.nombre) { UI.aviso('Escribe el nombre del equipo', 'error'); return false; }
-      cambioClub(Nube.crearEquipo({ nombre: d.nombre, categoria: d.categoria, temporada: d.temporada || Evolucion.temporada() }), 'Equipo creado');
-    },
-  });
-};
-
-Acciones['borrar-equipo'] = async (el) => {
+Acciones['club-borrar-equipo'] = async (el) => {
   if (await UI.confirmar(`Se borrará «${el.dataset.nombre}» y TODOS sus jugadores, entrenos y partidos de la nube. No se puede deshacer.`, 'Borrar equipo')) {
     cambioClub(Nube.borrarEquipo(el.dataset.id), 'Equipo borrado');
   }
@@ -236,10 +213,7 @@ Acciones['cambiar-rol'] = async (el) => {
         <div style="flex:1"><h2>Tu cuenta</h2><span class="texto-suave peq">${UI.esc(Nube.estado.usuario?.email || '')}</span></div>
         <span class="etiqueta ${Nube.esDirectiva() ? 'roja' : ''}">${Nube.esDirectiva() ? 'Directiva' : 'Entrenador'}</span>
       </div>
-      <p class="peq mt">${Nube.estado.equipos.length
-        ? `${Nube.esDirectiva() ? 'Equipos del club' : 'Tus equipos'}: ${Nube.estado.equipos.map((e) => `<span class="etiqueta gris">${UI.esc(e.nombre)}</span>`).join(' ')}`
-        : '<span class="etiqueta amarilla">Pendiente: la directiva aún no te ha asignado equipo</span>'}</p>
-      <p class="texto-suave peq">Última sincronización: ${Nube.estado.ultimaSync ? new Date(Nube.estado.ultimaSync).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) : 'nunca'}${cola ? ` · <b>${cola} cambio(s) por enviar</b>` : ''}</p>
+      <p class="texto-suave peq mt">Última sincronización: ${Nube.estado.ultimaSync ? new Date(Nube.estado.ultimaSync).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) : 'nunca'}${cola ? ` · <b>${cola} cambio(s) por enviar</b>` : ''}</p>
       <div class="fila-botones mt">
         <button class="btn btn-primario btn-peq" data-accion="sincronizar">${UI.icono('nube')} Sincronizar ahora</button>
         ${Nube.esDirectiva() ? `<a class="btn btn-borde btn-peq" href="#/club">${UI.icono('escudo')} Panel del club</a>` : ''}
@@ -252,7 +226,7 @@ Acciones['cambiar-rol'] = async (el) => {
 Acciones['sincronizar'] = () => Nube.sincronizar({ avisar: true });
 
 Acciones['subir-locales'] = async () => {
-  if (await UI.confirmar('Se subirán a la nube los jugadores, entrenos y partidos que creaste en este móvil antes de tener cuenta. Cada uno irá al equipo de su categoría.', 'Subir')) {
+  if (await UI.confirmar('Se subirán a la nube los equipos, jugadores, entrenos y partidos que creaste en este móvil antes de tener cuenta.', 'Subir')) {
     await Nube.subirLocales();
   }
 };
@@ -260,8 +234,3 @@ Acciones['subir-locales'] = async () => {
 Acciones['cerrar-sesion'] = async () => {
   if (await Nube.salir()) UI.aviso('Sesión cerrada');
 };
-
-/* ---------- AVISO EN INICIO: cuenta pendiente ---------- */
-(Vistas.inicio.extras = Vistas.inicio.extras || []).unshift(() => (Nube.pendiente()
-  ? `<div class="aviso-info mt">${UI.icono('info')}<div><b>Cuenta pendiente de aprobación.</b> Pide a la directiva del club que te asigne tu equipo. Mientras tanto, lo que crees se guarda solo en este móvil.</div></div>`
-  : ''));

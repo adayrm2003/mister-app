@@ -18,8 +18,6 @@ const DatosEjemplo = (() => {
 
   // Plantillas por categoría: [nombre, posición, dorsal]
   const PLANTILLAS = {
-    prebenjamin: [['Bruno', 'Delantero', 9], ['Tino', 'Defensa', 4], ['Vega', 'Centrocampista', 8], ['Lolo', 'Portero', 1]],
-    benjamin: [['Elías', 'Centrocampista', 6], ['Noa', 'Delantero', 11], ['Oliver', 'Defensa', 3], ['Gara', 'Portero', 1], ['Dácil', 'Centrocampista', 10]],
     alevin: [
       ['Yeray', 'Portero', 1], ['Acoidán', 'Defensa', 2], ['Nayra', 'Defensa', 4], ['Hugo', 'Defensa', 5],
       ['Leo', 'Centrocampista', 6], ['Aythami', 'Centrocampista', 8], ['Sara', 'Centrocampista', 10],
@@ -30,9 +28,6 @@ const DatosEjemplo = (() => {
       ['Ancor', 'Centrocampista', 6], ['Beneharo', 'Centrocampista', 8], ['Lucía', 'Centrocampista', 10], ['Iván', 'Delantero', 7],
       ['Kevin', 'Delantero', 9], ['Nauzet', 'Delantero', 11], ['Adrián', 'Centrocampista', 14], ['Fran', 'Defensa', 15], ['Saúl', 'Portero', 13],
     ],
-    cadete: [['Raúl', 'Centrocampista', 8], ['Alexis', 'Delantero', 9], ['Idaira', 'Defensa', 4]],
-    juvenil: [['Kike', 'Defensa', 5], ['Samu', 'Delantero', 11], ['Josué', 'Portero', 1]],
-    regional: [['Cristo', 'Centrocampista', 10], ['Moisés', 'Defensa', 6], ['Tito', 'Delantero', 9]],
   };
 
   // Valoraciones según la posición (un portero suele defender mejor que atacar…)
@@ -196,13 +191,23 @@ const DatosEjemplo = (() => {
     // Devuelve todos los datos de ejemplo agrupados por colección
     generar() {
       semilla = 7;
+      // Dos equipos de ejemplo: uno de fútbol 7 y otro de fútbol 11
+      const equipos = [
+        { id: 'ej-eq1', ejemplo: true, nombre: 'Alevín A (ejemplo)', categoria: 'alevin', modalidad: 7, duracion: 75 },
+        { id: 'ej-eq2', ejemplo: true, nombre: 'Infantil A (ejemplo)', categoria: 'infantil', modalidad: 11, duracion: 90 },
+      ];
       const listaJugadores = jugadores();
-      return {
+      const paquete = {
+        equipos,
         jugadores: listaJugadores,
         sesiones: sesiones(listaJugadores),
         preparaciones: preparaciones(),
         partidos: partidos(listaJugadores),
       };
+      // Cada dato va al equipo de su categoría
+      const equipoDe = (categoria) => equipos.find((e) => e.categoria === categoria).id;
+      ['jugadores', 'sesiones', 'preparaciones', 'partidos'].forEach((c) => paquete[c].forEach((x) => { x.equipoId = equipoDe(x.categoria); }));
+      return paquete;
     },
   };
 })();

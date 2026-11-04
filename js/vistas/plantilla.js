@@ -19,7 +19,7 @@ Vistas.plantilla = {
 
   // Jugadores que se ven ahora (según categoría, buscador y orden)
   filtrados() {
-    let jugadores = DB.jugadoresDe(DB.ajuste('categoria') || 'todas');
+    let jugadores = DB.jugadoresDe();
     const q = UI.normalizar(this.busqueda);
     if (q) jugadores = jugadores.filter((j) => UI.normalizar(j.nombre + ' ' + j.posicion).includes(q));
     if (this.orden === 'media') jugadores.sort((a, b) => DB.mediaJugador(b) - DB.mediaJugador(a));
@@ -49,7 +49,6 @@ Vistas.plantilla = {
         <button class="btn btn-primario" data-accion="nuevo-jugador">${UI.icono('mas')} <span>Añadir</span></button>
       </div>
 
-      ${Vistas.plantilla.chipsCategorias('filtrar-categoria')}
 
       <div class="barra-filtros">
         <div class="buscador">
@@ -93,17 +92,6 @@ Vistas.plantilla = {
         </div>
         ${UI.media(DB.mediaJugador(j))}
       </a>`;
-  },
-
-  // Fila de botones con las categorías y cuántos jugadores tiene cada una
-  chipsCategorias(accion, seleccion = DB.ajuste('categoria') || 'todas', conTodas = true) {
-    const total = DB.lista('jugadores').length;
-    const chips = conTodas ? [`<button class="chip ${seleccion === 'todas' ? 'activo' : ''}" data-accion="${accion}" data-cat="todas">Todas<span class="num">${total}</span></button>`] : [];
-    DB.CATEGORIAS.forEach((c) => {
-      const n = DB.jugadoresDe(c.id).length;
-      chips.push(`<button class="chip ${seleccion === c.id ? 'activo' : ''}" data-accion="${accion}" data-cat="${c.id}">${c.nombre}<span class="num">${n}</span></button>`);
-    });
-    return `<div class="chips" role="tablist" aria-label="Categorías">${chips.join('')}</div>`;
   },
 
   // Aviso de que hay datos inventados, con botón para borrarlos
@@ -179,7 +167,6 @@ Vistas.jugador = {
 /* ---------- FORMULARIO DE JUGADOR (nuevo o editar) ---------- */
 function formularioJugador(j = {}) {
   const v = j.valoraciones || { defensa: 5, ataque: 5, velocidad: 5, fuerza: 5 };
-  const catPorDefecto = j.categoria || (DB.ajuste('categoria') !== 'todas' ? DB.ajuste('categoria') : 'alevin');
   return `
     <div class="aviso-info azul">${UI.icono('candado')}<div><b>Privacidad:</b> son menores. Escribe solo el <b>nombre de pila o un mote</b>. Nada de apellidos, DNI, direcciones ni teléfonos.</div></div>
     <div class="campo">
@@ -190,12 +177,6 @@ function formularioJugador(j = {}) {
       <div class="campo">
         <label for="f-edad">Edad *</label>
         <input type="number" id="f-edad" name="edad" min="4" max="60" inputmode="numeric" value="${UI.esc(j.edad)}">
-      </div>
-      <div class="campo">
-        <label for="f-categoria">Categoría</label>
-        <select id="f-categoria" name="categoria">
-          ${DB.CATEGORIAS.map((c) => `<option value="${c.id}" ${catPorDefecto === c.id ? 'selected' : ''}>${c.nombre} (${c.edades})</option>`).join('')}
-        </select>
       </div>
       <div class="campo">
         <label for="f-altura">Altura (cm)</label>
@@ -226,17 +207,13 @@ function formularioJugador(j = {}) {
   `;
 }
 
-// Hace que los deslizadores muestren su número y que la edad sugiera la categoría
+// Hace que los deslizadores muestren su número
 function prepararFormularioJugador(form) {
   form.querySelectorAll('input[type=range]').forEach((r) => {
     r.addEventListener('input', () => {
       form.querySelector('#o-' + r.name).textContent = r.value;
       r.style.setProperty('--p', (r.value - 1) * 11.11 + '%');
     });
-  });
-  form.querySelector('#f-edad').addEventListener('input', (e) => {
-    const cat = DB.categoriaPorEdad(e.target.value);
-    if (cat) form.querySelector('#f-categoria').value = cat.id;
   });
 }
 
@@ -251,7 +228,6 @@ function leerJugador(form) {
   return {
     nombre: d.nombre,
     edad: Number(d.edad),
-    categoria: d.categoria,
     altura: d.altura ? Number(d.altura) : '',
     peso: d.peso ? Number(d.peso) : '',
     posicion: d.posicion,
@@ -305,11 +281,6 @@ Acciones['borrar-jugador'] = async (el) => {
     UI.aviso(`${j.nombre} borrado`);
     location.hash = '#/plantilla';
   }
-};
-
-Acciones['filtrar-categoria'] = (el) => {
-  DB.cambiarAjuste('categoria', el.dataset.cat);
-  App.refrescar();
 };
 
 Acciones['ordenar-plantilla'] = (el) => {
