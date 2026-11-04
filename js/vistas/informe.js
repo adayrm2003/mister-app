@@ -53,7 +53,7 @@ const Informe = {
 /* ---------- PANTALLA: INFORME DE TEMPORADA ----------
    Pensada para imprimir o "Guardar como PDF" desde el navegador. */
 Vistas.informe = {
-  tab: 'plantilla',
+  tab: 'jugadores',
   titulo: 'Informe',
 
   pintar(id) {

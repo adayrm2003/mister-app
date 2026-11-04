@@ -20,6 +20,14 @@ const App = {
     if (primeraVez && !Nube.disponible()) DB.cargarEjemplo(DatosEjemplo.generar());
 
     Nube.iniciar(); // sesión y sincronización con Supabase (fase 6)
+
+    // Nombres de las pestañas de abajo -> pantalla que muestran
+    // (los nombres antiguos siguen funcionando por si alguien guardó un enlace)
+    Vistas.hoy = Vistas.inicio;
+    Vistas.calendario = Vistas.partidos;
+    Vistas.sesiones = Vistas.entrenos;
+    Vistas.jugadores = Vistas.plantilla;
+
     App.aplicarTema();
     App.escucharBotones();
 
@@ -36,7 +44,7 @@ const App = {
   /* ---------- ROUTER: qué pantalla toca ----------
      "#/jugador/abc123" -> pantalla "jugador" con parámetro "abc123" */
   pintar() {
-    const hash = location.hash.replace(/^#\/?/, '') || 'inicio';
+    const hash = location.hash.replace(/^#\/?/, '') || 'hoy';
     const [nombre, ...parametros] = hash.split('/').map(decodeURIComponent);
     let vista = Vistas[nombre] || Vistas.inicio;
     // Con la nube activa, sin sesión iniciada solo se ve la pantalla de acceso

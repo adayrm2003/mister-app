@@ -3,7 +3,7 @@
   "short_name": "El Tranvía",
   "description": "Plantilla, entrenamientos y partidos del C.D. El Tranvía (Santa Cruz de Tenerife).",
   "lang": "es",
-  "start_url": "./index.html#/inicio",
+  "start_url": "./index.html#/hoy",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

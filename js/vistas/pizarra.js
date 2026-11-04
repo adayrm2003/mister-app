@@ -75,9 +75,9 @@ const Pizarra = {
 };
 
 Vistas.pizarra = {
-  tab: 'partidos',
+  tab: 'calendario',
   titulo: 'Pizarra',
-  atras: '#/partidos',
+  atras: '#/calendario/lista',
   seleccion: null, // lo que se ha tocado (para el modo "tocar y colocar")
 
   // Reúne todo lo necesario: equipo, alineación y jugadores disponibles
@@ -109,7 +109,7 @@ Vistas.pizarra = {
   },
 
   pintar(partidoId) {
-    this.atras = partidoId ? '#/partido/' + partidoId : '#/partidos';
+    this.atras = partidoId ? '#/partido/' + partidoId : '#/calendario/lista';
     const ctx = this.contexto(partidoId);
     if (!ctx) return UI.vacio('trofeo', 'Partido no encontrado', '');
     this.seleccion = null;

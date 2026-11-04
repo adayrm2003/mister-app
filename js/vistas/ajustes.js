@@ -4,7 +4,7 @@
 
 Vistas.ajustes = {
   titulo: 'Ajustes',
-  atras: '#/inicio',
+  tab: 'ajustes',
 
   pintar() {
     const tema = DB.ajuste('tema') || 'auto';
@@ -119,7 +119,7 @@ Acciones['borrar-todo'] = async () => {
     DB.reiniciar();
     App.aplicarTema();
     UI.aviso('Todos los datos borrados');
-    location.hash = '#/inicio';
+    location.hash = '#/hoy';
     App.refrescar();
   }
 };

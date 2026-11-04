@@ -7,8 +7,8 @@
    ============================================================= */
 
 Vistas.asistente = {
-  titulo: 'Asistente',
-  tab: 'asistente',
+  titulo: 'Generador',
+  tab: 'sesiones',
   // Lo que el entrenador ha elegido en el generador
   eleccion: { categoria: null, objetivo: 'pase', duracion: 75 },
   propuesta: null,
@@ -29,15 +29,16 @@ Vistas.asistente = {
     const jugados = Partidos.lista().filter((p) => p.jugado).reverse().slice(0, 6);
 
     return `
+      <div class="pantalla-cab"><div><h1>Sesiones</h1><p>Entrenos, ejercicios y rival</p></div></div>
+      ${Vistas.entrenos.pestañas('generador')}
       <section class="tarjeta-hero asistente-hero">
         <img src="assets/icons/escudo-512.png" class="marca-agua" alt="">
         <div class="icono-parte" style="--c:#fff;background:rgba(255,255,255,.15)">${UI.icono('chispa')}</div>
-        <h1 style="margin:10px 0 4px">Asistente</h1>
-        <p style="opacity:.85;margin:0">Genera entrenamientos completos y crónicas de partidos en un segundo. Funciona sin internet y sin coste.</p>
+        <h2 style="margin:10px 0 4px;font-size:22px">Generador de entrenamientos</h2>
+        <p style="opacity:.85;margin:0">Elige un objetivo y la duración: te propone una sesión completa. Sin internet y sin coste.</p>
       </section>
 
-      <div class="seccion-titulo"><h2>Generador de sesiones</h2></div>
-      <section class="tarjeta">
+      <section class="tarjeta mt">
         <p class="texto-suave peq" style="margin-bottom:12px">Para ${UI.esc(eq.nombre)} · ${DB.categoria(eq.categoria).nombre}</p>
         <span class="etiqueta-campo">Objetivo principal</span>
         <div class="chips-check" style="margin-top:6px">
@@ -52,7 +53,7 @@ Vistas.asistente = {
 
       <div id="propuesta">${this.propuesta ? this.propuestaHTML(this.propuesta) : ''}</div>
 
-      <div class="seccion-titulo"><h2>Crónicas de partidos</h2><a href="#/partidos">Partidos</a></div>
+      <div class="seccion-titulo"><h2>Crónicas de partidos</h2><a href="#/calendario/lista">Partidos</a></div>
       <div class="lista">
         ${jugados.map((p) => `<div class="item" data-accion="ver-resumen" data-id="${p.id}">
             <div class="resultado res-${Partidos.resultado(p)}"><b>${p.golesFavor}-${p.golesContra}</b><span>${DB.categoria(p.categoria).nombre}</span></div>

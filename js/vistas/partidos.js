@@ -1,8 +1,8 @@
 /* =============================================================
    PARTIDOS.JS · Fase 3: partidos, calendario, convocatorias y estadísticas
    -------------------------------------------------------------
-   #/partidos             -> lista de partidos
-   #/partidos/calendario  -> calendario del mes (partidos y entrenos)
+   #/calendario/lista     -> lista de partidos
+   #/calendario          -> calendario del mes (partidos y entrenos)
    #/partido/ID           -> detalle: resultado, convocatoria, alineación, estadísticas
    ============================================================= */
 
@@ -109,17 +109,17 @@ const Partidos = {
 
 /* ---------- PANTALLA: PARTIDOS ---------- */
 Vistas.partidos = {
-  titulo: 'Partidos',
-  tab: 'partidos',
+  titulo: 'Calendario',
+  tab: 'calendario',
   mes: null,     // mes que se ve en el calendario ("2026-11")
   diaSel: null,  // día tocado en el calendario
 
-  pintar(seccion = 'lista') {
-    const pestañas = [['lista', 'Partidos'], ['calendario', 'Calendario']];
+  pintar(seccion = 'calendario') {
+    const pestañas = [['calendario', 'Mes'], ['lista', 'Partidos']];
     return `
-      <div class="pantalla-cab"><div><h1>Partidos</h1><p>Calendario, convocatorias y estadísticas</p></div>
+      <div class="pantalla-cab"><div><h1>Calendario</h1><p>Entrenos y partidos</p></div>
         <a class="btn btn-borde" href="#/pizarra">${UI.icono('pizarra')} <span>Pizarra</span></a></div>
-      <div class="segmentado">${pestañas.map(([id, t]) => `<a href="#/partidos/${id}" class="${seccion === id ? 'activo' : ''}">${t}</a>`).join('')}</div>
+      <div class="segmentado">${pestañas.map(([id, t]) => `<a href="#/calendario/${id}" class="${seccion === id ? 'activo' : ''}">${t}</a>`).join('')}</div>
       ${seccion === 'calendario' ? this.calendario() : this.lista()}
     `;
   },
@@ -199,13 +199,13 @@ Vistas.partidos = {
 
 /* ---------- PANTALLA: DETALLE DEL PARTIDO ---------- */
 Vistas.partido = {
-  tab: 'partidos',
-  atras: '#/partidos',
+  tab: 'calendario',
+  atras: '#/calendario/lista',
   titulo: (id) => 'vs ' + (DB.obtener('partidos', id)?.rival || 'Partido'),
 
   pintar(id) {
     const p = DB.obtener('partidos', id);
-    if (!p) return UI.vacio('trofeo', 'Partido no encontrado', '', '<a class="btn" href="#/partidos">Volver</a>');
+    if (!p) return UI.vacio('trofeo', 'Partido no encontrado', '', '<a class="btn" href="#/calendario/lista">Volver</a>');
     const cat = DB.categoria(p.categoria);
     const m = Partidos.marcador(p);
     const r = Partidos.resultado(p);
@@ -343,7 +343,7 @@ Acciones['borrar-partido'] = async (el) => {
   if (await UI.confirmar('Se borrará el partido con su convocatoria, alineación y estadísticas.')) {
     DB.borrar('partidos', el.dataset.id);
     UI.aviso('Partido borrado');
-    location.hash = '#/partidos';
+    location.hash = '#/calendario/lista';
   }
 };
 
@@ -482,19 +482,3 @@ Acciones['nueva-sesion-dia'] = (el) => {
   const campo = document.querySelector('#modal-capa #s-fecha');
   if (campo) campo.value = el.dataset.fecha;
 };
-
-/* ---------- BLOQUE EN INICIO: próximo partido ---------- */
-(Vistas.inicio.extras = Vistas.inicio.extras || []).unshift(() => {
-  const p = Partidos.lista().find((x) => !x.jugado && x.fecha >= UI.hoyISO());
-  if (!p) return '';
-  const dias = UI.diasHasta(p.fecha);
-  return `<div class="seccion-titulo"><h2>Próximo partido</h2><a href="#/partidos">Ver todos</a></div>
-    <a class="tarjeta proximo-partido pulsable" href="#/partido/${p.id}">
-      <div class="cuenta"><b>${dias === 0 ? 'HOY' : dias}</b><span>${dias === 0 ? '' : dias === 1 ? 'día' : 'días'}</span></div>
-      <div style="flex:1;min-width:0">
-        <div class="item-titulo">vs ${UI.esc(p.rival)}</div>
-        <div class="item-sub"><span>${DB.categoria(p.categoria).nombre}</span><span>· ${UI.fechaCorta(p.fecha)} ${p.hora || ''}</span><span>· ${p.lugar === 'fuera' ? 'Fuera' : 'Casa'}</span></div>
-        <div class="item-sub" style="margin-top:4px"><span class="etiqueta ${p.convocados?.length ? 'verde' : 'amarilla'}">${p.convocados?.length ? p.convocados.length + ' convocados' : 'Falta convocatoria'}</span></div>
-      </div>${UI.icono('adelante', 'flecha')}
-    </a>`;
-});

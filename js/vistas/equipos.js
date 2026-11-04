@@ -114,7 +114,7 @@ Vistas.bienvenida = {
       const eq = DB.crear('equipos', datos);
       DB.cambiarEquipo(eq.id);
       UI.aviso(`¡${eq.nombre} creado!`);
-      location.hash = '#/inicio';
+      location.hash = '#/hoy';
       App.refrescar();
     });
   },
@@ -123,6 +123,7 @@ Vistas.bienvenida = {
 /* ---------- PANTALLA: MIS EQUIPOS ---------- */
 Vistas.equipos = {
   titulo: 'Mis equipos',
+  tab: 'ajustes',
   atras: '#/ajustes',
 
   pintar() {

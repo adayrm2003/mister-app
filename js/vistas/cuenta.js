@@ -64,7 +64,7 @@ Vistas.entrar = {
           await Nube.entrar(d.email, d.contrasena);
         }
         UI.aviso('¡Bienvenido/a!');
-        location.hash = '#/inicio';
+        location.hash = '#/hoy';
       } catch (err) {
         UI.aviso(err.message, 'error');
       } finally {
@@ -98,6 +98,7 @@ Acciones['olvide-contrasena'] = () => {
 /* ---------- PANTALLA: PANEL DE LA DIRECTIVA ---------- */
 Vistas.club = {
   titulo: 'Club',
+  tab: 'ajustes',
   atras: '#/ajustes',
 
   pintar() {

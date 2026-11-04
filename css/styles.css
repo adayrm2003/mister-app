@@ -556,6 +556,39 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .proximo-partido .cuenta { flex: none; width: 64px; height: 64px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--rojo), #8d1420); color: #fff; }
 .proximo-partido .cuenta b { font-family: var(--fuente-titulos); font-size: 28px; line-height: 1; }
 .proximo-partido .cuenta span { font-size: 11px; font-weight: 600; }
+.proximo-partido .cuenta.sesion { background: linear-gradient(135deg, var(--azul), var(--noche)); }
+
+/* ----- Pestaña Hoy ----- */
+.hoy-cab p { margin: 0; color: var(--texto-suave); font-weight: 600; font-size: 13px; }
+.hoy-cab h1 { font-size: 30px; margin-top: 2px; }
+.evento-vacio { display: flex; align-items: center; gap: 14px; color: var(--texto); }
+.evento-vacio .ico { width: 34px; height: 34px; color: var(--texto-suave); }
+.evento-vacio div { display: flex; flex-direction: column; }
+.evento-vacio span { font-size: 13px; color: var(--texto-suave); }
+/* Botón grande de "Crear sesión de hoy" */
+.btn-gigante {
+  width: 100%; margin-top: 16px; display: flex; align-items: center; gap: 14px; text-align: left;
+  padding: 20px; border: 0; border-radius: var(--radio); color: #fff;
+  background: linear-gradient(135deg, var(--rojo) 0%, #8d1420 100%);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--rojo) 40%, transparent);
+  transition: transform .12s, filter .2s;
+}
+.btn-gigante:active { transform: scale(.98); }
+.btn-gigante:hover { filter: brightness(1.06); }
+.btn-gigante span { display: flex; flex-direction: column; gap: 2px; }
+.btn-gigante b { font-family: var(--fuente-titulos); font-size: 26px; letter-spacing: .4px; text-transform: uppercase; line-height: 1.05; }
+.btn-gigante small { font-size: 13px; opacity: .85; }
+/* Accesos rápidos: cuatro botones cuadrados */
+.accesos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.acceso-rapido {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 4px; text-align: center;
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-peq); box-shadow: var(--sombra);
+  color: var(--texto); transition: transform .12s;
+}
+.acceso-rapido:active { transform: scale(.96); }
+.acceso-rapido .ico { color: var(--azul); }
+.acceso-rapido b { font-family: var(--fuente-titulos); font-size: 22px; line-height: 1.1; }
+.acceso-rapido span { font-size: 11px; color: var(--texto-suave); font-weight: 600; }
 
 /* Calendario */
 .cal-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }

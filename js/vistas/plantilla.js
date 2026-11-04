@@ -13,7 +13,7 @@
 /* ---------- PANTALLA: LISTA DE JUGADORES ---------- */
 Vistas.plantilla = {
   titulo: 'Plantilla',
-  tab: 'plantilla',
+  tab: 'jugadores',
   busqueda: '',      // lo que se ha escrito en el buscador
   pierna: 'todas',   // filtro por pierna dominante
 
@@ -94,13 +94,13 @@ Vistas.plantilla = {
 
 /* ---------- PANTALLA: FICHA DEL JUGADOR ---------- */
 Vistas.jugador = {
-  tab: 'plantilla',
-  atras: '#/plantilla',
+  tab: 'jugadores',
+  atras: '#/jugadores',
   titulo: (id) => DB.obtener('jugadores', id)?.nombre || 'Jugador',
 
   pintar(id) {
     const j = DB.obtener('jugadores', id);
-    if (!j) return UI.vacio('equipo', 'Jugador no encontrado', 'Puede que se haya borrado.', '<a class="btn" href="#/plantilla">Volver a la plantilla</a>');
+    if (!j) return UI.vacio('equipo', 'Jugador no encontrado', 'Puede que se haya borrado.', '<a class="btn" href="#/jugadores">Volver a la plantilla</a>');
     const eq = DB.obtener('equipos', j.equipoId);
 
     return `
@@ -207,7 +207,7 @@ Acciones['borrar-jugador'] = async (el) => {
   if (await UI.confirmar(`Se borrará a ${j.nombre} de la plantilla. No se puede deshacer.`, 'Borrar jugador')) {
     DB.borrar('jugadores', j.id);
     UI.aviso(`${j.nombre} borrado`);
-    location.hash = '#/plantilla';
+    location.hash = '#/jugadores';
   }
 };
 

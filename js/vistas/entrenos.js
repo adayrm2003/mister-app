@@ -2,9 +2,9 @@
    ENTRENOS.JS · Fase 2: entrenamientos
    -------------------------------------------------------------
    Pantallas:
-     #/entrenos             -> lista de sesiones
-     #/entrenos/biblioteca  -> biblioteca de ejercicios
-     #/entrenos/rival       -> preparar el partido de la semana
+     #/sesiones             -> lista de sesiones
+     #/sesiones/biblioteca  -> biblioteca de ejercicios
+     #/sesiones/rival       -> preparar el partido de la semana
      #/sesion/ID            -> detalle de una sesión (+ asistencia)
      #/rival/ID             -> detalle de la preparación de un rival
    ============================================================= */
@@ -96,23 +96,27 @@ const Entrenos = {
 
 /* ---------- PANTALLA: ENTRENOS (con 3 secciones) ---------- */
 Vistas.entrenos = {
-  titulo: 'Entrenos',
-  tab: 'entrenos',
+  titulo: 'Sesiones',
+  tab: 'sesiones',
   parteFiltro: 'todas',
   busqueda: '',
 
+  // Las 4 secciones de la pestaña Sesiones (el generador vive en asistente.js)
+  pestañas(activa) {
+    const lista = [['#/sesiones/sesiones', 'sesiones', 'Sesiones'], ['#/sesiones/biblioteca', 'biblioteca', 'Ejercicios'],
+      ['#/sesiones/rival', 'rival', 'Rival'], ['#/asistente', 'generador', 'Generador']];
+    return `<div class="segmentado">${lista.map(([href, id, t]) => `<a href="${href}" class="${activa === id ? 'activo' : ''}">${t}</a>`).join('')}</div>`;
+  },
+
   pintar(seccion = 'sesiones') {
-    const pestañas = [['sesiones', 'Sesiones'], ['biblioteca', 'Ejercicios'], ['rival', 'Rival semana']];
     let cuerpo = '';
     if (seccion === 'biblioteca') cuerpo = this.biblioteca();
     else if (seccion === 'rival') cuerpo = this.rivales();
     else cuerpo = this.listaSesiones();
 
     return `
-      <div class="pantalla-cab"><div><h1>Entrenos</h1><p>Sesiones, ejercicios y preparación de partidos</p></div></div>
-      <div class="segmentado">
-        ${pestañas.map(([id, t]) => `<a href="#/entrenos/${id}" class="${seccion === id ? 'activo' : ''}">${t}</a>`).join('')}
-      </div>
+      <div class="pantalla-cab"><div><h1>Sesiones</h1><p>Entrenos, ejercicios y rival</p></div></div>
+      ${this.pestañas(seccion)}
       ${cuerpo}
     `;
   },
@@ -186,13 +190,13 @@ Vistas.entrenos = {
 
 /* ---------- PANTALLA: DETALLE DE SESIÓN ---------- */
 Vistas.sesion = {
-  tab: 'entrenos',
-  atras: '#/entrenos',
+  tab: 'sesiones',
+  atras: '#/sesiones',
   titulo: (id) => DB.obtener('sesiones', id)?.titulo || 'Sesión',
 
   pintar(id) {
     const s = DB.obtener('sesiones', id);
-    if (!s) return UI.vacio('pizarra', 'Sesión no encontrada', 'Puede que se haya borrado.', '<a class="btn" href="#/entrenos">Volver</a>');
+    if (!s) return UI.vacio('pizarra', 'Sesión no encontrada', 'Puede que se haya borrado.', '<a class="btn" href="#/sesiones">Volver</a>');
     const cat = DB.categoria(s.categoria);
     const prep = s.preparacionId ? DB.obtener('preparaciones', s.preparacionId) : null;
 
@@ -279,13 +283,13 @@ Vistas.sesion = {
 
 /* ---------- PANTALLA: PREPARACIÓN DEL RIVAL ---------- */
 Vistas.rival = {
-  tab: 'entrenos',
-  atras: '#/entrenos/rival',
+  tab: 'sesiones',
+  atras: '#/sesiones/rival',
   titulo: (id) => 'vs ' + (DB.obtener('preparaciones', id)?.rival || 'Rival'),
 
   pintar(id) {
     const p = DB.obtener('preparaciones', id);
-    if (!p) return UI.vacio('escudo', 'Preparación no encontrada', '', '<a class="btn" href="#/entrenos/rival">Volver</a>');
+    if (!p) return UI.vacio('escudo', 'Preparación no encontrada', '', '<a class="btn" href="#/sesiones/rival">Volver</a>');
     const cat = DB.categoria(p.categoria);
     const elegidos = (p.ejercicios || []).map((e) => Biblioteca.obtener(e)).filter(Boolean);
     const sugeridos = Biblioteca.contraEstilos(p.estilos || [], p.categoria).filter((e) => !(p.ejercicios || []).includes(e.id));
@@ -455,7 +459,7 @@ Acciones['borrar-sesion'] = async (el) => {
   if (await UI.confirmar('Se borrará la sesión y su asistencia.')) {
     DB.borrar('sesiones', el.dataset.id);
     UI.aviso('Sesión borrada');
-    location.hash = '#/entrenos';
+    location.hash = '#/sesiones';
   }
 };
 
@@ -607,7 +611,7 @@ Acciones['editar-preparacion'] = (el) => {
 Acciones['borrar-preparacion'] = async (el) => {
   if (await UI.confirmar('Se borrará la preparación de este partido.')) {
     DB.borrar('preparaciones', el.dataset.id);
-    location.hash = '#/entrenos/rival';
+    location.hash = '#/sesiones/rival';
   }
 };
 
@@ -650,10 +654,3 @@ Acciones['sesion-desde-rival'] = (el) => {
   UI.aviso('Sesión creada');
   location.hash = '#/sesion/' + nueva.id;
 };
-
-/* ---------- BLOQUE EN INICIO: próximo entreno ---------- */
-(Vistas.inicio.extras = Vistas.inicio.extras || []).push(() => {
-  const proxima = Entrenos.sesiones().find((s) => s.fecha >= UI.hoyISO());
-  if (!proxima) return '';
-  return `<div class="seccion-titulo"><h2>Próximo entreno</h2><a href="#/entrenos">Ver todos</a></div><div class="lista">${Entrenos.item(proxima)}</div>`;
-});

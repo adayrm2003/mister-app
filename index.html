@@ -53,7 +53,7 @@
     <button class="cab-btn" id="btn-atras" aria-label="Volver" hidden>
       <svg class="ico"><use href="#i-atras"/></svg>
     </button>
-    <a href="#/inicio" class="cab-marca" aria-label="Inicio">
+    <a href="#/hoy" class="cab-marca" aria-label="Hoy">
       <img src="assets/icons/escudo-512.png" alt="Escudo C.D. El Tranvía" class="cab-escudo">
     </a>
     <!-- SELECTOR DE EQUIPO: muestra el equipo activo; al tocarlo, se cambia de equipo -->
@@ -65,19 +65,16 @@
       <button class="cab-btn" id="btn-tema" aria-label="Cambiar modo claro/oscuro">
         <svg class="ico"><use href="#i-luna"/></svg>
       </button>
-      <a class="cab-btn" href="#/ajustes" aria-label="Ajustes">
-        <svg class="ico"><use href="#i-ajustes"/></svg>
-      </a>
     </div>
   </header>
 
   <!-- MENÚ LATERAL (solo en ordenador) y MENÚ INFERIOR (en móvil). Es el mismo menú; el CSS decide dónde se coloca. -->
   <nav class="menu" aria-label="Menú principal">
-    <a href="#/inicio" data-tab="inicio"><svg class="ico"><use href="#i-inicio"/></svg><span>Inicio</span></a>
-    <a href="#/plantilla" data-tab="plantilla"><svg class="ico"><use href="#i-equipo"/></svg><span>Plantilla</span></a>
-    <a href="#/entrenos" data-tab="entrenos"><svg class="ico"><use href="#i-pizarra"/></svg><span>Entrenos</span></a>
-    <a href="#/partidos" data-tab="partidos"><svg class="ico"><use href="#i-trofeo"/></svg><span>Partidos</span></a>
-    <a href="#/asistente" data-tab="asistente"><svg class="ico"><use href="#i-chispa"/></svg><span>Asistente</span></a>
+    <a href="#/hoy" data-tab="hoy"><svg class="ico"><use href="#i-inicio"/></svg><span>Hoy</span></a>
+    <a href="#/calendario" data-tab="calendario"><svg class="ico"><use href="#i-calendario"/></svg><span>Calendario</span></a>
+    <a href="#/sesiones" data-tab="sesiones"><svg class="ico"><use href="#i-pizarra"/></svg><span>Sesiones</span></a>
+    <a href="#/jugadores" data-tab="jugadores"><svg class="ico"><use href="#i-equipo"/></svg><span>Jugadores</span></a>
+    <a href="#/ajustes" data-tab="ajustes"><svg class="ico"><use href="#i-ajustes"/></svg><span>Ajustes</span></a>
   </nav>
 
   <!-- ZONA CENTRAL: aquí se dibuja cada pantalla -->
