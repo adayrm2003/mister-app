@@ -1,11 +1,12 @@
 # Archivos que git debe ignorar (no forman parte de la app)
 .claude/
-__pycache__/
+node_modules/
+dist/
+dev-dist/
 *.log
 .DS_Store
 Thumbs.db
-# Nunca subas claves ni copias de seguridad con datos reales
+# Nunca subas claves
 .env
-*.env
-tranvia-copia-*.json
+.env.local
 .netlify/

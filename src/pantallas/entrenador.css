@@ -1,0 +1,71 @@
+/* Móvil: pestañas abajo. Ordenador (≥ 900 px): pestañas en una columna a la izquierda. */
+.entrenador { min-height: 100vh; min-height: 100dvh; }
+.entrenador-cuerpo { padding-bottom: calc(var(--alto-pestanas) + env(safe-area-inset-bottom, 0px)); }
+
+.pestanas {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  background: var(--superficie); border-top: 1px solid var(--linea);
+  padding: 6px max(4px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px));
+  min-height: var(--alto-pestanas);
+}
+.pestanas-logo { display: none; }
+.pestana {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 58px; font-size: 12px; font-weight: 600; color: var(--tinta-2); text-decoration: none; border-radius: 12px;
+}
+.pestana-icono { display: grid; place-items: center; width: 56px; height: 32px; border-radius: 16px; transition: background-color .15s; }
+.pestana-icono svg { width: 26px; height: 26px; }
+.pestana.active { color: var(--cesped); font-weight: 700; }
+.pestana.active .pestana-icono { background: var(--cesped-suave); }
+
+@media (min-width: 900px) {
+  .pestanas {
+    top: 0; right: auto; width: 104px; grid-template-columns: 1fr; grid-auto-rows: min-content; gap: 6px; align-content: start;
+    border-top: 0; border-right: 1px solid var(--linea); padding: 20px 8px;
+  }
+  .pestanas-logo { display: grid; place-items: center; margin-bottom: 18px; }
+  .pestana { font-size: 13px; min-height: 68px; }
+  .entrenador-cuerpo { padding-bottom: 0; padding-left: 104px; }
+  .aviso-flotante { bottom: 24px; }
+}
+
+.selector-equipo {
+  display: inline-flex; align-items: center; gap: 10px; max-width: 100%; min-height: 48px;
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 14px 6px 6px;
+  font-weight: 700; font-size: 17px;
+}
+.selector-equipo:disabled { cursor: default; opacity: 1; }
+.selector-equipo svg { width: 20px; height: 20px; color: var(--tinta-2); flex: none; }
+.selector-nombre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fila-boton { width: 100%; background: none; border: 0; border-top: 1px solid var(--linea); text-align: left; }
+.fila-boton:first-child { border-top: 0; }
+.fila-boton .marca { width: 24px; height: 24px; color: var(--cesped); }
+
+/* Inicio */
+.saludo { display: flex; flex-direction: column; gap: 4px; }
+.saludo-fecha { font-weight: 600; font-size: 15px; color: var(--tinta-2); }
+.saludo h1 { font-size: 42px; }
+.proximo {
+  border-radius: 22px; background: var(--cesped); color: var(--sobre-cesped); padding: 18px;
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 30px, transparent 30px 60px);
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+}
+.proximo-tipo { background: rgba(255,255,255,.16); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.proximo-vacio { font-family: var(--f-display); font-weight: 900; font-size: 34px; line-height: .95; text-transform: uppercase; }
+.proximo-datos { font-size: 15px; font-weight: 500; opacity: .92; max-width: 44ch; }
+.proximo-boton { margin-top: 6px; background: rgba(255,255,255,.16); color: inherit; min-height: 46px; font-size: 16px; }
+.acciones-inicio { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.accion-grande { flex-direction: column; gap: 6px; min-height: 108px; border-radius: 20px; font-size: 17px; padding: 12px; }
+.accion-grande svg { width: 32px; height: 32px; }
+
+/* Sin equipo */
+.sin-equipo {
+  min-height: 100vh; min-height: 100dvh; max-width: 480px; margin: 0 auto; text-align: center;
+  padding: calc(32px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+.sin-equipo svg:first-child { border-radius: 18px; }
+.sin-equipo h1 { font-size: 36px; }
+.sin-equipo p { color: var(--tinta-2); }
+.correo-grande { font-weight: 700; font-size: 19px; color: var(--tinta) !important; background: var(--superficie); border: 1px solid var(--linea); border-radius: 14px; padding: 10px 16px; overflow-wrap: anywhere; }

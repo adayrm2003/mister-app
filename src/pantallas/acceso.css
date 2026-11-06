@@ -1,0 +1,36 @@
+.acceso { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; background: var(--cal); }
+.acceso-portada {
+  width: 100%; background: var(--cesped); color: var(--sobre-cesped);
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 44px, transparent 44px 88px);
+  padding: calc(36px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 72px max(20px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+}
+.acceso-portada svg { border-radius: 16px; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+.acceso-portada h1 { font-size: 64px; margin-top: 6px; }
+.acceso-portada p { font-weight: 600; opacity: .9; }
+.acceso-tarjeta {
+  width: calc(100% - 32px); max-width: 440px; margin-top: -44px; margin-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  background: var(--superficie); border-radius: 24px; box-shadow: var(--sombra); border: 1px solid var(--linea);
+  padding: 18px; display: flex; flex-direction: column; gap: 16px;
+}
+.acceso-form { display: flex; flex-direction: column; gap: 16px; }
+.acceso-volver { align-self: flex-start; }
+.acceso-prueba { font-size: 14px; }
+
+.segmentos { display: grid; grid-template-columns: 1fr 1fr; background: var(--superficie-2); border-radius: 14px; padding: 4px; gap: 4px; }
+.segmentos button { border: 0; background: none; min-height: 46px; border-radius: 11px; font-weight: 700; font-size: 16px; color: var(--tinta-2); }
+.segmentos button[aria-selected="true"] { background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra); }
+
+.roles { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.roles legend { margin-bottom: 8px; padding: 0; }
+.rol {
+  position: relative; display: flex; flex-direction: column; gap: 2px; padding: 14px 12px; min-height: 120px;
+  border: 2px solid var(--linea); border-radius: 16px; cursor: pointer; background: var(--superficie);
+}
+.rol input { position: absolute; opacity: 0; pointer-events: none; }
+.rol svg { width: 28px; height: 28px; color: var(--tinta-2); margin-bottom: 6px; }
+.rol b { font-size: 17px; }
+.rol span { font-size: 13px; color: var(--tinta-2); line-height: 1.3; }
+.rol.activo { border-color: var(--cesped); background: var(--cesped-suave); }
+.rol.activo svg { color: var(--cesped); }
+.rol:has(input:focus-visible) { outline: 3px solid var(--peto); outline-offset: 2px; }

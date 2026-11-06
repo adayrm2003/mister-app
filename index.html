@@ -1,159 +1,27 @@
-<!DOCTYPE html>
-<!--
-  ============================================================
-  C.D. EL TRANVÍA · App de entrenadores
-  ------------------------------------------------------------
-  Este es el "esqueleto" de la app. El navegador lee este archivo
-  primero. Aquí solo hay la estructura fija (cabecera, zona central
-  y menú inferior). El contenido de cada pantalla lo "pinta"
-  JavaScript dentro de <main id="vista">.
-  ============================================================
--->
-<html lang="es" data-theme="auto">
-<head>
-  <meta charset="utf-8">
-  <!-- Hace que la app se adapte al ancho del móvil -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>C.D. El Tranvía · Entrenadores</title>
-  <meta name="description" content="App para los entrenadores del C.D. El Tranvía: plantilla, entrenamientos y partidos.">
-
-  <!-- Colores de la barra del navegador en el móvil (claro / oscuro) -->
-  <meta name="theme-color" content="#0B2545" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#07111F" media="(prefers-color-scheme: dark)">
-
-  <!-- PWA: datos para poder instalarla como una app -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
-  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="El Tranvía">
-
-  <!-- Tipografías modernas de Google Fonts (si no hay internet, se usan las del sistema) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
-
-  <!-- Nuestros estilos (colores, tamaños, diseño) -->
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-
-  <!-- PANTALLA DE CARGA: se ve unos instantes al abrir la app -->
-  <div id="splash" aria-hidden="true">
-    <img src="assets/icons/escudo-512.png" alt="" class="splash-escudo">
-    <div class="splash-nombre">C.D. EL TRANVÍA</div>
-    <div class="splash-sub">Área de entrenadores</div>
-    <div class="splash-barra"><span></span></div>
-  </div>
-
-  <!-- CABECERA: escudo, título de la pantalla y botones rápidos -->
-  <header class="cabecera">
-    <button class="cab-btn" id="btn-atras" aria-label="Volver" hidden>
-      <svg class="ico"><use href="#i-atras"/></svg>
-    </button>
-    <a href="#/hoy" class="cab-marca" aria-label="Hoy">
-      <img src="assets/icons/escudo-512.png" alt="Escudo C.D. El Tranvía" class="cab-escudo">
-    </a>
-    <!-- SELECTOR DE EQUIPO: muestra el equipo activo; al tocarlo, se cambia de equipo -->
-    <button class="cab-equipo" id="selector-equipo" data-accion="elegir-equipo" aria-label="Cambiar de equipo">
-      <span class="cab-club" id="equipo-detalle">C.D. El Tranvía</span>
-      <span class="cab-titulo"><span id="titulo-vista">Inicio</span><svg class="ico peq"><use href="#i-abajo"/></svg></span>
-    </button>
-    <div class="cab-acciones">
-      <button class="cab-btn" id="btn-tema" aria-label="Cambiar modo claro/oscuro">
-        <svg class="ico"><use href="#i-luna"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- MENÚ LATERAL (solo en ordenador) y MENÚ INFERIOR (en móvil). Es el mismo menú; el CSS decide dónde se coloca. -->
-  <nav class="menu" aria-label="Menú principal">
-    <a href="#/hoy" data-tab="hoy"><svg class="ico"><use href="#i-inicio"/></svg><span>Hoy</span></a>
-    <a href="#/calendario" data-tab="calendario"><svg class="ico"><use href="#i-calendario"/></svg><span>Calendario</span></a>
-    <a href="#/sesiones" data-tab="sesiones"><svg class="ico"><use href="#i-pizarra"/></svg><span>Sesiones</span></a>
-    <a href="#/jugadores" data-tab="jugadores"><svg class="ico"><use href="#i-equipo"/></svg><span>Jugadores</span></a>
-    <a href="#/ajustes" data-tab="ajustes"><svg class="ico"><use href="#i-ajustes"/></svg><span>Ajustes</span></a>
-  </nav>
-
-  <!-- ZONA CENTRAL: aquí se dibuja cada pantalla -->
-  <main id="vista" tabindex="-1"></main>
-
-  <!-- Capa para ventanas emergentes (formularios) y avisos -->
-  <div id="modal-capa" hidden></div>
-  <div id="avisos" aria-live="polite"></div>
-
-  <!--
-    ICONOS: los dibujamos una sola vez aquí (formato SVG) y luego los
-    reutilizamos en toda la app con <use href="#i-nombre">.
-    Así todos tienen el mismo estilo (trazo redondeado de 2px).
-  -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></symbol>
-      <symbol id="i-equipo" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c3 .1 5.5 2 5.5 5.3"/></symbol>
-      <symbol id="i-pizarra" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21l4-4 4 4"/><path d="M7 13l3-3 2 2 4-4"/></symbol>
-      <symbol id="i-trofeo" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></symbol>
-      <symbol id="i-chispa" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
-      <symbol id="i-ajustes" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
-      <symbol id="i-luna" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
-      <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
-      <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
-      <symbol id="i-atras" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
-      <symbol id="i-adelante" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
-      <symbol id="i-abajo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-      <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-      <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
-      <symbol id="i-editar" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
-      <symbol id="i-papelera" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/><path d="M9 7V4h6v3"/></symbol>
-      <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
-      <symbol id="i-descargar" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></symbol>
-      <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5"/><path d="M5 4h14"/></symbol>
-      <symbol id="i-compartir" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
-      <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
-      <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-      <symbol id="i-lugar" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
-      <symbol id="i-balon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.8 2.8-1.5 4.4H9.7l-1.5-4.4z"/><path d="M12 3v4.5M15.8 10.3l4.6-1.6M14.3 14.7l2.8 3.8M9.7 14.7l-2.8 3.8M8.2 10.3L3.6 8.7"/></symbol>
-      <symbol id="i-imprimir" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></symbol>
-      <symbol id="i-diana" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
-      <symbol id="i-grafica" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></symbol>
-      <symbol id="i-nota" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/></symbol>
-      <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
-      <symbol id="i-lista" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></symbol>
-      <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></symbol>
-      <symbol id="i-rayo" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
-      <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8a5 5 0 0 1-2.8-2.8l.8-1-1-2z"/></symbol>
-      <symbol id="i-tarjeta" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/></symbol>
-      <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
-      <symbol id="i-nube" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.6 1.5A4 4 0 0 1 17.5 18z"/></symbol>
-      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></symbol>
-    </defs>
-  </svg>
-
-  <!--
-    SCRIPTS: el orden importa. Primero las herramientas básicas,
-    luego los datos, y al final las pantallas y el arranque.
-  -->
-  <script src="js/ui.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/graficos.js"></script>
-  <script src="js/ejercicios.js"></script>
-  <script src="js/datos-ejemplo.js"></script>
-  <script src="js/vistas/inicio.js"></script>
-  <script src="js/vistas/plantilla.js"></script>
-  <script src="js/vistas/entrenos.js"></script>
-  <script src="js/vistas/partidos.js"></script>
-  <script src="js/vistas/pizarra.js"></script>
-  <script src="js/vistas/informe.js"></script>
-  <script src="js/asistente.js"></script>
-  <script src="js/ia.js"></script>
-  <script src="js/vistas/ajustes.js"></script>
-  <script src="js/vistas/asistente.js"></script>
-  <script src="js/vistas/equipos.js"></script>
-  <script src="js/nube.js"></script>
-  <script src="js/vistas/cuenta.js"></script>
-  <script src="js/app.js"></script>
-</body>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Míster</title>
+    <meta name="description" content="La libreta del entrenador de fútbol: plantilla, ejercicios, sesiones, partidos y alineaciones." />
+    <meta name="theme-color" content="#0F6B45" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Míster" />
+    <link rel="icon" href="/icons/icono.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" />
+    <script>
+      // Aplica el tema guardado antes de pintar, para que no haya parpadeo
+      try { var t = localStorage.getItem("mister-tema"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="raiz"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
