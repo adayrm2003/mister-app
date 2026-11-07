@@ -5,12 +5,13 @@ import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { IcoPapelera } from "../componentes/Iconos";
 import { Hoja, useUi } from "../componentes/ui";
 import { dorsalEnPartido, etiquetaJugador, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
-import { TEXTO_ACCION, accionesDe, enCampo, expulsiones, minutoActual, minutosCalculados, minutosFinales, resultado, type Accion, type Reloj, type TipoAccion } from "../datos/partido";
+import { TEXTO_ACCION, accionesDe, enCampo, expulsiones, expulsionesRival, minutoActual, minutosCalculados, minutosFinales, mmss, resultado, segundosActuales, type Accion, type Reloj, type TipoAccion } from "../datos/partido";
 import "./partido-en-juego.css";
 
 /* ---------- Iconos pequeños de la línea de tiempo ---------- */
 export function IconoAccion({ tipo }: { tipo: TipoAccion }) {
   if (tipo === "amarilla" || tipo === "roja") return <span className={"tarjeta-ico " + tipo} aria-hidden="true" />;
+  if (tipo === "amarillaRival" || tipo === "rojaRival") return <span className={"tarjeta-ico rival " + (tipo === "amarillaRival" ? "amarilla" : "roja")} aria-hidden="true" />;
   if (tipo === "cambio") return (
     <svg className="accion-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v14M3.5 7.5 7 4l3.5 3.5" stroke="var(--victoria)" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /><path d="M17 20V6M13.5 16.5 17 20l3.5-3.5" stroke="var(--derrota)" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
   );
@@ -44,9 +45,13 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const r = resultado(partido);
   const reloj = partido.reloj ?? { parte: 1, inicio: null, terminado: false };
   const minAhora = minutoActual(reloj, minutosParte);
+  const segAhora = segundosActuales(reloj, minutosParte);
+  // Lo que pasa del final teórico de la parte (45:00, 90:00...) es tiempo añadido
+  const finParte = reloj.parte * minutosParte * 60;
+  const anadido = segAhora != null && segAhora > finParte ? segAhora - finParte : 0;
 
-  // El minuto del reloj se refresca solo
-  useEffect(() => { if (reloj.inicio == null) return; const t = setInterval(() => tic((n) => n + 1), 15000); return () => clearInterval(t); }, [reloj.inicio]);
+  // El reloj se refresca cada segundo mientras corre
+  useEffect(() => { if (reloj.inicio == null) return; const t = setInterval(() => tic((n) => n + 1), 1000); return () => clearInterval(t); }, [reloj.inicio]);
 
   const guardar = (c: Partial<Partido>) => guardarPartido({ ...partido, ...c });
   const guardarAccion = async (a: Accion) => {
@@ -60,6 +65,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const minutos = minutosFinales(partido, duracion);
   const calculados = minutosCalculados(al, partido.acciones ?? [], duracion);
   const exp = expulsiones(acciones);
+  const expRival = expulsionesRival(acciones);
 
   return (
     <div className="en-juego">
@@ -77,9 +83,15 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
           </>
         ) : reloj.inicio != null ? (
           <>
-            <span className="reloj-minuto">{minAhora}'</span>
-            <span className="reloj-estado">{reloj.parte}ª parte en juego</span>
-            <button className="btn btn-gris" type="button" onClick={() => ponerReloj(reloj.parte >= partes ? { ...reloj, inicio: null, terminado: true } : { ...reloj, inicio: null })}>
+            <span className="reloj-minuto" aria-label={`Minuto ${minAhora}`}>{mmss(Math.min(segAhora ?? 0, finParte))}</span>
+            <span className="reloj-estado">
+              {reloj.parte}ª parte en juego
+              {anadido > 0 && <b className="reloj-anadido">+{mmss(anadido)} de añadido</b>}
+            </span>
+            <button className="btn btn-gris" type="button" onClick={async () => {
+              if (reloj.parte >= partes && !(await confirmar({ titulo: "¿Terminar el partido?", texto: "El reloj se para. Podrás seguir apuntando o corrigiendo goles, cambios y tarjetas.", boton: "Terminar", peligro: false }))) return;
+              ponerReloj(reloj.parte >= partes ? { ...reloj, inicio: null, terminado: true } : { ...reloj, inicio: null });
+            }}>
               {reloj.parte >= partes ? "Terminar partido" : `Fin de la ${reloj.parte}ª parte`}
             </button>
           </>
@@ -101,11 +113,15 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
 
       <section className="botones-accion" aria-label="Apuntar">
+        <span className="etiqueta grupo-accion">{equipo.nombre}</span>
         <button className="btn btn-peto accion-gol" type="button" onClick={() => setHoja({ tipo: "gol" })}><IconoAccion tipo="gol" /> Gol nuestro</button>
-        <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "golRival" })}><IconoAccion tipo="golRival" /> Gol rival</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "cambio" })}><IconoAccion tipo="cambio" /> Cambio</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarilla" })}><IconoAccion tipo="amarilla" /> Amarilla</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "roja" })}><IconoAccion tipo="roja" /> Roja</button>
+        <span className="etiqueta grupo-accion">{ellos}</span>
+        <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "golRival" })}><IconoAccion tipo="golRival" /> Gol</button>
+        <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarillaRival" })}><IconoAccion tipo="amarillaRival" /> Amarilla</button>
+        <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "rojaRival" })}><IconoAccion tipo="rojaRival" /> Roja</button>
       </section>
 
       <section className="linea-tiempo">
@@ -114,7 +130,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
           <ol>
             {acciones.map((a) => (
               <li key={a.id}>
-                <button type="button" className={"suceso " + (a.tipo === "golRival" ? "suyo" : "")} onClick={() => setHoja({ tipo: a.tipo, editar: a })}>
+                <button type="button" className={"suceso " + (a.tipo.endsWith("Rival") ? "suyo" : "")} onClick={() => setHoja({ tipo: a.tipo, editar: a })}>
                   <span className="suceso-minuto">{a.minuto}'</span>
                   <IconoAccion tipo={a.tipo} />
                   <span className="suceso-texto">
@@ -122,6 +138,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
                     {a.tipo === "golRival" && <b>Gol de {ellos}</b>}
                     {a.tipo === "cambio" && <><b>Entra {etiqueta(a.entraId)}</b><small>Sale {etiqueta(a.jugadorId)}</small></>}
                     {(a.tipo === "amarilla" || a.tipo === "roja") && <><b>{TEXTO_ACCION[a.tipo]} a {etiqueta(a.jugadorId)}</b>{a.tipo === "amarilla" && exp.get(a.jugadorId!) === a.minuto && <small>Segunda amarilla: expulsado</small>}</>}
+                    {(a.tipo === "amarillaRival" || a.tipo === "rojaRival") && <><b>{a.tipo === "amarillaRival" ? "Amarilla" : "Roja"} al {a.dorsalRival ?? "?"} de {ellos}</b>{a.tipo === "amarillaRival" && a.dorsalRival != null && expRival.get(a.dorsalRival) === a.minuto && <small>Segunda amarilla: expulsado</small>}</>}
                   </span>
                 </button>
               </li>
@@ -157,7 +174,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       </section>
 
       {hoja && (
-        <HojaAccion tipo={hoja.tipo} editar={hoja.editar} minutoInicial={hoja.editar?.minuto ?? minAhora ?? acciones[acciones.length - 1]?.minuto ?? 1} rival={ellos}
+        <HojaAccion tipo={hoja.tipo} editar={hoja.editar} minutoInicial={hoja.editar?.minuto ?? (minAhora != null ? Math.min(minAhora, reloj.parte * minutosParte) : null) ?? acciones[acciones.length - 1]?.minuto ?? 1} rival={ellos}
           etiqueta={etiqueta} convocados={convocados} al={al} acciones={partido.acciones ?? []}
           alCerrar={() => setHoja(null)}
           alGuardar={async (a) => { await guardarAccion(a); setHoja(null); avisar(a.tipo === "gol" ? "¡Gol apuntado!" : `${TEXTO_ACCION[a.tipo]} apuntado`); }}
@@ -188,6 +205,7 @@ function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, 
   const [minuto, setMinuto] = useState(minutoInicial);
   const [jugadorId, setJugadorId] = useState(editar?.jugadorId);
   const [paso, setPaso] = useState<"principal" | "segundo">(editar ? "segundo" : "principal");
+  const [dorsal, setDorsal] = useState(editar?.dorsalRival != null ? String(editar.dorsalRival) : "");
   const otras = acciones.filter((a) => a.id !== editar?.id);
   const dentro = al ? enCampo(al, otras, minuto) : new Set(convocados.map((j) => j.id));
   const expulsados = expulsiones(otras);
@@ -196,7 +214,9 @@ function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, 
   const id = editar?.id ?? crypto.randomUUID();
   const guardar = (c: Partial<Accion>) => alGuardar({ id, tipo, minuto, ...c });
 
-  const titulo = editar ? `Corregir: ${TEXTO_ACCION[tipo].toLowerCase()}` : tipo === "gol" ? "Gol nuestro" : tipo === "golRival" ? `Gol de ${rival}` : TEXTO_ACCION[tipo];
+  const titulo = editar ? `Corregir: ${TEXTO_ACCION[tipo].toLowerCase()}`
+    : tipo === "gol" ? "Gol nuestro" : tipo === "golRival" ? `Gol de ${rival}`
+    : tipo === "amarillaRival" ? `Amarilla a ${rival}` : tipo === "rojaRival" ? `Roja a ${rival}` : TEXTO_ACCION[tipo];
   const Lista = ({ jugadores, elegir, marcado }: { jugadores: Jugador[]; elegir: (j: Jugador) => void; marcado?: string }) => (
     <div className="elegir-jugador">
       {jugadores.map((j) => (
@@ -242,9 +262,25 @@ function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, 
           <Lista jugadores={fuera.filter((j) => j.id !== jugadorId)} marcado={editar?.entraId} elegir={(j) => guardar({ jugadorId, entraId: j.id })} /></>
       )}
 
-      {(tipo === "amarilla" || tipo === "roja") && (
+      {(tipo === "amarilla" || tipo === "roja") && (paso === "principal" || !jugadorId) && (
         <><span className="etiqueta">¿A quién?</span>
-          <Lista jugadores={convocados} marcado={jugadorId} elegir={(j) => guardar({ jugadorId: j.id })} /></>
+          <Lista jugadores={convocados} marcado={jugadorId} elegir={(j) => { setJugadorId(j.id); setPaso("segundo"); }} /></>
+      )}
+      {(tipo === "amarilla" || tipo === "roja") && paso === "segundo" && jugadorId && (
+        <><p className="elegido-texto">{tipo === "amarilla" ? "Amarilla" : "Roja"} a <b>{etiqueta(jugadorId)}</b> <button className="btn btn-texto" type="button" onClick={() => setPaso("principal")}>Cambiar</button></p>
+          <p className="suave">Ajusta arriba el minuto en que se la sacaron.</p>
+          <button className="btn btn-principal btn-grande" type="button" onClick={() => guardar({ jugadorId })}>Apuntar en el minuto {minuto}</button></>
+      )}
+
+      {(tipo === "amarillaRival" || tipo === "rojaRival") && (
+        <><label className="campo campo-dorsal-rival"><span>Dorsal del jugador de {rival}</span>
+            <input className="entrada entrada-dorsal grande" inputMode="numeric" pattern="[0-9]*" value={dorsal} placeholder="—" autoFocus
+              onChange={(e) => setDorsal(e.target.value.replace(/\D/g, "").slice(0, 2))} />
+          </label>
+          <button className="btn btn-principal btn-grande" type="button" disabled={dorsal === ""}
+            onClick={() => guardar({ dorsalRival: Number(dorsal) })}>
+            Apuntar {tipo === "amarillaRival" ? "amarilla" : "roja"} al {dorsal || "…"} en el minuto {minuto}
+          </button></>
       )}
 
       {alBorrar && <button className="btn btn-gris" type="button" onClick={alBorrar}><IcoPapelera /> Borrar esta acción</button>}

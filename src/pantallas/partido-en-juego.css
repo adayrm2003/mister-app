@@ -18,10 +18,11 @@
 .reloj-minuto { font-family: var(--f-display); font-weight: 900; font-size: 44px; line-height: 1; color: var(--peto); }
 .reloj-estado { flex: 1; font-weight: 700; min-width: 140px; }
 
-.botones-accion { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.botones-accion .btn { min-height: 64px; font-size: 17px; border-radius: 18px; }
-.botones-accion .accion-gol { grid-column: 1 / -1; min-height: 76px; font-size: 20px; }
-@media (min-width: 720px) { .botones-accion { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } .botones-accion .accion-gol { grid-column: auto; } }
+.botones-accion { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.botones-accion .btn { min-height: 64px; font-size: 16px; border-radius: 18px; padding: 0 8px; flex-direction: column; gap: 4px; }
+.botones-accion .accion-gol { grid-column: 1 / -1; min-height: 76px; font-size: 20px; flex-direction: row; gap: 10px; }
+.grupo-accion { grid-column: 1 / -1; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 720px) { .botones-accion .btn { flex-direction: row; gap: 8px; } }
 .accion-ico { width: 24px; height: 24px; flex: none; color: var(--tinta); }
 .btn-peto .accion-ico { color: var(--sobre-peto); }
 .tarjeta-ico { width: 15px; height: 21px; border-radius: 3px; display: inline-block; flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
@@ -45,3 +46,9 @@
 .elegir-jugador button { min-height: 56px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie); font-weight: 700; font-size: 16px; text-align: left; padding: 6px 12px; }
 .elegir-jugador button.marcado { border-color: var(--cesped); background: var(--cesped-suave); }
 .elegido-texto { font-size: 17px; }
+
+.tarjeta-ico.rival { outline: 2px dashed var(--tinta-2); outline-offset: 1px; }
+.reloj-estado { display: flex; flex-direction: column; }
+.reloj-anadido { color: var(--derrota); font-size: 15px; }
+.reloj-minuto { font-variant-numeric: tabular-nums; }
+.campo-dorsal-rival { align-items: center; text-align: center; }

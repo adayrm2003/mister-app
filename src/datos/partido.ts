@@ -2,7 +2,7 @@
 // Todo va por jugador (su id), nunca por dorsal, para que las estadísticas cuadren aunque cambie de número.
 import type { Alineacion, Partido } from "./modelo";
 
-export type TipoAccion = "gol" | "golRival" | "cambio" | "amarilla" | "roja";
+export type TipoAccion = "gol" | "golRival" | "cambio" | "amarilla" | "roja" | "amarillaRival" | "rojaRival";
 
 export interface Accion {
   id: string;
@@ -11,6 +11,7 @@ export interface Accion {
   jugadorId?: string; // goleador, jugador amonestado o jugador que sale
   asistenteId?: string; // solo en goles
   entraId?: string; // solo en cambios
+  dorsalRival?: number | null; // tarjetas del otro equipo
 }
 
 /** Reloj del partido: parte en juego y cuándo empezó (hora del dispositivo). */
@@ -25,11 +26,36 @@ export function resultado(p: Partido) {
   return { nuestros, suyos, signo: nuestros > suyos ? "victoria" : nuestros < suyos ? "derrota" : "empate" } as const;
 }
 
-/** Minuto que marca el reloj ahora (1, 2, 3... sumando las partes anteriores). */
-export function minutoActual(r: Reloj | undefined, minutosParte: number): number | null {
+/**
+ * Segundos de partido que marca el reloj: cada parte empieza donde acaba la anterior en el papel
+ * (la 2ª siempre en el 45:00 si las partes son de 45) y sigue contando si hay añadido.
+ */
+export function segundosActuales(r: Reloj | undefined, minutosParte: number): number | null {
   if (!r || r.inicio == null) return null;
-  const transcurrido = Math.floor((Date.now() - r.inicio) / 60000) + 1;
-  return (r.parte - 1) * minutosParte + Math.max(1, transcurrido);
+  return (r.parte - 1) * minutosParte * 60 + Math.max(0, (Date.now() - r.inicio) / 1000);
+}
+
+/** Minuto para apuntar acciones: del 0:00 al 0:59 es el minuto 1. */
+export function minutoActual(r: Reloj | undefined, minutosParte: number): number | null {
+  const s = segundosActuales(r, minutosParte);
+  return s == null ? null : Math.floor(s / 60) + 1;
+}
+
+export const mmss = (seg: number) => `${Math.floor(seg / 60)}:${String(Math.floor(seg % 60)).padStart(2, "0")}`;
+
+/** Expulsiones del rival por dorsal (roja o segunda amarilla). */
+export function expulsionesRival(acciones: Accion[]): Map<number, number> {
+  const m = new Map<number, number>(), am = new Map<number, number>();
+  for (const a of [...acciones].sort((x, y) => x.minuto - y.minuto)) {
+    if (a.dorsalRival == null) continue;
+    if (a.tipo === "rojaRival" && !m.has(a.dorsalRival)) m.set(a.dorsalRival, a.minuto);
+    if (a.tipo === "amarillaRival") {
+      const n = (am.get(a.dorsalRival) ?? 0) + 1;
+      am.set(a.dorsalRival, n);
+      if (n === 2 && !m.has(a.dorsalRival)) m.set(a.dorsalRival, a.minuto);
+    }
+  }
+  return m;
 }
 
 /** Minuto en que un jugador queda expulsado (roja directa o segunda amarilla). */
@@ -93,5 +119,6 @@ export function minutosFinales(p: Partido, duracion: number): Record<string, num
 }
 
 export const TEXTO_ACCION: Record<TipoAccion, string> = {
-  gol: "Gol", golRival: "Gol del rival", cambio: "Cambio", amarilla: "Amarilla", roja: "Roja"
+  gol: "Gol", golRival: "Gol del rival", cambio: "Cambio", amarilla: "Amarilla", roja: "Roja",
+  amarillaRival: "Amarilla al rival", rojaRival: "Roja al rival"
 };
