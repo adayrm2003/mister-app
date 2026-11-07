@@ -69,3 +69,5 @@
 .sin-equipo h1 { font-size: 36px; }
 .sin-equipo p { color: var(--tinta-2); }
 .correo-grande { font-weight: 700; font-size: 19px; color: var(--tinta) !important; background: var(--superficie); border: 1px solid var(--linea); border-radius: 14px; padding: 10px 16px; overflow-wrap: anywhere; }
+.proximo-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+.despues { display: flex; flex-direction: column; gap: 8px; }

@@ -6,6 +6,7 @@ import { IcoAtras, IcoCheck, IcoDescargar, IcoFlechaAbajo, IcoLapiz, IcoMas, Ico
 import { Hoja, mensajeDe, useUi } from "../componentes/ui";
 import type { Ejercicio } from "../datos/pizarra";
 import { copiarSesion, duracionTotal, minutosDe, porFases, sesionVacia, textoMinutos, type Bloque, type Sesion } from "../datos/sesion";
+import { PonerEnCalendario } from "./Calendario";
 import "./sesiones.css";
 
 const sinAcentos = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -154,9 +155,10 @@ export function SesionDetalle() {
         <button className="btn btn-principal btn-grande" type="button" onClick={() => ir(`/sesiones/${s.id}/editar`)}><IcoLapiz /> Editar</button>
         <button className="btn btn-borde btn-grande" type="button" onClick={duplicar}>Usar de nuevo</button>
         <button className="btn btn-borde btn-grande ancho-completo" type="button" onClick={descargar} disabled={pdf}><IcoDescargar /> {pdf ? "Creando PDF…" : "Descargar PDF"}</button>
+        <PonerEnCalendario sesion={s} />
         <button className="btn btn-texto peligro" type="button" onClick={eliminar}><IcoPapelera /> Borrar sesión</button>
       </div>
-      <p className="suave nota-fase">«Usar de nuevo» hace una copia para cambiarla sin tocar esta. En la fase 7 podrás ponerla en un día del calendario.</p>
+      <p className="suave nota-fase">«Usar de nuevo» hace una copia para cambiarla sin tocar esta.</p>
     </main>
   );
 }

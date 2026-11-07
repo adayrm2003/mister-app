@@ -11,10 +11,10 @@ import Partidos, { PartidoDetalle } from "./Partidos";
 import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
 import Sesiones, { EditorSesion, SesionDetalle } from "./Sesiones";
 import ModoCampo from "./ModoCampo";
+import Calendario, { EventoDetalle } from "./Calendario";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
-import Proximamente from "./Proximamente";
 import "./entrenador.css";
 
 
@@ -84,7 +84,8 @@ export default function AppEntrenador() {
             <Route path="/sesiones/:id" element={<SesionDetalle />} />
             <Route path="/sesiones/:id/editar" element={<EditorSesion />} />
             <Route path="/sesiones/:id/campo" element={<ModoCampo />} />
-            <Route path="/calendario" element={<Proximamente titulo="Calendario" fase={7} texto="Aquí verás la semana y el mes con tus entrenamientos, partidos y torneos, y podrás pasar lista." Icono={IcoCalendario} />} />
+            <Route path="/calendario" element={<Calendario />} />
+            <Route path="/calendario/:id" element={<EventoDetalle />} />
             <Route path="/partidos" element={<Partidos />} />
             <Route path="/partidos/:id" element={<PartidoDetalle />} />
             <Route path="/partidos/:id/:seccion" element={<PartidoDetalle />} />

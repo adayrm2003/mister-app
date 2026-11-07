@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { IcoCalendario, IcoMas, IcoPartidos } from "../componentes/Iconos";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import type { Partido } from "../datos/modelo";
+import { citasDe, type Evento } from "../datos/calendario";
+import { colorTexto } from "../componentes/Campo";
 import { fechaLarga, hoyISO } from "./Partidos";
 
 const saludo = () => {
@@ -18,10 +20,18 @@ function cuando(fecha: string) {
 }
 
 export default function Inicio() {
-  const { equipo } = useEquipo();
+  const { equipo, ajustes } = useEquipo();
   const ir = useNavigate();
   const { filas: partidos } = useColeccion<Partido>("partidos");
-  const proximo = partidos.filter((p) => p.fecha >= hoyISO()).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))[0];
+  const { filas: eventos } = useColeccion<Evento>("eventos");
+  const ahora = new Date().toTimeString().slice(0, 5);
+  // Lo siguiente que toca: hoy cuenta hasta una hora después de empezar
+  const haceUnaHora = `${String(Math.max(0, new Date().getHours() - 1)).padStart(2, "0")}:${ahora.slice(3)}`;
+  const citas = citasDe(eventos, partidos, ajustes.tiposEvento).filter((c) => c.fecha > hoyISO() || (c.fecha === hoyISO() && (!c.hora || c.hora >= haceUnaHora)));
+  const cita = citas[0];
+  const partido = cita?.esPartido ? partidos.find((p) => p.id === cita.id) : undefined;
+  const evento = cita && !cita.esPartido ? eventos.find((e) => e.id === cita.id) : undefined;
+  const siguientes = citas.slice(1, 4);
   const hoy = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
 
   return (
@@ -31,18 +41,26 @@ export default function Inicio() {
         <h1>{saludo()}, míster</h1>
       </div>
 
-      {proximo ? (
+      {cita ? (
         <section className="proximo" aria-label="Próximo evento">
-          <span className="proximo-tipo">Partido · {cuando(proximo.fecha)}</span>
-          <p className="proximo-vacio">vs {proximo.rival}</p>
-          <p className="proximo-datos">{proximo.hora} · {proximo.campo || "Campo sin indicar"} · {proximo.casa ? "En casa" : "Fuera"} · {proximo.competicion}</p>
-          <button className="btn proximo-boton" type="button" onClick={() => ir(`/partidos/${proximo.id}/alineacion`)}><IcoPartidos /> {proximo.alineacion ? "Ver alineación" : "Hacer alineación"}</button>
+          <span className="proximo-tipo" style={{ background: cita.color, color: colorTexto(cita.color) }}>{cita.tipoNombre} · {cuando(cita.fecha)}</span>
+          <p className="proximo-vacio">{cita.titulo}</p>
+          <p className="proximo-datos">{partido
+            ? `${partido.hora} · ${partido.campo || "Campo sin indicar"} · ${partido.casa ? "En casa" : "Fuera"} · ${partido.competicion}`
+            : cita.detalle || "Sin hora"}</p>
+          {partido && <button className="btn proximo-boton" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}><IcoPartidos /> {partido.alineacion ? "Ver alineación" : "Hacer alineación"}</button>}
+          {evento && (
+            <div className="proximo-botones">
+              {evento.sesionId && <button className="btn proximo-boton" type="button" onClick={() => ir(`/sesiones/${evento.sesionId}/campo`)}>Modo campo</button>}
+              <button className="btn proximo-boton" type="button" onClick={() => ir(`/calendario/${evento.id}`)}><IcoCalendario /> Pasar lista</button>
+            </div>
+          )}
         </section>
       ) : (
         <section className="proximo" aria-label="Próximo evento">
           <span className="proximo-tipo">Próximo evento</span>
           <p className="proximo-vacio">Sin eventos a la vista</p>
-          <p className="proximo-datos">Cuando apuntes partidos de {equipo.nombre} (y en la fase 7, entrenamientos en el calendario), aquí verás el siguiente.</p>
+          <p className="proximo-datos">Añade entrenamientos de {equipo.nombre} en el calendario o apunta un partido y aquí verás el siguiente.</p>
           <button className="btn proximo-boton" type="button" onClick={() => ir("/calendario")}><IcoCalendario /> Abrir calendario</button>
         </section>
       )}
@@ -55,6 +73,19 @@ export default function Inicio() {
           <IcoPartidos /> Apuntar partido
         </button>
       </div>
+      {siguientes.length > 0 && (
+        <section className="despues">
+          <h2 className="etiqueta">Después</h2>
+          <div className="lista">
+            {siguientes.map((c) => (
+              <button key={c.id} type="button" className="fila fila-boton" onClick={() => ir(c.enlace)}>
+                <span className="punto-color" style={{ background: c.color }} />
+                <span className="fila-texto"><b>{c.titulo}</b><span>{cuando(c.fecha)}{c.hora ? ` · ${c.hora}` : ""}</span></span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

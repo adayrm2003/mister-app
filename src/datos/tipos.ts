@@ -80,7 +80,7 @@ export interface Api {
 export type TablaUsuario = "ejercicios" | "sesiones";
 
 /** Tablas con datos de un equipo. */
-export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion";
+export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos";
 export interface Fila { id: string; equipoId: string }
 
 /** Error con un mensaje ya preparado para enseñarlo al usuario. */

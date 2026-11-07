@@ -20,9 +20,9 @@ export default function Partidos() {
   const [nuevo, setNuevo] = useState<Partido | null>(null);
   const ir = useNavigate();
 
-  const crear = () => setNuevo({ id: nuevoId(), equipoId: equipo.id, rival: "", fecha: hoyISO(), hora: "10:00", campo: "", casa: true, competicion: "Liga", notas: "", alineacion: null });
+  const crear = (fecha = hoyISO()) => setNuevo({ id: nuevoId(), equipoId: equipo.id, rival: "", fecha, hora: "10:00", campo: "", casa: true, competicion: "Liga", notas: "", alineacion: null });
   // Desde Inicio: "Apuntar partido" abre directamente el formulario
-  useEffect(() => { if (params.get("nuevo")) { crear(); setParams({}, { replace: true }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (params.get("nuevo")) { crear(params.get("fecha") || undefined); setParams({}, { replace: true }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const hoy = hoyISO();
   const proximos = partidos.filter((p) => p.fecha >= hoy).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
@@ -31,7 +31,7 @@ export default function Partidos() {
   return (
     <main className="pagina">
       <h1>Partidos</h1>
-      <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={crear}><IcoMas /> Apuntar partido</button>
+      <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => crear()}><IcoMas /> Apuntar partido</button>
 
       {!cargando && partidos.length === 0 && (
         <div className="vacio tarjeta">

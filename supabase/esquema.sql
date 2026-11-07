@@ -248,3 +248,27 @@ begin
     execute format('grant select, insert, update, delete on public.%I to authenticated', t);
   end loop;
 end $$;
+
+-- =====================================================================
+-- FASE 7: calendario (entrenamientos, torneos y tipos propios) y asistencia
+-- Los partidos siguen en su tabla; el calendario los muestra también.
+-- =====================================================================
+create table if not exists public.eventos (
+  id         uuid primary key,
+  equipo_id  uuid not null references public.equipos(id) on delete cascade,
+  tipo       text not null,
+  titulo     text not null default '',
+  fecha      date not null,
+  hora       text not null default '',
+  hora_fin   text not null default '',
+  lugar      text not null default '',
+  notas      text not null default '',
+  sesion_id  uuid,
+  asistencia jsonb not null default '{}'::jsonb,
+  creado     timestamptz not null default now()
+);
+create index if not exists eventos_equipo_fecha_idx on public.eventos(equipo_id, fecha);
+alter table public.eventos enable row level security;
+drop policy if exists "equipo: todo" on public.eventos;
+create policy "equipo: todo" on public.eventos for all using (public.puedo_ver_equipo(equipo_id)) with check (public.puedo_ver_equipo(equipo_id));
+grant select, insert, update, delete on public.eventos to authenticated;
