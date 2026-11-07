@@ -15,8 +15,8 @@ export function repartoInicial(n: number): Punto[] {
   return porLineas([def, campo - def - del, del]);
 }
 
-export default function EditorSistema({ inicial, jugadoresPorDefecto, alCerrar, alGuardar }: {
-  inicial: Sistema | null; jugadoresPorDefecto: number; alCerrar: () => void; alGuardar: (s: Sistema) => void;
+export default function EditorSistema({ inicial, jugadoresPorDefecto, modalidades = MODALIDADES, alCerrar, alGuardar }: {
+  inicial: Sistema | null; jugadoresPorDefecto: number; modalidades?: typeof MODALIDADES; alCerrar: () => void; alGuardar: (s: Sistema) => void;
 }) {
   const [nombre, setNombre] = useState(inicial?.nombre ?? "");
   const [posiciones, setPosiciones] = useState<Punto[]>(inicial?.posiciones ?? repartoInicial(jugadoresPorDefecto));
@@ -38,11 +38,13 @@ export default function EditorSistema({ inicial, jugadoresPorDefecto, alCerrar, 
   return (
     <Hoja titulo={inicial ? "Editar sistema" : "Nuevo sistema"} alCerrar={alCerrar}>
       <label className="campo"><span>Nombre</span><input className="entrada" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Por ejemplo: 4-2-3-1" maxLength={20} /></label>
-      <div className="campo">
-        <span>Modalidad</span>
-        <Opciones etiqueta="Modalidad" valor={String(posiciones.length)} cambiar={(v) => cambiarCantidad(Number(v))} columnas={3}
-          opciones={MODALIDADES.map((m) => ({ valor: String(m.jugadores), texto: m.texto }))} />
-      </div>
+      {modalidades.length > 1 && (
+        <div className="campo">
+          <span>Modalidad</span>
+          <Opciones etiqueta="Modalidad" valor={String(posiciones.length)} cambiar={(v) => cambiarCantidad(Number(v))} columnas={modalidades.length}
+            opciones={modalidades.map((m) => ({ valor: String(m.jugadores), texto: m.texto }))} />
+        </div>
+      )}
       <p className="suave" style={{ fontSize: 15 }}>Arrastra cada hueco a su sitio. El 1 es el portero.</p>
       <div className="editor-sistema">
         <Campo ref={campo}>

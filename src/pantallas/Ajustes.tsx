@@ -14,11 +14,20 @@ export default function Ajustes() {
   const [sistemaEditando, setSistemaEditando] = useState<Sistema | "nuevo" | null>(null);
   const n = jugadoresEnCampo(a);
 
+  // Solo las modalidades que entrena (y siempre la de este equipo)
+  const mias = MODALIDADES.filter((m) => a.modalidades.includes(m.valor) || m.valor === a.modalidad);
   const sistemasPorTamano = useMemo(() => {
+    const tamanos = mias.map((m) => m.jugadores);
     const m = new Map<number, Sistema[]>();
-    a.sistemas.forEach((s) => m.set(s.jugadores, [...(m.get(s.jugadores) ?? []), s]));
+    a.sistemas.filter((s) => tamanos.includes(s.jugadores)).forEach((s) => m.set(s.jugadores, [...(m.get(s.jugadores) ?? []), s]));
     return [...m.entries()].sort(([x], [y]) => (x === n ? -1 : y === n ? 1 : y - x));
-  }, [a.sistemas, n]);
+  }, [a.sistemas, n, mias.map((x) => x.valor).join()]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function alternarModalidad(v: Modalidad) {
+    const nuevas = a.modalidades.includes(v) ? a.modalidades.filter((x) => x !== v) : [...a.modalidades, v];
+    if (nuevas.length === 0) return avisar("Elige al menos una modalidad");
+    usuarioSet({ modalidades: MODALIDADES.map((m) => m.valor).filter((x) => nuevas.includes(x)) });
+  }
 
   async function borrarSistema(s: Sistema) {
     if (await confirmar({ titulo: `¿Borrar el sistema ${s.nombre}?`, texto: "Las alineaciones ya hechas con él no cambian." })) {
@@ -40,11 +49,22 @@ export default function Ajustes() {
       <h1>Ajustes</h1>
 
       <section className="apartado">
+        <header><h2>Qué entreno</h2><p className="suave">Solo verás los sistemas de juego de estas modalidades. Puedes elegir varias.</p></header>
+        <div className="opciones" role="group" aria-label="Modalidades que entreno" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+          {MODALIDADES.map((m) => (
+            <button key={m.valor} type="button" role="checkbox" aria-checked={a.modalidades.includes(m.valor)} onClick={() => alternarModalidad(m.valor)}>
+              {a.modalidades.includes(m.valor) ? "✓ " : ""}{m.texto}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="apartado">
         <header><h2>Partidos</h2><p className="suave">Para {equipo.nombre}</p></header>
         <div className="campo">
           <span>Modalidad</span>
-          <Opciones<Modalidad> etiqueta="Modalidad" valor={a.modalidad} cambiar={(v) => equipoSet({ modalidad: v })} columnas={3}
-            opciones={MODALIDADES.map((m) => ({ valor: m.valor, texto: m.texto }))} />
+          <Opciones<Modalidad> etiqueta="Modalidad" valor={a.modalidad} cambiar={(v) => equipoSet({ modalidad: v })} columnas={mias.length}
+            opciones={mias.map((m) => ({ valor: m.valor, texto: m.texto }))} />
         </div>
         <div className="campo">
           <span>Duración del partido</span>
@@ -80,7 +100,7 @@ export default function Ajustes() {
       </section>
 
       <section className="apartado">
-        <header><h2>Sistemas de juego</h2><p className="suave">Los de {n} jugadores salen primero</p></header>
+        <header><h2>Sistemas de juego</h2><p className="suave">{mias.length > 1 ? `Los de ${equipo.nombre} (${n} jugadores) salen primero` : `De ${mias[0].texto.toLowerCase()}`}</p></header>
         {sistemasPorTamano.map(([tam, lista]) => (
           <div key={tam} className="campo">
             <span className="etiqueta">{tam} jugadores</span>
@@ -124,6 +144,7 @@ export default function Ajustes() {
         <EditorSistema
           inicial={sistemaEditando === "nuevo" ? null : sistemaEditando}
           jugadoresPorDefecto={n}
+          modalidades={mias}
           alCerrar={() => setSistemaEditando(null)}
           alGuardar={(s) => {
             usuarioSet({ sistemas: sistemaEditando === "nuevo" ? [...a.sistemas, s] : a.sistemas.map((x) => (x.id === s.id ? s : x)) });

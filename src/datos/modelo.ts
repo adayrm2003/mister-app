@@ -31,6 +31,8 @@ export interface AjustesUsuario {
   tiposEvento: Elemento[];
   /** true cuando ya se pusieron los ejercicios de ejemplo en su biblioteca. */
   ejemplosCargados: boolean;
+  /** Modalidades que entrena: solo se ven sus sistemas de juego. */
+  modalidades: Modalidad[];
 }
 
 export type Ajustes = AjustesEquipo & AjustesUsuario;
@@ -95,7 +97,8 @@ export const AJUSTES_USUARIO_BASE: AjustesUsuario = {
     { id: "partido", nombre: "Partido", color: "#FF6B1A", fijo: true },
     { id: "torneo", nombre: "Torneo", color: "#8E5BD6", fijo: true }
   ],
-  ejemplosCargados: false
+  ejemplosCargados: false,
+  modalidades: ["F7", "F8", "F11"]
 };
 
 /* ---------------- Jugadores ---------------- */

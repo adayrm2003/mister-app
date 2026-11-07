@@ -299,8 +299,8 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
 }
 
 function HojaSistemas({ sistemas, n, actual, elegir, alCerrar, irAjustes }: { sistemas: Sistema[]; n: number; actual: string; elegir: (s: Sistema) => void; alCerrar: () => void; irAjustes: () => void }) {
+  // Solo los sistemas de la modalidad de este equipo, para no mezclar fútbol 7, 8 y 11
   const mios = sistemas.filter((s) => s.jugadores === n);
-  const otros = sistemas.filter((s) => s.jugadores !== n);
   const fila = (s: Sistema) => (
     <button key={s.id} type="button" className="fila fila-boton" onClick={() => elegir(s)}>
       <span className="fila-texto"><b className="nombre-sistema">{s.nombre}</b><span>{s.jugadores} jugadores</span></span>
@@ -309,8 +309,8 @@ function HojaSistemas({ sistemas, n, actual, elegir, alCerrar, irAjustes }: { si
   );
   return (
     <Hoja titulo="Sistema de juego" alCerrar={alCerrar}>
-      {mios.length > 0 && <div className="lista">{mios.map(fila)}</div>}
-      {otros.length > 0 && <><span className="etiqueta">Otras modalidades</span><div className="lista">{otros.map(fila)}</div></>}
+      <p className="suave">Sistemas de {n === 7 ? "fútbol 7" : n === 8 ? "fútbol 8" : "fútbol 11"}, la modalidad de este equipo.</p>
+      {mios.length > 0 ? <div className="lista">{mios.map(fila)}</div> : <p className="mensaje mensaje-aviso">No tienes sistemas de {n} jugadores. Crea uno en Ajustes.</p>}
       <button className="btn btn-borde btn-ancho" type="button" onClick={irAjustes}><IcoMas /> Crear un sistema en Ajustes</button>
     </Hoja>
   );

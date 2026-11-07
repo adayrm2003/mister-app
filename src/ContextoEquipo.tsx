@@ -40,6 +40,8 @@ export function ProveedorEquipo({ equipo, equipos, children }: { equipo: Equipo;
         if (!esModalidad(eq.modalidad)) eq.modalidad = AJUSTES_EQUIPO_BASE.modalidad;
         const us = { ...AJUSTES_USUARIO_BASE, ...soloClaves(AJUSTES_USUARIO_BASE, u) };
         us.sistemas = us.sistemas.filter((s) => [7, 8, 11].includes(s.jugadores));
+        us.modalidades = (us.modalidades ?? []).filter(esModalidad);
+        if (!us.modalidades.length) us.modalidades = AJUSTES_USUARIO_BASE.modalidades;
         setDeEquipo(eq);
         setDeUsuario(us);
       })
