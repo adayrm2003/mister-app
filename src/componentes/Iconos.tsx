@@ -26,6 +26,9 @@ export const IcoLuna = (p: P) => <svg {...base(p)}><path d="M20 14.5A8 8 0 0 1 9
 export const IcoAuto = (p: P) => <svg {...base(p)}><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17Z" fill="currentColor" stroke="none" /></svg>;
 export const IcoRecargar = (p: P) => <svg {...base(p)}><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" /></svg>;
 export const IcoCorreo = (p: P) => <svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>;
+export const IcoCompartir = (p: P) => <svg {...base(p)}><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" /></svg>;
+export const IcoDescargar = (p: P) => <svg {...base(p)}><path d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5" /><path d="M4 19.5h16" /></svg>;
+export const IcoHoja = (p: P) => <svg {...base(p)}><path d="M6 2.5h8l4 4v15H6z" /><path d="M14 2.5v4h4M9 12h6M9 16h6" /></svg>;
 export const IcoMover = (p: P) => <svg {...base(p)}><path d="M7 4v14M3.5 7.5 7 4l3.5 3.5M17 20V6M13.5 16.5 17 20l3.5-3.5" /></svg>;
 
 /** Icono de la app (círculo central del campo con el balón naranja). */

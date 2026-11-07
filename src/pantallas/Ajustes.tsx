@@ -43,11 +43,8 @@ export default function Ajustes() {
         <header><h2>Partidos</h2><p className="suave">Para {equipo.nombre}</p></header>
         <div className="campo">
           <span>Modalidad</span>
-          <Opciones<Modalidad> etiqueta="Modalidad" valor={a.modalidad} cambiar={(v) => equipoSet({ modalidad: v })} columnas={5}
-            opciones={[...MODALIDADES.map((m) => ({ valor: m.valor, texto: <>{m.jugadores}<small>F{m.jugadores}</small></> })), { valor: "otra" as Modalidad, texto: <>Otra<small>a mano</small></> }]} />
-          {a.modalidad === "otra" && (
-            <div className="fila-ajuste"><span>Jugadores por equipo</span><Contador valor={a.jugadoresOtra} cambiar={(v) => equipoSet({ jugadoresOtra: v })} min={3} max={11} etiqueta="Jugadores por equipo" /></div>
-          )}
+          <Opciones<Modalidad> etiqueta="Modalidad" valor={a.modalidad} cambiar={(v) => equipoSet({ modalidad: v })} columnas={3}
+            opciones={MODALIDADES.map((m) => ({ valor: m.valor, texto: m.texto }))} />
         </div>
         <div className="campo">
           <span>Duración del partido</span>

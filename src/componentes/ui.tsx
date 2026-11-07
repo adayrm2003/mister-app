@@ -79,7 +79,7 @@ export function useTema(): [Tema, (t: Tema) => void] {
   return [tema, cambiar];
 }
 
-/** Iniciales para el escudo de un equipo: "Benjamín A" -> "BA". */
+/** Iniciales para el escudo de un equipo: "Equipo Rojo" -> "ER". */
 export function iniciales(nombre: string) {
   const p = nombre.trim().split(/\s+/).filter(Boolean);
   if (p.length === 0) return "?";

@@ -2,7 +2,7 @@
 // Todo tiene valores por defecto: nada es obligatorio configurarlo para empezar.
 
 /* ---------------- Ajustes ---------------- */
-export type Modalidad = "F11" | "F8" | "F7" | "F5" | "otra";
+export type Modalidad = "F7" | "F8" | "F11";
 export type Duracion = "2x45" | "2x40" | "2x30" | "2x25" | "otra";
 export type ModoDorsales = "fijos" | "partido";
 
@@ -15,7 +15,6 @@ export interface Elemento { id: string; nombre: string; color?: string; fijo?: b
 /** Ajustes de cada equipo (los comparten todos sus entrenadores). */
 export interface AjustesEquipo {
   modalidad: Modalidad;
-  jugadoresOtra: number;
   duracion: Duracion;
   partesOtra: number;
   minutosParteOtra: number;
@@ -35,11 +34,11 @@ export interface AjustesUsuario {
 export type Ajustes = AjustesEquipo & AjustesUsuario;
 
 export const MODALIDADES: { valor: Modalidad; texto: string; jugadores: number }[] = [
-  { valor: "F11", texto: "Fútbol 11", jugadores: 11 },
-  { valor: "F8", texto: "Fútbol 8", jugadores: 8 },
   { valor: "F7", texto: "Fútbol 7", jugadores: 7 },
-  { valor: "F5", texto: "Fútbol 5", jugadores: 5 }
+  { valor: "F8", texto: "Fútbol 8", jugadores: 8 },
+  { valor: "F11", texto: "Fútbol 11", jugadores: 11 }
 ];
+export const esModalidad = (v: unknown): v is Modalidad => MODALIDADES.some((m) => m.valor === v);
 export const DURACIONES: { valor: Duracion; partes: number; minutos: number }[] = [
   { valor: "2x45", partes: 2, minutos: 45 },
   { valor: "2x40", partes: 2, minutos: 40 },
@@ -47,16 +46,14 @@ export const DURACIONES: { valor: Duracion; partes: number; minutos: number }[] 
   { valor: "2x25", partes: 2, minutos: 25 }
 ];
 
-export const jugadoresEnCampo = (a: AjustesEquipo) =>
-  a.modalidad === "otra" ? a.jugadoresOtra : MODALIDADES.find((m) => m.valor === a.modalidad)!.jugadores;
+export const jugadoresEnCampo = (a: AjustesEquipo) => (MODALIDADES.find((m) => m.valor === a.modalidad) ?? MODALIDADES[2]).jugadores;
 
 export const tiempoDePartido = (a: AjustesEquipo) => {
   const d = DURACIONES.find((x) => x.valor === a.duracion);
   return d ? { partes: d.partes, minutos: d.minutos } : { partes: a.partesOtra, minutos: a.minutosParteOtra };
 };
 
-export const nombreModalidad = (a: AjustesEquipo) =>
-  a.modalidad === "otra" ? `${a.jugadoresOtra} contra ${a.jugadoresOtra}` : MODALIDADES.find((m) => m.valor === a.modalidad)!.texto;
+export const nombreModalidad = (m: Modalidad) => (MODALIDADES.find((x) => x.valor === m) ?? MODALIDADES[2]).texto;
 
 /** Coloca a los jugadores por líneas: [4,4,2] = 4 defensas, 4 medios, 2 delanteros (+ portero). */
 export function porLineas(lineas: number[]): Punto[] {
@@ -74,14 +71,13 @@ const sis = (id: string, lineas: number[]): Sistema => ({ id, nombre: lineas.joi
 export const SISTEMAS_BASE: Sistema[] = [
   sis("f11-442", [4, 4, 2]), sis("f11-433", [4, 3, 3]), sis("f11-352", [3, 5, 2]),
   sis("f8-331", [3, 3, 1]), sis("f8-232", [2, 3, 2]), sis("f8-322", [3, 2, 2]),
-  sis("f7-231", [2, 3, 1]), sis("f7-321", [3, 2, 1]), sis("f7-312", [3, 1, 2]),
-  sis("f5-22", [2, 2]), sis("f5-121", [1, 2, 1])
+  sis("f7-231", [2, 3, 1]), sis("f7-321", [3, 2, 1]), sis("f7-312", [3, 1, 2])
 ];
 
 export const COLORES = ["#FF6B1A", "#0F6B45", "#1F3F8F", "#D7263D", "#F5C518", "#111111", "#FFFFFF", "#6C2BD9", "#0EA5E9", "#8B4513"];
 
 export const AJUSTES_EQUIPO_BASE: AjustesEquipo = {
-  modalidad: "F11", jugadoresOtra: 9, duracion: "2x45", partesOtra: 2, minutosParteOtra: 35,
+  modalidad: "F11", duracion: "2x45", partesOtra: 2, minutosParteOtra: 35,
   dorsales: "fijos", colorEquipo: "#FF6B1A", colorRival: "#1F3F8F"
 };
 
@@ -133,6 +129,8 @@ export interface Alineacion {
   suplentes: string[];
   /** Dorsal de cada jugador solo para este partido (si no está, se usa el fijo). */
   dorsales: Record<string, number | null>;
+  /** Línea opcional para la hoja del vestuario (hora de llegada, equipación...). */
+  notasHoja?: string;
 }
 
 export interface Partido {

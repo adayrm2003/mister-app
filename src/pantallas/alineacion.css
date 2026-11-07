@@ -47,3 +47,7 @@
 .entrada-dorsal.grande { width: 140px; min-height: 90px; font-size: 60px; }
 .boton-plano { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; }
 .fila .marca { width: 24px; height: 24px; color: var(--cesped); }
+
+.vista-hoja { background: var(--superficie-2); border-radius: 16px; padding: 14px; display: grid; place-items: center; }
+.vista-hoja img { width: 100%; max-width: 420px; aspect-ratio: 210 / 297; height: auto; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.25); border-radius: 4px; }
+.vista-hoja-cargando { width: 100%; max-width: 420px; aspect-ratio: 210 / 297; display: grid; place-items: center; background: #fff; color: #555; border-radius: 4px; }

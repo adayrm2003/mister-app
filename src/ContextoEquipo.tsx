@@ -1,7 +1,7 @@
 // El equipo con el que se trabaja y sus ajustes, disponibles en todas las pantallas del entrenador.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "./datos/api";
-import { AJUSTES_EQUIPO_BASE, AJUSTES_USUARIO_BASE, type Ajustes, type AjustesEquipo, type AjustesUsuario } from "./datos/modelo";
+import { AJUSTES_EQUIPO_BASE, AJUSTES_USUARIO_BASE, esModalidad, type Ajustes, type AjustesEquipo, type AjustesUsuario } from "./datos/modelo";
 import type { Equipo, Fila, Tabla } from "./datos/tipos";
 import { mensajeDe, useUi } from "./componentes/ui";
 
@@ -36,8 +36,12 @@ export function ProveedorEquipo({ equipo, equipos, children }: { equipo: Equipo;
     Promise.all([api.leerAjustesEquipo(equipo.id), api.leerAjustesUsuario()])
       .then(([e, u]) => {
         if (!vivo) return;
-        setDeEquipo({ ...AJUSTES_EQUIPO_BASE, ...soloClaves(AJUSTES_EQUIPO_BASE, e) });
-        setDeUsuario({ ...AJUSTES_USUARIO_BASE, ...soloClaves(AJUSTES_USUARIO_BASE, u) });
+        const eq = { ...AJUSTES_EQUIPO_BASE, ...soloClaves(AJUSTES_EQUIPO_BASE, e) };
+        if (!esModalidad(eq.modalidad)) eq.modalidad = AJUSTES_EQUIPO_BASE.modalidad;
+        const us = { ...AJUSTES_USUARIO_BASE, ...soloClaves(AJUSTES_USUARIO_BASE, u) };
+        us.sistemas = us.sistemas.filter((s) => [7, 8, 11].includes(s.jugadores));
+        setDeEquipo(eq);
+        setDeUsuario(us);
       })
       .catch((err) => avisar(mensajeDe(err)))
       .finally(() => vivo && setListos(true));

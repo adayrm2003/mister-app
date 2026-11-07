@@ -5,14 +5,14 @@
 .segmentos-dir button[aria-selected="true"] { background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra); }
 .contador { font-family: var(--f-display); font-weight: 800; font-size: 18px; min-width: 26px; height: 26px; border-radius: 13px; background: var(--cesped-suave); color: var(--cesped); display: inline-grid; place-items: center; padding: 0 6px; }
 
-.crear-equipo { display: flex; gap: 10px; align-items: flex-end; }
-.crear-equipo .btn { min-height: 54px; }
+.crear-equipo { display: flex; flex-direction: column; gap: 14px; padding: 14px; }
+.crear-equipo .campo > span:first-child { font-weight: 700; }
 
 .equipos, .entrenadores { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 @media (max-width: 420px) { .equipos, .entrenadores { grid-template-columns: 1fr; } }
 .equipo, .ficha-entrenador { padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .equipo-cabeza { display: flex; align-items: center; gap: 10px; }
-.equipo-cabeza h3 { flex: 1; min-width: 0; font-size: 26px; overflow-wrap: anywhere; }
+.equipo-cabeza h3 { font-size: 26px; overflow-wrap: anywhere; margin-bottom: 4px; }
 .sin-entrenador { font-size: 15px; }
 .entrenadores-equipo { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .entrenadores-equipo li { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; min-width: 0; }

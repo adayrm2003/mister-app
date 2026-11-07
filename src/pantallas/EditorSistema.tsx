@@ -1,9 +1,9 @@
 // Crear o editar un sistema de juego moviendo los huecos sobre el campo.
 import { useRef, useState, type PointerEvent as PE } from "react";
 import { Campo, Ficha } from "../componentes/Campo";
-import { Contador } from "../componentes/Controles";
+import { Opciones } from "../componentes/Controles";
 import { Hoja } from "../componentes/ui";
-import { porLineas, type Punto, type Sistema } from "../datos/modelo";
+import { MODALIDADES, porLineas, type Punto, type Sistema } from "../datos/modelo";
 
 /** Reparto inicial razonable para n jugadores (portero + líneas). */
 export function repartoInicial(n: number): Punto[] {
@@ -38,9 +38,10 @@ export default function EditorSistema({ inicial, jugadoresPorDefecto, alCerrar, 
   return (
     <Hoja titulo={inicial ? "Editar sistema" : "Nuevo sistema"} alCerrar={alCerrar}>
       <label className="campo"><span>Nombre</span><input className="entrada" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Por ejemplo: 4-2-3-1" maxLength={20} /></label>
-      <div className="campo" style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <span>Jugadores en el campo</span>
-        <Contador valor={posiciones.length} cambiar={cambiarCantidad} min={3} max={11} etiqueta="Jugadores en el campo" />
+      <div className="campo">
+        <span>Modalidad</span>
+        <Opciones etiqueta="Modalidad" valor={String(posiciones.length)} cambiar={(v) => cambiarCantidad(Number(v))} columnas={3}
+          opciones={MODALIDADES.map((m) => ({ valor: String(m.jugadores), texto: m.texto }))} />
       </div>
       <p className="suave" style={{ fontSize: 15 }}>Arrastra cada hueco a su sitio. El 1 es el portero.</p>
       <div className="editor-sistema">

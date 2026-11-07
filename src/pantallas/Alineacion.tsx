@@ -4,10 +4,18 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as PE } from "r
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { Campo, Ficha, recorteParaPuntos, yEnCampo } from "../componentes/Campo";
-import { IcoCheck, IcoMas, IcoPapelera } from "../componentes/Iconos";
+import { IcoCheck, IcoHoja, IcoMas, IcoPapelera } from "../componentes/Iconos";
+import HojaVestuario from "./HojaVestuario";
+
+/** "Sábado 7/11" para la hoja del vestuario. */
+const fechaCorta = (f: string) => {
+  const d = new Date(f + "T12:00");
+  const dia = d.toLocaleDateString("es-ES", { weekday: "long" });
+  return `${dia[0].toUpperCase()}${dia.slice(1)} ${d.getDate()}/${d.getMonth() + 1}`;
+};
 import { Hoja, useUi } from "../componentes/ui";
 import {
-  MAX_SUPLENTES, PUESTOS, alineacionVacia, cambiarSistema, dorsalEnPartido, dorsalesRepetidos, jugadoresEnCampo, moverJugador, nuevoId,
+  MAX_SUPLENTES, PUESTOS, nombreModalidad, alineacionVacia, cambiarSistema, dorsalEnPartido, dorsalesRepetidos, jugadoresEnCampo, moverJugador, nuevoId,
   type Alineacion as TAlineacion, type Destino, type Jugador, type Partido, type PlantillaAlineacion, type Sistema
 } from "../datos/modelo";
 import "./alineacion.css";
@@ -18,6 +26,7 @@ type Hojas =
   | { tipo: "jugador"; id: string }
   | { tipo: "guardarPlantilla" }
   | { tipo: "usarPlantilla" }
+  | { tipo: "vestuario" }
   | null;
 
 interface Arrastre { id: string; x: number; y: number; sx: number; sy: number; activo: boolean }
@@ -193,6 +202,9 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
             )}
           </section>
 
+          <button className="btn btn-principal btn-grande btn-ancho" type="button" onClick={() => setHoja({ tipo: "vestuario" })}>
+            <IcoHoja /> Hoja para el vestuario (PDF)
+          </button>
           <div className="alineacion-acciones">
             <button className="btn btn-borde" type="button" onClick={() => setHoja({ tipo: "guardarPlantilla" })} disabled={convocados.size === 0}>Guardar como plantilla</button>
             <button className="btn btn-borde" type="button" onClick={() => setHoja({ tipo: "usarPlantilla" })}>Usar una plantilla</button>
@@ -236,6 +248,20 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
           cambiarDorsal={(d) => setAl((x) => ({ ...x, dorsales: { ...x.dorsales, [hoja.id]: d } }))}
           aSuplentes={() => { mover(hoja.id, { tipo: "suplentes" }); setHoja(null); }}
           quitar={() => { mover(hoja.id, { tipo: "fuera" }); setHoja(null); }} />
+      )}
+      {hoja?.tipo === "vestuario" && (
+        <HojaVestuario
+          alCerrar={() => setHoja(null)}
+          notas={al.notasHoja ?? ""}
+          cambiarNotas={(t) => setAl((x) => ({ ...x, notasHoja: t }))}
+          datos={{
+            equipo: equipo.nombre, rival: partido.rival, modalidad: nombreModalidad(ajustes.modalidad),
+            fecha: fechaCorta(partido.fecha), hora: partido.hora, campo: partido.campo, casa: partido.casa,
+            sistema: al.sistemaNombre, posiciones: al.posiciones,
+            titulares: titulares.map((id) => { const j = id ? porId.get(id) : undefined; return j ? { dorsal: dorsal(j), nombre: j.nombre } : null; }),
+            suplentes: suplentes.map((id) => { const j = porId.get(id)!; return { dorsal: dorsal(j), nombre: j.nombre }; })
+          }}
+        />
       )}
       {hoja?.tipo === "guardarPlantilla" && (
         <HojaGuardarPlantilla alCerrar={() => setHoja(null)} alGuardar={async (nombre) => {

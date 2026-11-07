@@ -4,6 +4,8 @@ import { correoValido, type Asignacion, type Club, type Equipo } from "../datos/
 import { IcoCheck, IcoCorreo, IcoLapiz, IcoMas, IcoMover, IcoPapelera, IcoPlantilla, IcoSilbato, LogoMister } from "../componentes/Iconos";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
+import { Opciones } from "../componentes/Controles";
+import { AJUSTES_EQUIPO_BASE, MODALIDADES, esModalidad, nombreModalidad, type Modalidad } from "../datos/modelo";
 import "./directiva.css";
 
 type Pestana = "equipos" | "entrenadores";
@@ -21,6 +23,8 @@ export default function PanelDirectiva() {
   const [pestana, setPestana] = useState<Pestana>("equipos");
   const [formulario, setFormulario] = useState<Formulario>(null);
   const [nuevoEquipo, setNuevoEquipo] = useState("");
+  const [nuevaModalidad, setNuevaModalidad] = useState<Modalidad>("F11");
+  const [modalidades, setModalidades] = useState<Record<string, Modalidad>>({});
   const [error, setError] = useState("");
   const { confirmar, avisar } = useUi();
 
@@ -28,6 +32,8 @@ export default function PanelDirectiva() {
     try {
       const [c, e, a] = await Promise.all([api.miClub(), api.equiposDelClub(), api.asignacionesDelClub()]);
       setClub(c); setEquipos(e); setAsignaciones(a); setError("");
+      const ajustes = await Promise.all(e.map((eq) => api.leerAjustesEquipo(eq.id).catch(() => null)));
+      setModalidades(Object.fromEntries(e.map((eq, i) => [eq.id, esModalidad(ajustes[i]?.modalidad) ? (ajustes[i]!.modalidad as Modalidad) : AJUSTES_EQUIPO_BASE.modalidad])));
     } catch (err) { setError(mensajeDe(err)); }
     finally { setCargando(false); }
   }, []);
@@ -45,7 +51,8 @@ export default function PanelDirectiva() {
     e.preventDefault();
     if (!nuevoEquipo.trim()) return;
     try {
-      await api.crearEquipo(nuevoEquipo);
+      const eq = await api.crearEquipo(nuevoEquipo);
+      await api.guardarAjustesEquipo(eq.id, { ...AJUSTES_EQUIPO_BASE, modalidad: nuevaModalidad });
       avisar(`Equipo «${nuevoEquipo.trim()}» creado`);
       setNuevoEquipo("");
       await cargar();
@@ -95,19 +102,24 @@ export default function PanelDirectiva() {
 
         {!cargando && pestana === "equipos" && (
           <>
-            <form className="crear-equipo" onSubmit={crearEquipo}>
-              <label className="campo" style={{ flex: 1, minWidth: 0 }}>
-                <span>Nuevo equipo</span>
-                <input id="nuevo-equipo" className="entrada" value={nuevoEquipo} onChange={(e) => setNuevoEquipo(e.target.value)} placeholder="Ej.: Benjamín A, Juvenil…" maxLength={40} />
+            <form className="crear-equipo tarjeta" onSubmit={crearEquipo}>
+              <label className="campo">
+                <span>Nombre del nuevo equipo</span>
+                <input id="nuevo-equipo" className="entrada" value={nuevoEquipo} onChange={(e) => setNuevoEquipo(e.target.value)} placeholder="El nombre que uséis en el club" maxLength={40} />
               </label>
-              <button className="btn btn-principal" type="submit" disabled={!nuevoEquipo.trim()}><IcoMas /> Crear</button>
+              <div className="campo">
+                <span>Modalidad</span>
+                <Opciones<Modalidad> etiqueta="Modalidad del nuevo equipo" valor={nuevaModalidad} cambiar={setNuevaModalidad} columnas={3}
+                  opciones={MODALIDADES.map((m) => ({ valor: m.valor, texto: m.texto }))} />
+              </div>
+              <button className="btn btn-principal" type="submit" disabled={!nuevoEquipo.trim()}><IcoMas /> Crear equipo</button>
             </form>
 
             {equipos.length === 0 ? (
               <div className="vacio tarjeta">
                 <IcoPlantilla />
                 <h3>Aún no hay equipos</h3>
-                <p>Escribe arriba el nombre del primer equipo. Es solo una etiqueta: puedes llamarlo como quieras.</p>
+                <p>Escribe arriba el nombre del primer equipo y elige si juega a fútbol 7, 8 u 11. El nombre es solo una etiqueta.</p>
               </div>
             ) : (
               <div className="equipos">
@@ -117,8 +129,11 @@ export default function PanelDirectiva() {
                     <article key={eq.id} className="equipo tarjeta">
                       <div className="equipo-cabeza">
                         <span className="escudo escudo-grande">{iniciales(eq.nombre)}</span>
-                        <h3>{eq.nombre}</h3>
-                        <button className="btn btn-icono" type="button" aria-label={`Cambiar nombre de ${eq.nombre}`} onClick={() => setFormulario({ tipo: "renombrar", equipo: eq })}><IcoLapiz /></button>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h3>{eq.nombre}</h3>
+                          <span className="pastilla pastilla-ok">{nombreModalidad(modalidades[eq.id] ?? "F11")}</span>
+                        </div>
+                        <button className="btn btn-icono" type="button" aria-label={`Editar ${eq.nombre}`} onClick={() => setFormulario({ tipo: "renombrar", equipo: eq })}><IcoLapiz /></button>
                         <button className="btn btn-icono" type="button" aria-label={`Borrar ${eq.nombre}`} onClick={() => borrarEquipo(eq)}><IcoPapelera /></button>
                       </div>
                       {ents.length === 0 ? (
@@ -194,8 +209,8 @@ export default function PanelDirectiva() {
           alGuardar={async () => { setFormulario(null); avisar("Entrenador asignado"); await cargar(); }} />
       )}
       {formulario?.tipo === "renombrar" && (
-        <HojaRenombrar equipo={formulario.equipo} alCerrar={() => setFormulario(null)}
-          alGuardar={async () => { setFormulario(null); avisar("Nombre cambiado"); await cargar(); }} />
+        <HojaRenombrar equipo={formulario.equipo} modalidad={modalidades[formulario.equipo.id] ?? "F11"} alCerrar={() => setFormulario(null)}
+          alGuardar={async () => { setFormulario(null); avisar("Equipo guardado"); await cargar(); }} />
       )}
       {formulario?.tipo === "mover" && (
         <HojaMover asignacion={formulario.asignacion} equipos={equipos} alCerrar={() => setFormulario(null)}
@@ -239,18 +254,29 @@ function HojaAsignar({ equipos, equipoInicial, alCerrar, alGuardar }: { equipos:
   );
 }
 
-function HojaRenombrar({ equipo, alCerrar, alGuardar }: { equipo: Equipo; alCerrar: () => void; alGuardar: () => void }) {
+function HojaRenombrar({ equipo, modalidad: inicial, alCerrar, alGuardar }: { equipo: Equipo; modalidad: Modalidad; alCerrar: () => void; alGuardar: () => void }) {
   const [nombre, setNombre] = useState(equipo.nombre);
+  const [modalidad, setModalidad] = useState<Modalidad>(inicial);
   const [error, setError] = useState("");
   async function enviar(e: FormEvent) {
     e.preventDefault();
     if (!nombre.trim()) return setError("El nombre no puede quedar vacío.");
-    try { await api.renombrarEquipo(equipo.id, nombre); alGuardar(); } catch (err) { setError(mensajeDe(err)); }
+    try {
+      await api.renombrarEquipo(equipo.id, nombre);
+      if (modalidad !== inicial) {
+        const actuales = (await api.leerAjustesEquipo(equipo.id)) ?? AJUSTES_EQUIPO_BASE;
+        await api.guardarAjustesEquipo(equipo.id, { ...AJUSTES_EQUIPO_BASE, ...actuales, modalidad });
+      }
+      alGuardar();
+    } catch (err) { setError(mensajeDe(err)); }
   }
   return (
-    <Hoja titulo="Cambiar nombre" alCerrar={alCerrar}>
+    <Hoja titulo="Editar equipo" alCerrar={alCerrar}>
       <form onSubmit={enviar} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <label className="campo"><span>Nombre del equipo</span><input className="entrada" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={40} /></label>
+        <div className="campo"><span>Modalidad</span>
+          <Opciones<Modalidad> etiqueta="Modalidad" valor={modalidad} cambiar={setModalidad} columnas={3} opciones={MODALIDADES.map((m) => ({ valor: m.valor, texto: m.texto }))} />
+        </div>
         {error && <p className="mensaje mensaje-error" role="alert">{error}</p>}
         <div className="hoja-acciones">
           <button className="btn btn-gris cerrar-hoja" type="button" onClick={alCerrar}>Cancelar</button>
