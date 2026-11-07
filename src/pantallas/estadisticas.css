@@ -1,0 +1,47 @@
+.resumen-equipo { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.resumen-cifras, .resumen-goles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+.resumen-goles { grid-template-columns: repeat(3, 1fr); padding-top: 12px; border-top: 1px solid var(--linea); }
+.resumen-cifras div, .resumen-goles div { display: flex; flex-direction: column; align-items: center; }
+.resumen-cifras b, .resumen-goles b { font-family: var(--f-display); font-weight: 900; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.resumen-cifras span, .resumen-goles span { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tinta-2); }
+.resumen-cifras .v b { color: var(--victoria); }
+.resumen-cifras .e b { color: var(--empate); }
+.resumen-cifras .d b { color: var(--derrota); }
+.resumen-goles .positivo { color: var(--victoria); }
+.resumen-goles .negativo { color: var(--derrota); }
+.barra-resultados { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--superficie-2); }
+.barra-resultados .v { background: var(--victoria); }
+.barra-resultados .e { background: var(--empate); }
+.barra-resultados .d { background: var(--derrota); }
+
+.destacados { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 720px) { .destacados { grid-template-columns: repeat(4, 1fr); } }
+.destacado { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.destacado b { font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1.05; overflow-wrap: anywhere; }
+.destacado > span:last-child { color: var(--tinta-2); font-weight: 600; font-size: 15px; }
+
+.tabla-jugadores { display: flex; flex-direction: column; gap: 8px; }
+.tabla-jugadores > header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.tabla-jugadores h2 { font-size: 26px; }
+.tabla-scroll { overflow-x: auto; border: 1px solid var(--linea); border-radius: 16px; background: var(--superficie); -webkit-overflow-scrolling: touch; }
+.tabla-scroll table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 600px; font-variant-numeric: tabular-nums; }
+.tabla-scroll th, .tabla-scroll td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--linea); font-size: 16px; white-space: nowrap; }
+.tabla-scroll tbody tr:last-child th, .tabla-scroll tbody tr:last-child td { border-bottom: 0; }
+.tabla-scroll thead th { background: var(--superficie-2); position: sticky; top: 0; }
+.tabla-scroll thead button { border: 0; background: none; font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-2); min-height: 36px; min-width: 36px; padding: 0 4px; border-radius: 8px; }
+.tabla-scroll thead button.activa { color: var(--sobre-cesped); background: var(--cesped); }
+.col-jugador { position: sticky; left: 0; z-index: 1; text-align: left !important; background: var(--superficie); font-weight: 700; min-width: 120px; box-shadow: 1px 0 0 var(--linea); }
+thead .col-jugador { background: var(--superficie-2); z-index: 2; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--tinta-2); }
+.tabla-dorsal { display: inline-block; min-width: 26px; font-family: var(--f-display); font-weight: 800; color: var(--tinta-2); }
+td.destaca { font-weight: 800; color: var(--cesped); }
+.celda-tarjeta { display: inline-grid; place-items: center; width: 22px; height: 28px; border-radius: 4px; font-weight: 800; font-size: 14px; }
+.celda-tarjeta.amarilla { background: var(--amarilla); color: #1c1400; }
+.celda-tarjeta.roja { background: var(--roja); color: #fff; }
+.porcentaje { font-weight: 800; }
+.porcentaje.alto { color: var(--victoria); }
+.porcentaje.medio { color: var(--tinta); }
+.porcentaje.bajo { color: var(--derrota); }
+.leyenda-tabla { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--tinta-2); }
+.leyenda-tabla div { display: flex; gap: 4px; }
+.leyenda-tabla dt { font-weight: 800; }
+.leyenda-tabla dd { margin: 0; }

@@ -12,6 +12,7 @@ import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
 import Sesiones, { EditorSesion, SesionDetalle } from "./Sesiones";
 import ModoCampo from "./ModoCampo";
 import Calendario, { EventoDetalle } from "./Calendario";
+import Estadisticas from "./Estadisticas";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
@@ -56,7 +57,7 @@ export default function AppEntrenador() {
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
           {PESTANAS.map(({ a, texto, Icono }) => (
-            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) ? " active" : "")}>
+            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) || (a === "/partidos" && ruta.startsWith("/estadisticas")) ? " active" : "")}>
               <span className="pestana-icono"><Icono /></span>
               {texto}
             </NavLink>
@@ -87,6 +88,7 @@ export default function AppEntrenador() {
             <Route path="/calendario" element={<Calendario />} />
             <Route path="/calendario/:id" element={<EventoDetalle />} />
             <Route path="/partidos" element={<Partidos />} />
+            <Route path="/estadisticas" element={<Estadisticas />} />
             <Route path="/partidos/:id" element={<PartidoDetalle />} />
             <Route path="/partidos/:id/:seccion" element={<PartidoDetalle />} />
             <Route path="*" element={<Navigate to="/inicio" replace />} />

@@ -7,6 +7,7 @@ import { Hoja, useUi } from "../componentes/ui";
 import { COMPETICIONES, nuevoId, type Partido } from "../datos/modelo";
 import Alineacion from "./Alineacion";
 import PartidoEnJuego from "./PartidoEnJuego";
+import { SelectorPartidos } from "./Estadisticas";
 import { resultado } from "../datos/partido";
 import "./partidos.css";
 
@@ -32,6 +33,7 @@ export default function Partidos() {
 
   return (
     <main className="pagina">
+      <SelectorPartidos />
       <h1>Partidos</h1>
       <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => crear()}><IcoMas /> Apuntar partido</button>
 
