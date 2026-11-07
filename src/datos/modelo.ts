@@ -147,6 +147,11 @@ export interface Partido {
   competicion: string;
   notas: string;
   alineacion: Alineacion | null;
+  /** Goles, cambios y tarjetas (fase 8). */
+  acciones?: import("./partido").Accion[];
+  /** Minutos corregidos a mano por el entrenador, por jugador. */
+  minutosManuales?: Record<string, number>;
+  reloj?: import("./partido").Reloj;
 }
 
 export interface PlantillaAlineacion {

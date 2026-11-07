@@ -272,3 +272,10 @@ alter table public.eventos enable row level security;
 drop policy if exists "equipo: todo" on public.eventos;
 create policy "equipo: todo" on public.eventos for all using (public.puedo_ver_equipo(equipo_id)) with check (public.puedo_ver_equipo(equipo_id));
 grant select, insert, update, delete on public.eventos to authenticated;
+
+-- =====================================================================
+-- FASE 8: goles, cambios, tarjetas, minutos corregidos y reloj del partido
+-- =====================================================================
+alter table public.partidos add column if not exists acciones jsonb not null default '[]'::jsonb;
+alter table public.partidos add column if not exists minutos_manuales jsonb not null default '{}'::jsonb;
+alter table public.partidos add column if not exists reloj jsonb;

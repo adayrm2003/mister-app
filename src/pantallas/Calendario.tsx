@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useColeccion, useEquipo, useMios } from "../ContextoEquipo";
 import { Opciones } from "../componentes/Controles";
@@ -21,6 +21,19 @@ export function eventoNuevo(equipoId: string, fecha: string, tipo = "entrenamien
   return { id: crypto.randomUUID(), equipoId, tipo, titulo: "", fecha, hora: "18:00", horaFin: "19:30", lugar: "", notas: "", sesionId: null, asistencia: {} };
 }
 
+/** Fecha de hoy según el reloj del dispositivo. Se actualiza sola al cambiar de día o al volver a la app. */
+export function useHoy() {
+  const [h, setH] = useState(hoy());
+  useEffect(() => {
+    const comprobar = () => setH(hoy());
+    const t = setInterval(comprobar, 60_000);
+    document.addEventListener("visibilitychange", comprobar);
+    window.addEventListener("focus", comprobar);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", comprobar); window.removeEventListener("focus", comprobar); };
+  }, []);
+  return h;
+}
+
 /* ---------------- Calendario ---------------- */
 export default function Calendario() {
   const { equipo, ajustes } = useEquipo();
@@ -28,7 +41,8 @@ export default function Calendario() {
   const { filas: partidos } = useColeccion<Partido>("partidos");
   const { filas: sesiones } = useMios<Sesion>("sesiones");
   const [vista, setVista] = useState<"mes" | "semana">(leerVista);
-  const [dia, setDia] = useState(hoy());
+  const hoyDia = useHoy();
+  const [dia, setDia] = useState(hoyDia);
   const [nuevo, setNuevo] = useState<Evento | null>(null);
   const { avisar } = useUi();
 
@@ -64,7 +78,7 @@ export default function Calendario() {
         <button className="btn btn-icono" type="button" onClick={() => mover(-1)} aria-label={vista === "mes" ? "Mes anterior" : "Semana anterior"}><IcoAtras /></button>
         <h2>{titulo}</h2>
         <button className="btn btn-icono" type="button" onClick={() => mover(1)} aria-label={vista === "mes" ? "Mes siguiente" : "Semana siguiente"}><IcoAtras style={{ transform: "rotate(180deg)" }} /></button>
-        {dia !== hoy() && <button className="btn btn-gris cal-hoy" type="button" onClick={() => setDia(hoy())}>Hoy</button>}
+        {dia !== hoyDia && <button className="btn btn-gris cal-hoy" type="button" onClick={() => setDia(hoyDia)}>Hoy</button>}
       </div>
 
       {vista === "mes" ? (
@@ -76,8 +90,10 @@ export default function Calendario() {
               const lista = porDia.get(f) ?? [];
               return (
                 <button key={f} type="button" role="gridcell" aria-selected={f === dia}
-                  className={"cal-dia" + (delMes ? "" : " fuera") + (f === hoy() ? " hoy" : "") + (f === dia ? " elegido" : "")}
+                  className={"cal-dia" + (delMes ? "" : " fuera") + (f === hoyDia ? " hoy" : "") + (f === dia ? " elegido" : "")}
+                  aria-current={f === hoyDia ? "date" : undefined}
                   onClick={() => setDia(f)} aria-label={`${nombreDia(f)}${lista.length ? `, ${lista.length} ${lista.length === 1 ? "evento" : "eventos"}` : ""}`}>
+                  {f === hoyDia && <span className="cal-hoy-marca">Hoy</span>}
                   <span className="cal-numero">{deISO(f).getDate()}</span>
                   <span className="cal-puntos">{lista.slice(0, 3).map((c) => <i key={c.id} style={{ background: c.color }} />)}</span>
                 </button>
@@ -91,9 +107,9 @@ export default function Calendario() {
           {Array.from({ length: 7 }, (_, i) => sumarDias(lunesDe(dia), i)).map((f) => {
             const lista = porDia.get(f) ?? [];
             return (
-              <section key={f} className={"cal-semana-dia" + (f === hoy() ? " hoy" : "") + (f === dia ? " elegido" : "")}>
+              <section key={f} className={"cal-semana-dia" + (f === hoyDia ? " hoy" : "") + (f === dia ? " elegido" : "")}>
                 <button type="button" className="cal-semana-cabeza" onClick={() => setDia(f)}>
-                  <span>{nombreDia(f, { weekday: "short" }).replace(".", "")}</span><b>{deISO(f).getDate()}</b>
+                  <span>{f === hoyDia ? "Hoy" : nombreDia(f, { weekday: "short" }).replace(".", "")}</span><b>{deISO(f).getDate()}</b>
                 </button>
                 <div className="cal-semana-citas">
                   {lista.map((c) => <TarjetaCita key={c.id} c={c} />)}

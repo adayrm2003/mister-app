@@ -322,9 +322,9 @@ function HojaBloque({ bloque, ejercicio, fases, alCerrar, alGuardar, alQuitar }:
     <Hoja titulo={ejercicio?.nombre ?? "Ejercicio"} alCerrar={alCerrar}>
       <div className="campo"><span>Minutos en esta sesión</span>
         <div className="contador-num" role="group" aria-label="Minutos">
-          <button type="button" onClick={() => setB({ ...b, minutos: Math.max(1, minutos - 5) })} aria-label="5 minutos menos">−</button>
+          <button type="button" onClick={() => setB((x) => ({ ...x, minutos: Math.max(1, (x.minutos ?? ejercicio?.duracion ?? 0) - 5) }))} aria-label="5 minutos menos">−</button>
           <output>{minutos}</output>
-          <button type="button" onClick={() => setB({ ...b, minutos: Math.min(180, minutos + 5) })} aria-label="5 minutos más">+</button>
+          <button type="button" onClick={() => setB((x) => ({ ...x, minutos: Math.min(180, (x.minutos ?? ejercicio?.duracion ?? 0) + 5) }))} aria-label="5 minutos más">+</button>
         </div>
         {ejercicio?.duracion != null && b.minutos != null && b.minutos !== ejercicio.duracion && (
           <button className="btn btn-texto" type="button" onClick={() => setB({ ...b, minutos: null })}>Volver a los {ejercicio.duracion} min del ejercicio</button>

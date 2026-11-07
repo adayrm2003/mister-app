@@ -1,0 +1,47 @@
+.en-juego { display: flex; flex-direction: column; gap: 16px; }
+.marcador {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 18px 14px; border-radius: 22px;
+  background: var(--tinta); color: var(--cal);
+}
+.marcador-equipo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.marcador-equipo:last-child { justify-content: flex-end; }
+.marcador-equipo span { font-weight: 700; font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }
+.marcador-equipo:first-child span { text-align: left; }
+.marcador-equipo:last-child span { text-align: right; }
+.marcador-equipo b { font-family: var(--f-display); font-weight: 900; font-size: 64px; line-height: .9; }
+.marcador-guion { font-family: var(--f-display); font-size: 40px; opacity: .6; }
+.marcador.victoria { box-shadow: inset 0 -6px 0 var(--victoria); }
+.marcador.derrota { box-shadow: inset 0 -6px 0 var(--derrota); }
+.marcador.empate { box-shadow: inset 0 -6px 0 var(--empate); }
+
+.reloj { padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.reloj-minuto { font-family: var(--f-display); font-weight: 900; font-size: 44px; line-height: 1; color: var(--peto); }
+.reloj-estado { flex: 1; font-weight: 700; min-width: 140px; }
+
+.botones-accion { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.botones-accion .btn { min-height: 64px; font-size: 17px; border-radius: 18px; }
+.botones-accion .accion-gol { grid-column: 1 / -1; min-height: 76px; font-size: 20px; }
+@media (min-width: 720px) { .botones-accion { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } .botones-accion .accion-gol { grid-column: auto; } }
+.accion-ico { width: 24px; height: 24px; flex: none; color: var(--tinta); }
+.btn-peto .accion-ico { color: var(--sobre-peto); }
+.tarjeta-ico { width: 15px; height: 21px; border-radius: 3px; display: inline-block; flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.tarjeta-ico.amarilla { background: var(--amarilla); }
+.tarjeta-ico.roja { background: var(--roja); }
+
+.linea-tiempo, .minutos-jugados { display: flex; flex-direction: column; gap: 8px; }
+.linea-tiempo h2, .minutos-jugados h2 { font-size: 26px; }
+.minutos-jugados > header { display: flex; align-items: center; justify-content: space-between; }
+.linea-tiempo ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.suceso { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 58px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie); text-align: left; }
+.suceso.suyo { background: var(--superficie-2); }
+.suceso-minuto { font-family: var(--f-display); font-weight: 800; font-size: 22px; width: 42px; flex: none; }
+.suceso-texto { display: flex; flex-direction: column; min-width: 0; }
+.suceso-texto small { color: var(--tinta-2); font-size: 14px; }
+.minutos-cifra { font-family: var(--f-display); font-weight: 800; font-size: 26px; flex: none; }
+.minutos-cifra.manual { color: var(--peto); }
+
+.minuto-entrada { width: 72px; min-height: 48px; text-align: center; border: 0; background: var(--superficie); border-radius: 11px; font-family: var(--f-display); font-weight: 800; font-size: 28px; }
+.elegir-jugador { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; max-height: 44vh; overflow-y: auto; }
+.elegir-jugador button { min-height: 56px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie); font-weight: 700; font-size: 16px; text-align: left; padding: 6px 12px; }
+.elegir-jugador button.marcado { border-color: var(--cesped); background: var(--cesped-suave); }
+.elegido-texto { font-size: 17px; }

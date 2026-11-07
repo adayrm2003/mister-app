@@ -6,6 +6,8 @@ import { IcoAtras, IcoMas, IcoPapelera, IcoPartidos } from "../componentes/Icono
 import { Hoja, useUi } from "../componentes/ui";
 import { COMPETICIONES, nuevoId, type Partido } from "../datos/modelo";
 import Alineacion from "./Alineacion";
+import PartidoEnJuego from "./PartidoEnJuego";
+import { resultado } from "../datos/partido";
 import "./partidos.css";
 
 const dos = (n: number) => String(n).padStart(2, "0");
@@ -65,7 +67,8 @@ function ListaPartidos({ titulo, partidos }: { titulo: string; partidos: Partido
                 <b>vs {p.rival}</b>
                 <span>{p.hora} · {p.competicion}{p.campo ? " · " + p.campo : ""}</span>
               </span>
-              <span className={"pastilla " + (p.casa ? "pastilla-ok" : "")}>{p.casa ? "Casa" : "Fuera"}</span>
+              {(p.acciones ?? []).length || p.reloj?.terminado ? (() => { const r = resultado(p); return <span className={"marcador-mini " + r.signo}>{r.nuestros}–{r.suyos}</span>; })()
+                : <span className={"pastilla " + (p.casa ? "pastilla-ok" : "")}>{p.casa ? "Casa" : "Fuera"}</span>}
             </Link>
           );
         })}
@@ -141,6 +144,8 @@ export function PartidoDetalle() {
   );
 
   const enAlineacion = seccion === "alineacion";
+  const enJuego = seccion === "partido";
+  const enDatos = !enAlineacion && !enJuego;
   return (
     <main className="pagina partido">
       <div className="partido-cabeza">
@@ -151,12 +156,15 @@ export function PartidoDetalle() {
         </div>
       </div>
       <div className="segmentos-dir" role="tablist" aria-label="Secciones del partido">
-        <button role="tab" type="button" aria-selected={!enAlineacion} onClick={() => ir(`/partidos/${partido.id}`, { replace: true })}>Datos</button>
+        <button role="tab" type="button" aria-selected={enDatos} onClick={() => ir(`/partidos/${partido.id}`, { replace: true })}>Datos</button>
         <button role="tab" type="button" aria-selected={enAlineacion} onClick={() => ir(`/partidos/${partido.id}/alineacion`, { replace: true })}>Alineación</button>
+        <button role="tab" type="button" aria-selected={enJuego} onClick={() => ir(`/partidos/${partido.id}/partido`, { replace: true })}>Partido</button>
       </div>
 
       {enAlineacion ? (
         <Alineacion partido={partido} guardarPartido={guardar} />
+      ) : enJuego ? (
+        <PartidoEnJuego partido={partido} guardarPartido={guardar} />
       ) : (
         <section className="datos-partido tarjeta">
           <dl>
@@ -172,7 +180,9 @@ export function PartidoDetalle() {
               {partido.alineacion ? "Ver alineación" : "Hacer alineación"}
             </button>
           </div>
-          <p className="suave nota-fase">Los goles, cambios, tarjetas y minutos llegan en la fase 8.</p>
+          <button className="btn btn-peto btn-grande" type="button" onClick={() => ir(`/partidos/${partido.id}/partido`, { replace: true })}>
+            {(partido.acciones ?? []).length || partido.reloj ? `Resultado ${resultado(partido).nuestros} – ${resultado(partido).suyos} · ver partido` : "Apuntar goles, cambios y tarjetas"}
+          </button>
         </section>
       )}
 

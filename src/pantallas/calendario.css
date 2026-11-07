@@ -5,7 +5,7 @@
 .cal-navegacion h2::first-letter { text-transform: uppercase; }
 .cal-hoy { min-height: 44px; padding: 0 14px; }
 
-.cal-mes { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-mes { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px 4px; padding-top: 6px; }
 .cal-cabecera { text-align: center; font-size: 12px; font-weight: 800; letter-spacing: .08em; color: var(--tinta-2); padding: 4px 0; }
 .cal-dia {
   aspect-ratio: 1 / 1.05; min-height: 46px; border: 1px solid var(--linea); border-radius: 12px; background: var(--superficie);
@@ -13,8 +13,11 @@
 }
 .cal-dia.fuera { background: transparent; border-color: transparent; color: var(--tinta-2); opacity: .55; }
 .cal-numero { font-family: var(--f-display); font-weight: 800; font-size: 20px; line-height: 1; }
+.cal-dia { position: relative; }
+.cal-dia.hoy { border: 3px solid var(--peto); }
 .cal-dia.hoy .cal-numero { color: var(--peto); }
-.cal-dia.hoy { border: 2px solid var(--peto); }
+.cal-hoy-marca { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--peto); color: var(--sobre-peto); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border-radius: 6px; padding: 1px 5px; line-height: 1.3; }
+.cal-dia.hoy.elegido { box-shadow: 0 0 0 3px var(--peto); border-color: var(--sobre-cesped); }
 .cal-dia.elegido { background: var(--cesped); border-color: var(--cesped); color: var(--sobre-cesped); opacity: 1; }
 .cal-dia.elegido .cal-numero { color: var(--sobre-cesped); }
 .cal-puntos { display: flex; gap: 3px; min-height: 8px; }
@@ -40,7 +43,8 @@
 .cal-semana-cabeza { border: 0; background: var(--superficie); border-radius: 14px; min-height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--linea); }
 .cal-semana-cabeza span { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--tinta-2); }
 .cal-semana-cabeza b { font-family: var(--f-display); font-size: 24px; line-height: 1; }
-.cal-semana-dia.hoy .cal-semana-cabeza { border: 2px solid var(--peto); }
+.cal-semana-dia.hoy .cal-semana-cabeza { border: 3px solid var(--peto); }
+.cal-semana-dia.hoy .cal-semana-cabeza span { color: var(--peto); }
 .cal-semana-dia.elegido .cal-semana-cabeza { background: var(--cesped); color: var(--sobre-cesped); border-color: var(--cesped); }
 .cal-semana-dia.elegido .cal-semana-cabeza span { color: var(--sobre-cesped); }
 .cal-semana-citas { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
