@@ -1,7 +1,7 @@
 // MODO PRUEBA: imita las cuentas y la base de datos guardándolo todo en este navegador.
 // Sirve para probar la app sin Supabase. Las mismas reglas de acceso que en la nube:
 // la directiva solo ve su club y el entrenador solo los equipos asignados a su correo.
-import { type Api, type Asignacion, type Club, type DatosRegistro, type Equipo, type EventoSesion, type Perfil, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Asignacion, type Club, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, ErrorApp, normalizarCorreo } from "./tipos";
 
 interface Usuario extends Perfil { hash: string }
 interface ClubGuardado extends Club { duenoId: string }
@@ -11,10 +11,13 @@ interface Bd {
   equipos: Equipo[];
   asignaciones: Omit<Asignacion, "registrado">[];
   sesion: string | null;
+  filas: Partial<Record<Tabla, Fila[]>>;
+  ajustesEquipo: Record<string, Record<string, unknown>>;
+  ajustesUsuario: Record<string, Record<string, unknown>>;
 }
 
 const CLAVE = "mister-modo-prueba";
-const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], sesion: null });
+const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], sesion: null, filas: {}, ajustesEquipo: {}, ajustesUsuario: {} });
 
 function leer(): Bd {
   try {
@@ -51,6 +54,15 @@ function equipoDelClub(bd: Bd, c: Club, equipoId: string) {
   const e = bd.equipos.find((x) => x.id === equipoId && x.clubId === c.id);
   if (!e) throw new ErrorApp("Ese equipo no existe o no es de tu club.");
   return e;
+}
+
+/** Misma regla que en la nube: directiva del club o entrenador asignado. */
+function comprobarEquipo(bd: Bd, equipoId: string) {
+  const u = usuarioActual(bd);
+  const e = bd.equipos.find((x) => x.id === equipoId);
+  const dueno = e && bd.clubes.some((c) => c.id === e.clubId && c.duenoId === u.id);
+  const asignado = e && bd.asignaciones.some((a) => a.equipoId === e.id && a.email === u.email);
+  if (!dueno && !asignado) throw new ErrorApp("No tienes acceso a ese equipo.");
 }
 
 export const apiLocal: Api = {
@@ -146,6 +158,8 @@ export const apiLocal: Api = {
     equipoDelClub(bd, c, equipoId);
     bd.equipos = bd.equipos.filter((e) => e.id !== equipoId);
     bd.asignaciones = bd.asignaciones.filter((a) => a.equipoId !== equipoId);
+    for (const t of Object.keys(bd.filas) as Tabla[]) bd.filas[t] = bd.filas[t]!.filter((f) => f.equipoId !== equipoId);
+    delete bd.ajustesEquipo[equipoId];
     guardar(bd);
   },
 
@@ -198,5 +212,59 @@ export const apiLocal: Api = {
       .filter((e) => ids.has(e.id))
       .map((e) => ({ ...e, club: bd.clubes.find((c) => c.id === e.clubId)?.nombre }))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  },
+
+  async listar<T extends Fila>(tabla: Tabla, equipoId: string) {
+    const bd = leer();
+    comprobarEquipo(bd, equipoId);
+    return (bd.filas[tabla] ?? []).filter((f) => f.equipoId === equipoId) as T[];
+  },
+
+  async guardar<T extends Fila>(tabla: Tabla, fila: T) {
+    const bd = leer();
+    comprobarEquipo(bd, fila.equipoId);
+    const lista = bd.filas[tabla] ?? [];
+    const i = lista.findIndex((f) => f.id === fila.id);
+    if (i >= 0) {
+      if (lista[i].equipoId !== fila.equipoId) throw new ErrorApp("No se puede mover a otro equipo.");
+      lista[i] = fila;
+    } else lista.push(fila);
+    bd.filas[tabla] = lista;
+    guardar(bd);
+    return fila;
+  },
+
+  async borrar(tabla, filaId) {
+    const bd = leer();
+    const lista = bd.filas[tabla] ?? [];
+    const f = lista.find((x) => x.id === filaId);
+    if (!f) return;
+    comprobarEquipo(bd, f.equipoId);
+    bd.filas[tabla] = lista.filter((x) => x.id !== filaId);
+    guardar(bd);
+  },
+
+  async leerAjustesEquipo(equipoId) {
+    const bd = leer();
+    comprobarEquipo(bd, equipoId);
+    return bd.ajustesEquipo[equipoId] ?? null;
+  },
+
+  async guardarAjustesEquipo(equipoId, datos) {
+    const bd = leer();
+    comprobarEquipo(bd, equipoId);
+    bd.ajustesEquipo[equipoId] = datos;
+    guardar(bd);
+  },
+
+  async leerAjustesUsuario() {
+    const bd = leer();
+    return bd.ajustesUsuario[usuarioActual(bd).id] ?? null;
+  },
+
+  async guardarAjustesUsuario(datos) {
+    const bd = leer();
+    bd.ajustesUsuario[usuarioActual(bd).id] = datos;
+    guardar(bd);
   }
 };

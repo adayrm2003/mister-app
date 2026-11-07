@@ -152,3 +152,77 @@ grant select, update on public.clubes to authenticated;
 grant select, insert, update, delete on public.equipos, public.entrenadores_equipo to authenticated;
 revoke all on function public.al_crear_usuario() from public, anon, authenticated;
 grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() to authenticated;
+
+-- =====================================================================
+-- FASE 3: ajustes, plantilla, partidos y alineaciones
+-- =====================================================================
+create table if not exists public.ajustes_equipo (
+  equipo_id   uuid primary key references public.equipos(id) on delete cascade,
+  datos       jsonb not null default '{}'::jsonb,
+  actualizado timestamptz not null default now()
+);
+
+create table if not exists public.ajustes_usuario (
+  usuario_id  uuid primary key references auth.users(id) on delete cascade,
+  datos       jsonb not null default '{}'::jsonb,
+  actualizado timestamptz not null default now()
+);
+
+-- Jugadores: solo nombre o mote, pierna, posición, dorsal y notas (son menores: nada más)
+create table if not exists public.jugadores (
+  id        uuid primary key,
+  equipo_id uuid not null references public.equipos(id) on delete cascade,
+  nombre    text not null check (char_length(nombre) between 1 and 24),
+  pierna    text not null default 'derecha' check (pierna in ('derecha', 'izquierda', 'ambas')),
+  posicion  text not null default 'medio' check (posicion in ('portero', 'defensa', 'medio', 'delantero')),
+  dorsal    smallint check (dorsal between 0 and 99),
+  notas     text not null default '' check (char_length(notas) <= 300),
+  creado    timestamptz not null default now()
+);
+create index if not exists jugadores_equipo_idx on public.jugadores(equipo_id);
+
+create table if not exists public.partidos (
+  id          uuid primary key,
+  equipo_id   uuid not null references public.equipos(id) on delete cascade,
+  rival       text not null check (char_length(rival) between 1 and 40),
+  fecha       date not null,
+  hora        text not null default '',
+  campo       text not null default '',
+  casa        boolean not null default true,
+  competicion text not null default 'Liga',
+  notas       text not null default '',
+  alineacion  jsonb,
+  creado      timestamptz not null default now()
+);
+create index if not exists partidos_equipo_idx on public.partidos(equipo_id, fecha);
+
+create table if not exists public.plantillas_alineacion (
+  id         uuid primary key,
+  equipo_id  uuid not null references public.equipos(id) on delete cascade,
+  nombre     text not null check (char_length(nombre) between 1 and 30),
+  alineacion jsonb not null,
+  creado     timestamptz not null default now()
+);
+create index if not exists plantillas_alineacion_equipo_idx on public.plantillas_alineacion(equipo_id);
+
+alter table public.ajustes_equipo        enable row level security;
+alter table public.ajustes_usuario       enable row level security;
+alter table public.jugadores             enable row level security;
+alter table public.partidos              enable row level security;
+alter table public.plantillas_alineacion enable row level security;
+
+-- Datos de un equipo: solo quien puede ver ese equipo (su directiva o sus entrenadores)
+do $$
+declare t text;
+begin
+  foreach t in array array['ajustes_equipo', 'jugadores', 'partidos', 'plantillas_alineacion'] loop
+    execute format('drop policy if exists "equipo: todo" on public.%I', t);
+    execute format('create policy "equipo: todo" on public.%I for all using (public.puedo_ver_equipo(equipo_id)) with check (public.puedo_ver_equipo(equipo_id))', t);
+    execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+  end loop;
+end $$;
+
+-- Preferencias: cada entrenador solo las suyas
+drop policy if exists "mis ajustes" on public.ajustes_usuario;
+create policy "mis ajustes" on public.ajustes_usuario for all using (usuario_id = auth.uid()) with check (usuario_id = auth.uid());
+grant select, insert, update, delete on public.ajustes_usuario to authenticated;

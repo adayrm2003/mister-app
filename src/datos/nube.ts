@@ -1,7 +1,11 @@
 // MODO NUBE: cuentas y datos en Supabase. La seguridad por filas (supabase/esquema.sql)
 // garantiza en el servidor que cada usuario solo ve lo que le toca.
 import { createClient, type AuthError, type PostgrestError } from "@supabase/supabase-js";
-import { type Api, type Asignacion, type Equipo, type EventoSesion, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Asignacion, type Equipo, type EventoSesion, type Fila, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
+
+// Solo se convierten los nombres de primer nivel (equipoId <-> equipo_id); lo de dentro (jsonb) se guarda tal cual.
+const aSnake = (o: object) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k.replace(/[A-Z]/g, (m) => "_" + m.toLowerCase()), v]));
+const aCamel = <T,>(o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).filter(([k]) => k !== "creado" && k !== "actualizado").map(([k, v]) => [k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()), v])) as T;
 
 export function crearApiNube(url: string, clave: string): Api {
   const sb = createClient(url, clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
@@ -147,6 +151,47 @@ export function crearApiNube(url: string, clave: string): Api {
         .order("nombre");
       traducir(error);
       return ((data ?? []) as unknown as Parameters<typeof aEquipo>[0][]).map(aEquipo);
+    },
+
+    async listar<T extends Fila>(tabla: Parameters<Api["listar"]>[0], equipoId: string) {
+      const { data, error } = await sb.from(tabla).select("*").eq("equipo_id", equipoId);
+      traducir(error);
+      return (data ?? []).map((f) => aCamel<T>(f));
+    },
+
+    async guardar<T extends Fila>(tabla: Parameters<Api["guardar"]>[0], fila: T) {
+      const { error } = await sb.from(tabla).upsert(aSnake(fila));
+      traducir(error);
+      return fila;
+    },
+
+    async borrar(tabla, id) {
+      const { error } = await sb.from(tabla).delete().eq("id", id);
+      traducir(error);
+    },
+
+    async leerAjustesEquipo(equipoId) {
+      const { data, error } = await sb.from("ajustes_equipo").select("datos").eq("equipo_id", equipoId).maybeSingle();
+      traducir(error);
+      return (data?.datos as Record<string, unknown>) ?? null;
+    },
+
+    async guardarAjustesEquipo(equipoId, datos) {
+      const { error } = await sb.from("ajustes_equipo").upsert({ equipo_id: equipoId, datos, actualizado: new Date().toISOString() });
+      traducir(error);
+    },
+
+    async leerAjustesUsuario() {
+      const u = await usuario();
+      const { data, error } = await sb.from("ajustes_usuario").select("datos").eq("usuario_id", u.id).maybeSingle();
+      traducir(error);
+      return (data?.datos as Record<string, unknown>) ?? null;
+    },
+
+    async guardarAjustesUsuario(datos) {
+      const u = await usuario();
+      const { error } = await sb.from("ajustes_usuario").upsert({ usuario_id: u.id, datos, actualizado: new Date().toISOString() });
+      traducir(error);
     }
   };
 }

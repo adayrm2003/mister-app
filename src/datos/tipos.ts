@@ -61,7 +61,20 @@ export interface Api {
 
   // Entrenador
   misEquipos(): Promise<Equipo[]>;
+
+  // Datos de un equipo (solo si puedes ver ese equipo)
+  listar<T extends Fila>(tabla: Tabla, equipoId: string): Promise<T[]>;
+  guardar<T extends Fila>(tabla: Tabla, fila: T): Promise<T>;
+  borrar(tabla: Tabla, id: string): Promise<void>;
+  leerAjustesEquipo(equipoId: string): Promise<Record<string, unknown> | null>;
+  guardarAjustesEquipo(equipoId: string, datos: Record<string, unknown>): Promise<void>;
+  leerAjustesUsuario(): Promise<Record<string, unknown> | null>;
+  guardarAjustesUsuario(datos: Record<string, unknown>): Promise<void>;
 }
+
+/** Tablas con datos de un equipo. */
+export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion";
+export interface Fila { id: string; equipoId: string }
 
 /** Error con un mensaje ya preparado para enseñarlo al usuario. */
 export class ErrorApp extends Error {}

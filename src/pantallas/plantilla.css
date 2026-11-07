@@ -1,0 +1,11 @@
+.titulo-con-accion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.grupo-puesto { display: flex; flex-direction: column; gap: 8px; }
+.jugador { text-align: left; }
+.dorsal-circulo {
+  width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  font-family: var(--f-display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums;
+}
+.nombre-dorsal { display: flex; gap: 10px; align-items: flex-end; }
+.campo-dorsal { width: 92px; flex: none; }
+.entrada-dorsal { text-align: center; font-family: var(--f-display); font-weight: 800; font-size: 28px; }
+.area { min-height: 80px; padding: 12px 16px; resize: vertical; line-height: 1.4; }

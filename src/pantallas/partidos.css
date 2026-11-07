@@ -1,0 +1,20 @@
+.grupo-partidos { display: flex; flex-direction: column; gap: 8px; }
+.fila-partido { color: inherit; text-decoration: none; }
+.fecha-bloque { width: 46px; flex: none; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.fecha-bloque b { font-family: var(--f-display); font-weight: 800; font-size: 28px; }
+.fecha-bloque small { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--tinta-2); margin-top: 2px; }
+.dos-columnas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.partido { gap: 16px; }
+.partido-cabeza { display: flex; align-items: center; gap: 12px; }
+.partido-cabeza .btn-icono { text-decoration: none; flex: none; }
+.partido-rival { font-size: 36px; overflow-wrap: anywhere; }
+.datos-partido { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.datos-partido dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.datos-partido dl .ancho { grid-column: 1 / -1; }
+.datos-partido dt { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-2); }
+.datos-partido dd { margin: 2px 0 0; font-weight: 600; font-size: 17px; }
+.datos-partido dd::first-letter { text-transform: uppercase; }
+.datos-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.nota-fase { font-size: 14px; }
+.pagina.partido { max-width: 1100px; }

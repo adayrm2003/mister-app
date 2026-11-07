@@ -1,19 +1,19 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { api } from "../datos/api";
 import type { Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
-import { IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { IcoAjustes, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { ProveedorEquipo } from "../ContextoEquipo";
+import Ajustes from "./Ajustes";
+import Plantilla from "./Plantilla";
+import Partidos, { PartidoDetalle } from "./Partidos";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
 import Proximamente from "./Proximamente";
 import "./entrenador.css";
 
-/* El equipo con el que se está trabajando, disponible en todas las pantallas */
-interface EstadoEquipo { equipo: Equipo; equipos: Equipo[] }
-const ContextoEquipo = createContext<EstadoEquipo | null>(null);
-export const useEquipo = () => useContext(ContextoEquipo)!;
 
 const CLAVE_EQUIPO = "mister-equipo-activo";
 
@@ -46,7 +46,7 @@ export default function AppEntrenador() {
   const equipo = equipos.find((e) => e.id === activoId) ?? equipos[0];
 
   return (
-    <ContextoEquipo.Provider value={{ equipo, equipos }}>
+    <ProveedorEquipo key={equipo.id} equipo={equipo} equipos={equipos}>
       <div className="entrenador">
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
@@ -63,19 +63,23 @@ export default function AppEntrenador() {
             <div className="cabecera-titulo">
               <SelectorEquipo equipo={equipo} equipos={equipos} elegir={elegir} />
             </div>
+            <BotonAjustes />
             <MenuCuenta />
           </header>
           <Routes>
             <Route path="/inicio" element={<Inicio />} />
-            <Route path="/plantilla" element={<Proximamente titulo="Plantilla" fase={3} texto="Aquí añadirás a tus jugadores con su nombre, pierna buena, posición y dorsal." Icono={IcoPlantilla} />} />
+            <Route path="/plantilla" element={<Plantilla />} />
+            <Route path="/ajustes" element={<Ajustes />} />
             <Route path="/ejercicios" element={<Proximamente titulo="Ejercicios" fase={5} texto="Aquí tendrás tu biblioteca de ejercicios con pizarra animada y, en la fase 6, tus sesiones." Icono={IcoEjercicios} />} />
             <Route path="/calendario" element={<Proximamente titulo="Calendario" fase={7} texto="Aquí verás la semana y el mes con tus entrenamientos, partidos y torneos, y podrás pasar lista." Icono={IcoCalendario} />} />
-            <Route path="/partidos" element={<Proximamente titulo="Partidos" fase={8} texto="Aquí apuntarás los partidos, la convocatoria, la alineación, los goles, los cambios y las tarjetas." Icono={IcoPartidos} />} />
+            <Route path="/partidos" element={<Partidos />} />
+            <Route path="/partidos/:id" element={<PartidoDetalle />} />
+            <Route path="/partidos/:id/:seccion" element={<PartidoDetalle />} />
             <Route path="*" element={<Navigate to="/inicio" replace />} />
           </Routes>
         </div>
       </div>
-    </ContextoEquipo.Provider>
+    </ProveedorEquipo>
   );
 }
 
@@ -129,6 +133,7 @@ function SinEquipo({ alComprobar, error }: { alComprobar: () => Promise<void>; e
   );
 }
 
-export function Seccion({ children }: { children: ReactNode }) {
-  return <main className="pagina">{children}</main>;
+function BotonAjustes() {
+  const ir = useNavigate();
+  return <button className="btn btn-icono" type="button" aria-label="Ajustes" onClick={() => ir("/ajustes")}><IcoAjustes /></button>;
 }

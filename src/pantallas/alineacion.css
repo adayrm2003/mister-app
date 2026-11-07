@@ -1,0 +1,49 @@
+.alineacion { display: flex; flex-direction: column; gap: 14px; }
+.alineacion-barra { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sistema-boton { min-height: 48px; }
+.sistema-boton b { font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.estado-guardado { margin-left: auto; font-size: 14px; color: var(--tinta-2); font-weight: 600; }
+
+.alineacion-cuerpo { display: flex; flex-direction: column; gap: 16px; }
+.alineacion-campo { width: 100%; max-width: 460px; align-self: center; }
+@media (min-width: 900px) {
+  .alineacion-cuerpo { display: grid; grid-template-columns: minmax(320px, 440px) 1fr; align-items: start; }
+  .alineacion-campo { position: sticky; top: 80px; }
+}
+.alineacion-listas { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.hueco { border-radius: 50%; }
+.hueco-marcado .ficha-circulo { outline: 4px solid var(--amarilla); outline-offset: 3px; }
+.token { background: none; border: 0; padding: 4px; touch-action: none; cursor: grab; display: block; -webkit-touch-callout: none; }
+.token:focus-visible { outline: 3px solid var(--amarilla); border-radius: 12px; }
+
+.zona { background: var(--superficie); border: 2px dashed var(--linea); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, background-color .15s; }
+.zona-resto { border-style: solid; border-width: 1px; }
+.zona-marcada { border-color: var(--cesped); background: var(--cesped-suave); }
+.zona-vacia { font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-jugador {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px 14px 4px 4px;
+  border-radius: 999px; border: 1px solid var(--linea); background: var(--superficie-2); font-weight: 700; font-size: 16px;
+  touch-action: none; cursor: grab; -webkit-touch-callout: none; user-select: none;
+}
+.chip-fuera { background: var(--superficie); }
+.chip-dorsal {
+  width: 38px; height: 38px; border-radius: 50%; color: #fff; display: grid; place-items: center; flex: none;
+  font-family: var(--f-display); font-weight: 800; font-size: 21px; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--linea);
+}
+.chip-dorsal.grande { width: 46px; height: 46px; font-size: 25px; }
+.chip-puesto { min-width: 38px; height: 38px; border-radius: 19px; background: var(--superficie-2); color: var(--tinta-2); display: grid; place-items: center; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 0 6px; }
+
+.alineacion-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.alineacion-acciones .btn-texto { grid-column: 1 / -1; color: var(--derrota); }
+.consejo { font-size: 14px; }
+
+.fantasma { position: fixed; z-index: 70; transform: translate(-50%, -60%) scale(1.12); pointer-events: none; filter: drop-shadow(0 8px 16px rgba(0,0,0,.35)); }
+.arrastrando, .arrastrando * { cursor: grabbing !important; }
+
+.nombre-sistema { font-family: var(--f-display); font-weight: 800; font-size: 24px; }
+.dorsal-partido { align-items: center; text-align: center; }
+.entrada-dorsal.grande { width: 140px; min-height: 90px; font-size: 60px; }
+.boton-plano { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; }
+.fila .marca { width: 24px; height: 24px; color: var(--cesped); }
