@@ -282,3 +282,12 @@ alter table public.partidos add column if not exists reloj jsonb;
 
 -- Anotaciones del entrenador durante el partido
 alter table public.partidos add column if not exists anotaciones jsonb not null default '[]'::jsonb;
+
+-- Cuentas que ya existían antes de crear estas tablas: se les crea su perfil (como entrenador)
+insert into public.perfiles (id, email, rol)
+select u.id, lower(u.email), 'entrenador' from auth.users u
+where u.email is not null and not exists (select 1 from public.perfiles p where p.id = u.id);
+
+-- Las funciones de ayuda solo las pueden usar usuarios con sesión iniciada
+revoke execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() from public, anon;
+grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() to authenticated;
