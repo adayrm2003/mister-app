@@ -5,7 +5,7 @@ import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { IcoPapelera } from "../componentes/Iconos";
 import { Hoja, useUi } from "../componentes/ui";
 import { dorsalEnPartido, etiquetaJugador, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
-import { TEXTO_ACCION, accionesDe, enCampo, expulsiones, expulsionesRival, minutoActual, minutosCalculados, minutosFinales, mmss, resultado, segundosActuales, type Accion, type Reloj, type TipoAccion } from "../datos/partido";
+import { TEXTO_ACCION, accionesDe, enCampo, expulsiones, expulsionesRival, minutoActual, minutosCalculados, minutosFinales, mmss, resultado, segundosActuales, type Accion, type Anotacion, type Reloj, type TipoAccion } from "../datos/partido";
 import "./partido-en-juego.css";
 
 /* ---------- Iconos pequeños de la línea de tiempo ---------- */
@@ -59,6 +59,8 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
     await guardar({ acciones: lista });
   };
   const ponerReloj = (rl: Reloj) => guardar({ reloj: rl });
+  const anotaciones = partido.anotaciones ?? [];
+  const guardarAnotaciones = (l: Anotacion[]) => guardar({ anotaciones: l });
 
   const nosotros = equipo.nombre, ellos = partido.rival;
   const [izq, der] = partido.casa ? [[nosotros, r.nuestros], [ellos, r.suyos]] as const : [[ellos, r.suyos], [nosotros, r.nuestros]] as const;
@@ -122,6 +124,10 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "golRival" })}><IconoAccion tipo="golRival" /> Gol</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarillaRival" })}><IconoAccion tipo="amarillaRival" /> Amarilla</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "rojaRival" })}><IconoAccion tipo="rojaRival" /> Roja</button>
+        <button className="btn btn-borde boton-anotar" type="button" onClick={() => {
+          const t = document.querySelector<HTMLTextAreaElement>(".anotar textarea");
+          t?.scrollIntoView({ behavior: "smooth", block: "center" }); t?.focus({ preventScroll: true });
+        }}>✎ Anotación</button>
       </section>
 
       <section className="linea-tiempo">
@@ -146,6 +152,9 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
           </ol>
         )}
       </section>
+
+      <Anotaciones lista={anotaciones} minutoAhora={minAhora != null ? Math.min(minAhora, reloj.parte * minutosParte) : null}
+        guardar={guardarAnotaciones} confirmar={confirmar} />
 
       <section className="minutos-jugados">
         <header><h2>Minutos jugados</h2><span className="pastilla">de {duracion}'</span></header>
@@ -306,6 +315,92 @@ function HojaMinutos({ jugador, calculado, actual, maximo, alCerrar, alGuardar }
       <div className="hoja-acciones">
         <button className="btn btn-gris" type="button" onClick={() => alGuardar(null)} disabled={actual == null}>Usar el cálculo</button>
         <button className="btn btn-principal" type="button" onClick={() => alGuardar(m === calculado ? null : m)}>Guardar</button>
+      </div>
+    </Hoja>
+  );
+}
+
+/* ---------- Anotaciones del entrenador ---------- */
+function Anotaciones({ lista, minutoAhora, guardar, confirmar }: {
+  lista: Anotacion[]; minutoAhora: number | null; guardar: (l: Anotacion[]) => Promise<void>;
+  confirmar: ReturnType<typeof useUi>["confirmar"];
+}) {
+  const [texto, setTexto] = useState("");
+  const [editando, setEditando] = useState<Anotacion | null>(null);
+  const [verRevisadas, setVerRevisadas] = useState(true);
+  const pendientes = lista.filter((a) => !a.revisada).length;
+  const ordenadas = [...lista].sort((a, b) => (a.minuto ?? 999) - (b.minuto ?? 999));
+  const visibles = verRevisadas ? ordenadas : ordenadas.filter((a) => !a.revisada);
+
+  async function apuntar() {
+    if (!texto.trim()) return;
+    await guardar([...lista, { id: crypto.randomUUID(), minuto: minutoAhora, texto: texto.trim(), revisada: false }]);
+    setTexto("");
+  }
+  const cambiar = (a: Anotacion) => guardar(lista.map((x) => (x.id === a.id ? a : x)));
+
+  return (
+    <section className="anotaciones">
+      <header>
+        <h2>Anotaciones</h2>
+        {lista.length > 0 && <span className={"pastilla " + (pendientes ? "pastilla-aviso" : "pastilla-ok")}>{pendientes ? `${pendientes} por revisar` : "Todas revisadas"}</span>}
+      </header>
+      <p className="suave consejo">Apunta lo que veas para corregirlo en el descanso o al final.{minutoAhora != null ? " Se guarda con el minuto del reloj." : ""}</p>
+      <form className="anotar" onSubmit={(e) => { e.preventDefault(); apuntar(); }}>
+        <textarea className="entrada area" rows={2} value={texto} onChange={(e) => setTexto(e.target.value)} maxLength={400}
+          placeholder="Por ejemplo: el lateral izquierdo no cierra, hay que salir más rápido al contraataque…" aria-label="Nueva anotación" />
+        <button className="btn btn-principal" type="submit" disabled={!texto.trim()}>Apuntar{minutoAhora != null ? ` en el ${minutoAhora}'` : ""}</button>
+      </form>
+      {lista.some((a) => a.revisada) && (
+        <button className="btn btn-texto" type="button" onClick={() => setVerRevisadas(!verRevisadas)}>{verRevisadas ? "Ocultar las revisadas" : "Ver también las revisadas"}</button>
+      )}
+      {visibles.length > 0 && (
+        <ul className="lista-anotaciones">
+          {visibles.map((a) => (
+            <li key={a.id} className={a.revisada ? "revisada" : ""}>
+              <button type="button" className="anotacion-check" aria-pressed={a.revisada} onClick={() => cambiar({ ...a, revisada: !a.revisada })}
+                aria-label={a.revisada ? "Marcar como pendiente" : "Marcar como revisada"}>{a.revisada ? "✓" : ""}</button>
+              <button type="button" className="anotacion-texto" onClick={() => setEditando(a)}>
+                {a.minuto != null && <span className="anotacion-minuto">{a.minuto}'</span>}
+                <span>{a.texto}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {editando && (
+        <HojaAnotacion anotacion={editando} alCerrar={() => setEditando(null)}
+          alGuardar={async (a) => { await cambiar(a); setEditando(null); }}
+          alBorrar={async () => {
+            if (!(await confirmar({ titulo: "¿Borrar esta anotación?", texto: "Esto no se puede deshacer." }))) return;
+            await guardar(lista.filter((x) => x.id !== editando.id)); setEditando(null);
+          }} />
+      )}
+    </section>
+  );
+}
+
+function HojaAnotacion({ anotacion, alCerrar, alGuardar, alBorrar }: { anotacion: Anotacion; alCerrar: () => void; alGuardar: (a: Anotacion) => void; alBorrar: () => void }) {
+  const [a, setA] = useState(anotacion);
+  return (
+    <Hoja titulo="Anotación" alCerrar={alCerrar}>
+      <label className="campo"><span>Texto</span>
+        <textarea className="entrada area" rows={4} value={a.texto} onChange={(e) => setA({ ...a, texto: e.target.value })} maxLength={400} />
+      </label>
+      <div className="campo"><span>Minuto</span>
+        <div className="contador-num" role="group" aria-label="Minuto">
+          <button type="button" onClick={() => setA((x) => ({ ...x, minuto: Math.max(0, (x.minuto ?? 1) - 1) }))} aria-label="Un minuto menos">−</button>
+          <input className="minuto-entrada" inputMode="numeric" value={a.minuto ?? ""} placeholder="—" aria-label="Minuto"
+            onChange={(e) => { const t = e.target.value.replace(/\D/g, ""); setA({ ...a, minuto: t === "" ? null : Math.min(150, Number(t)) }); }} />
+          <button type="button" onClick={() => setA((x) => ({ ...x, minuto: Math.min(150, (x.minuto ?? 0) + 1) }))} aria-label="Un minuto más">+</button>
+        </div>
+      </div>
+      <button className={"btn " + (a.revisada ? "btn-gris" : "btn-borde")} type="button" onClick={() => setA({ ...a, revisada: !a.revisada })}>
+        {a.revisada ? "Revisada · marcar como pendiente" : "Marcar como revisada"}
+      </button>
+      <div className="hoja-acciones">
+        <button className="btn btn-gris" type="button" onClick={alBorrar}><IcoPapelera /> Borrar</button>
+        <button className="btn btn-principal" type="button" disabled={!a.texto.trim()} onClick={() => alGuardar({ ...a, texto: a.texto.trim() })}>Guardar</button>
       </div>
     </Hoja>
   );

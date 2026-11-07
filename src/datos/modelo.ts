@@ -155,6 +155,8 @@ export interface Partido {
   /** Minutos corregidos a mano por el entrenador, por jugador. */
   minutosManuales?: Record<string, number>;
   reloj?: import("./partido").Reloj;
+  /** Notas del entrenador durante el partido. */
+  anotaciones?: import("./partido").Anotacion[];
 }
 
 export interface PlantillaAlineacion {

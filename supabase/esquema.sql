@@ -279,3 +279,6 @@ grant select, insert, update, delete on public.eventos to authenticated;
 alter table public.partidos add column if not exists acciones jsonb not null default '[]'::jsonb;
 alter table public.partidos add column if not exists minutos_manuales jsonb not null default '{}'::jsonb;
 alter table public.partidos add column if not exists reloj jsonb;
+
+-- Anotaciones del entrenador durante el partido
+alter table public.partidos add column if not exists anotaciones jsonb not null default '[]'::jsonb;

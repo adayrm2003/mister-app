@@ -52,3 +52,18 @@
 .reloj-anadido { color: var(--derrota); font-size: 15px; }
 .reloj-minuto { font-variant-numeric: tabular-nums; }
 .campo-dorsal-rival { align-items: center; text-align: center; }
+
+.anotaciones { display: flex; flex-direction: column; gap: 8px; }
+.anotaciones > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.anotaciones h2 { font-size: 26px; }
+.anotar { display: flex; flex-direction: column; gap: 8px; }
+.anotar .btn { align-self: flex-end; min-width: 160px; }
+.lista-anotaciones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lista-anotaciones li { display: flex; align-items: stretch; gap: 8px; background: var(--superficie); border: 1px solid var(--linea); border-left: 5px solid var(--amarilla); border-radius: 14px; padding: 6px; }
+.lista-anotaciones li.revisada { border-left-color: var(--victoria); opacity: .7; }
+.lista-anotaciones li.revisada .anotacion-texto span:last-child { text-decoration: line-through; }
+.anotacion-check { width: 44px; min-height: 44px; flex: none; border-radius: 12px; border: 2px solid var(--linea); background: var(--superficie); font-size: 22px; font-weight: 800; color: var(--victoria); }
+.anotacion-check[aria-pressed="true"] { border-color: var(--victoria); background: color-mix(in srgb, var(--victoria) 14%, var(--superficie)); }
+.anotacion-texto { flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; text-align: left; background: none; border: 0; padding: 6px 4px; font-size: 16px; line-height: 1.4; white-space: pre-line; overflow-wrap: anywhere; }
+.anotacion-minuto { font-family: var(--f-display); font-weight: 800; font-size: 20px; flex: none; min-width: 34px; }
+.botones-accion .boton-anotar { grid-column: 1 / -1; min-height: 52px; flex-direction: row; }

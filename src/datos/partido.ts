@@ -14,6 +14,9 @@ export interface Accion {
   dorsalRival?: number | null; // tarjetas del otro equipo
 }
 
+/** Nota rápida del entrenador durante el partido, para revisarla en el descanso o al final. */
+export interface Anotacion { id: string; minuto: number | null; texto: string; revisada: boolean }
+
 /** Reloj del partido: parte en juego y cuándo empezó (hora del dispositivo). */
 export interface Reloj { parte: number; inicio: number | null; terminado: boolean }
 
