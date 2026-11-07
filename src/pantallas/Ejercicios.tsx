@@ -7,8 +7,10 @@ import { IcoAtras, IcoEjercicios, IcoLapiz, IcoMas, IcoPapelera } from "../compo
 import { useUi } from "../componentes/ui";
 import { ejerciciosDeEjemplo } from "../datos/ejemplos";
 import { copiarEjercicio, ejercicioVacio, type Ejercicio } from "../datos/pizarra";
+import { SelectorBiblioteca } from "./Sesiones";
 import "./ejercicios.css";
 
+const tieneDibujo = (e: Ejercicio) => e.pizarra.piezas.length > 0;
 const sinAcentos = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 function useNombreTipo() {
@@ -46,6 +48,7 @@ export default function Ejercicios() {
 
   return (
     <main className="pagina pagina-ancha">
+      <SelectorBiblioteca />
       <div className="titulo-con-accion">
         <h1>Ejercicios</h1>
         <span className="pastilla">{filas.length} en tu biblioteca</span>
@@ -72,12 +75,15 @@ export default function Ejercicios() {
       <div className="tarjetas-ejercicio">
         {visibles.map((e) => (
           <Link key={e.id} to={`/ejercicios/${e.id}`} className="tarjeta-ejercicio tarjeta">
-            <PizarraMini pizarra={e.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
             <div className="tarjeta-ejercicio-texto">
+              <div className="tarjeta-ejercicio-cabeza">
+                <span className="pastilla">{nombreTipo(e.tipo)}</span>
+                <small>{[e.duracion && `${e.duracion} min`, e.jugadores && `${e.jugadores} jug.`].filter(Boolean).join(" · ")}</small>
+              </div>
               <b>{e.nombre}</b>
-              <span className="pastilla">{nombreTipo(e.tipo)}</span>
-              <small>{[e.duracion && `${e.duracion} min`, e.jugadores && `${e.jugadores} jug.`, e.pizarra.pasos.length > 1 && `${e.pizarra.pasos.length} pasos`].filter(Boolean).join(" · ")}</small>
+              {e.objetivo && <p>{e.objetivo}</p>}
             </div>
+            {tieneDibujo(e) && <div className="tarjeta-ejercicio-mini"><PizarraMini pizarra={e.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} /></div>}
           </Link>
         ))}
       </div>
@@ -125,10 +131,19 @@ export function EjercicioDetalle() {
         </div>
       </div>
       <div className="ejercicio-cuerpo">
-        <Pizarra pizarra={e.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+        {tieneDibujo(e) ? (
+          <Pizarra pizarra={e.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+        ) : (
+          <div className="sin-dibujo tarjeta">
+            <p>Este ejercicio no tiene dibujo.</p>
+            <button className="btn btn-borde" type="button" onClick={() => ir(`/ejercicios/${e.id}/editar`)}>Dibujarlo en la pizarra</button>
+          </div>
+        )}
         <div className="ejercicio-lateral">
           <dl className="ficha-ejercicio tarjeta">
-            {datos.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+            {datos.filter(([, v]) => v).map(([k, v]) => (
+              <div key={k}><dt>{k}</dt><dd>{k === "Explicación" ? <Apartados texto={v} /> : v}</dd></div>
+            ))}
             {datos.every(([, v]) => !v) && <p className="suave">Sin más datos. Puedes añadirlos con «Editar».</p>}
           </dl>
           <div className="acciones-ejercicio">
@@ -139,6 +154,18 @@ export function EjercicioDetalle() {
         </div>
       </div>
     </main>
+  );
+}
+
+/** Muestra "Organización: ..." en líneas separadas con el apartado en negrita. */
+export function Apartados({ texto }: { texto: string }) {
+  return (
+    <span className="apartados">
+      {texto.split(/\r?\n/).filter((l) => l.trim()).map((l, i) => {
+        const m = l.match(/^([^:]{2,24}):\s*(.*)$/);
+        return <span key={i} className="apartado-linea">{m ? <><b>{m[1]}:</b> {m[2]}</> : l}</span>;
+      })}
+    </span>
   );
 }
 
@@ -211,7 +238,8 @@ export function EditorEjercicio() {
             <input className="entrada" value={e.material} onChange={(x) => set({ material: x.target.value })} maxLength={140} placeholder="Conos, petos, balones…" />
           </label>
           <label className="campo"><span>Explicación</span>
-            <textarea className="entrada area" rows={3} value={e.explicacion} onChange={(x) => set({ explicacion: x.target.value })} maxLength={600} />
+            <textarea className="entrada area" rows={6} value={e.explicacion} onChange={(x) => set({ explicacion: x.target.value })} maxLength={2500}
+              placeholder={["Organización: …", "Desarrollo: …", "Reglas: …", "Variantes: …", "Consignas: …"].join("\n")} />
           </label>
           <label className="campo"><span>Notas <small className="suave">(opcional)</small></span>
             <textarea className="entrada area" rows={2} value={e.notas} onChange={(x) => set({ notas: x.target.value })} maxLength={600} />

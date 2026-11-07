@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../datos/api";
 import type { Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
@@ -9,6 +9,8 @@ import Ajustes from "./Ajustes";
 import Plantilla from "./Plantilla";
 import Partidos, { PartidoDetalle } from "./Partidos";
 import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
+import Sesiones, { EditorSesion, SesionDetalle } from "./Sesiones";
+import ModoCampo from "./ModoCampo";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
@@ -27,6 +29,7 @@ const PESTANAS = [
 ];
 
 export default function AppEntrenador() {
+  const ubicacion = useLocation();
   const [equipos, setEquipos] = useState<Equipo[] | null>(null);
   const [activoId, setActivoId] = useState<string | null>(() => { try { return localStorage.getItem(CLAVE_EQUIPO); } catch { return null; } });
   const [error, setError] = useState("");
@@ -45,6 +48,7 @@ export default function AppEntrenador() {
   if (equipos.length === 0) return <SinEquipo alComprobar={cargar} error={error} />;
 
   const equipo = equipos.find((e) => e.id === activoId) ?? equipos[0];
+  const ruta = ubicacion.pathname;
 
   return (
     <ProveedorEquipo key={equipo.id} equipo={equipo} equipos={equipos}>
@@ -52,7 +56,7 @@ export default function AppEntrenador() {
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
           {PESTANAS.map(({ a, texto, Icono }) => (
-            <NavLink key={a} to={a} className="pestana">
+            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) ? " active" : "")}>
               <span className="pestana-icono"><Icono /></span>
               {texto}
             </NavLink>
@@ -75,6 +79,11 @@ export default function AppEntrenador() {
             <Route path="/ejercicios/nuevo" element={<EditorEjercicio />} />
             <Route path="/ejercicios/:id" element={<EjercicioDetalle />} />
             <Route path="/ejercicios/:id/editar" element={<EditorEjercicio />} />
+            <Route path="/sesiones" element={<Sesiones />} />
+            <Route path="/sesiones/nueva" element={<EditorSesion />} />
+            <Route path="/sesiones/:id" element={<SesionDetalle />} />
+            <Route path="/sesiones/:id/editar" element={<EditorSesion />} />
+            <Route path="/sesiones/:id/campo" element={<ModoCampo />} />
             <Route path="/calendario" element={<Proximamente titulo="Calendario" fase={7} texto="Aquí verás la semana y el mes con tus entrenamientos, partidos y torneos, y podrás pasar lista." Icono={IcoCalendario} />} />
             <Route path="/partidos" element={<Partidos />} />
             <Route path="/partidos/:id" element={<PartidoDetalle />} />

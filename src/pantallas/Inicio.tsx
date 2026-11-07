@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { IcoCalendario, IcoMas, IcoPartidos } from "../componentes/Iconos";
-import { useUi } from "../componentes/ui";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import type { Partido } from "../datos/modelo";
 import { fechaLarga, hoyISO } from "./Partidos";
@@ -21,7 +20,6 @@ function cuando(fecha: string) {
 export default function Inicio() {
   const { equipo } = useEquipo();
   const ir = useNavigate();
-  const { avisar } = useUi();
   const { filas: partidos } = useColeccion<Partido>("partidos");
   const proximo = partidos.filter((p) => p.fecha >= hoyISO()).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))[0];
   const hoy = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
@@ -50,7 +48,7 @@ export default function Inicio() {
       )}
 
       <div className="acciones-inicio">
-        <button className="btn btn-peto accion-grande" type="button" onClick={() => { avisar("Las sesiones llegan en la fase 6"); ir("/ejercicios"); }}>
+        <button className="btn btn-peto accion-grande" type="button" onClick={() => ir("/sesiones/nueva")}>
           <IcoMas /> Crear sesión
         </button>
         <button className="btn btn-borde accion-grande" type="button" onClick={() => ir("/partidos?nuevo=1")}>

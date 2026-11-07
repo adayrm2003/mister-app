@@ -5,14 +5,19 @@
 .filtro-tipos button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--linea); background: var(--superficie); font-weight: 700; font-size: 15px; }
 .filtro-tipos button[aria-checked="true"] { background: var(--cesped); border-color: var(--cesped); color: var(--sobre-cesped); }
 
-.tarjetas-ejercicio { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-@media (min-width: 720px) { .tarjetas-ejercicio { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
-.tarjeta-ejercicio { padding: 8px; display: flex; flex-direction: column; gap: 8px; color: inherit; text-decoration: none; transition: transform .1s; min-width: 0; }
-.tarjeta-ejercicio:active { transform: scale(.98); }
-.tarjeta-ejercicio .pizarra-mini { aspect-ratio: 680 / 545; object-fit: cover; }
-.tarjeta-ejercicio-texto { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 4px 4px; min-width: 0; }
-.tarjeta-ejercicio-texto b { font-size: 16px; line-height: 1.25; }
-.tarjeta-ejercicio-texto small { color: var(--tinta-2); font-size: 13px; font-weight: 600; }
+.tarjetas-ejercicio { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 720px) { .tarjetas-ejercicio { grid-template-columns: 1fr 1fr; } }
+.tarjeta-ejercicio { padding: 14px; display: flex; gap: 12px; align-items: flex-start; color: inherit; text-decoration: none; transition: transform .1s; min-width: 0; }
+.tarjeta-ejercicio:active { transform: scale(.99); }
+.tarjeta-ejercicio-texto { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tarjeta-ejercicio-cabeza { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tarjeta-ejercicio-cabeza small { color: var(--tinta-2); font-size: 13px; font-weight: 600; }
+.tarjeta-ejercicio-texto b { font-size: 18px; line-height: 1.25; }
+.tarjeta-ejercicio-texto p { color: var(--tinta-2); font-size: 15px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tarjeta-ejercicio-mini { width: 76px; flex: none; }
+.sin-dibujo { padding: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; color: var(--tinta-2); }
+.apartados { display: flex; flex-direction: column; gap: 8px; }
+.apartado-linea b { color: var(--tinta); }
 
 .titulo-ejercicio { font-size: 34px; overflow-wrap: anywhere; }
 .ejercicio-cuerpo { display: flex; flex-direction: column; gap: 18px; }
