@@ -192,6 +192,25 @@ export function crearApiNube(url: string, clave: string): Api {
       const u = await usuario();
       const { error } = await sb.from("ajustes_usuario").upsert({ usuario_id: u.id, datos, actualizado: new Date().toISOString() });
       traducir(error);
+    },
+
+    // Cada fila guarda el objeto entero en "datos" (jsonb) y la seguridad la limita a su dueño
+    async listarMios<T extends { id: string }>(tabla: Parameters<Api["listarMios"]>[0]) {
+      const { data, error } = await sb.from(tabla).select("datos").order("actualizado", { ascending: false });
+      traducir(error);
+      return (data ?? []).map((f) => f.datos as T);
+    },
+
+    async guardarMio<T extends { id: string }>(tabla: Parameters<Api["guardarMio"]>[0], fila: T) {
+      const u = await usuario();
+      const { error } = await sb.from(tabla).upsert({ id: fila.id, usuario_id: u.id, datos: fila, actualizado: new Date().toISOString() });
+      traducir(error);
+      return fila;
+    },
+
+    async borrarMio(tabla, id) {
+      const { error } = await sb.from(tabla).delete().eq("id", id);
+      traducir(error);
     }
   };
 }

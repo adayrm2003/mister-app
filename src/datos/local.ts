@@ -1,7 +1,7 @@
 // MODO PRUEBA: imita las cuentas y la base de datos guardándolo todo en este navegador.
 // Sirve para probar la app sin Supabase. Las mismas reglas de acceso que en la nube:
 // la directiva solo ve su club y el entrenador solo los equipos asignados a su correo.
-import { type Api, type Asignacion, type Club, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Asignacion, type Club, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, ErrorApp, normalizarCorreo } from "./tipos";
 
 interface Usuario extends Perfil { hash: string }
 interface ClubGuardado extends Club { duenoId: string }
@@ -14,10 +14,12 @@ interface Bd {
   filas: Partial<Record<Tabla, Fila[]>>;
   ajustesEquipo: Record<string, Record<string, unknown>>;
   ajustesUsuario: Record<string, Record<string, unknown>>;
+  /** Por usuario y tabla: su biblioteca. */
+  mios: Record<string, Partial<Record<TablaUsuario, { id: string }[]>>>;
 }
 
 const CLAVE = "mister-modo-prueba";
-const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], sesion: null, filas: {}, ajustesEquipo: {}, ajustesUsuario: {} });
+const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], sesion: null, filas: {}, ajustesEquipo: {}, ajustesUsuario: {}, mios: {} });
 
 function leer(): Bd {
   try {
@@ -265,6 +267,29 @@ export const apiLocal: Api = {
   async guardarAjustesUsuario(datos) {
     const bd = leer();
     bd.ajustesUsuario[usuarioActual(bd).id] = datos;
+    guardar(bd);
+  },
+
+  async listarMios<T extends { id: string }>(tabla: TablaUsuario) {
+    const bd = leer();
+    return ((bd.mios[usuarioActual(bd).id] ?? {})[tabla] ?? []) as T[];
+  },
+
+  async guardarMio<T extends { id: string }>(tabla: TablaUsuario, fila: T) {
+    const bd = leer();
+    const uid = usuarioActual(bd).id;
+    const mias = (bd.mios[uid] ??= {});
+    const lista = (mias[tabla] ??= []);
+    const i = lista.findIndex((f) => f.id === fila.id);
+    if (i >= 0) lista[i] = fila; else lista.push(fila);
+    guardar(bd);
+    return fila;
+  },
+
+  async borrarMio(tabla, id) {
+    const bd = leer();
+    const mias = bd.mios[usuarioActual(bd).id];
+    if (mias?.[tabla]) mias[tabla] = mias[tabla]!.filter((f) => f.id !== id);
     guardar(bd);
   }
 };

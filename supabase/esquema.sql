@@ -226,3 +226,25 @@ end $$;
 drop policy if exists "mis ajustes" on public.ajustes_usuario;
 create policy "mis ajustes" on public.ajustes_usuario for all using (usuario_id = auth.uid()) with check (usuario_id = auth.uid());
 grant select, insert, update, delete on public.ajustes_usuario to authenticated;
+
+-- =====================================================================
+-- FASE 5: biblioteca de ejercicios (y en la fase 6, sesiones) de cada entrenador
+-- Cada fila guarda el ejercicio entero en "datos"; solo lo ve su dueño.
+-- =====================================================================
+do $$
+declare t text;
+begin
+  foreach t in array array['ejercicios', 'sesiones'] loop
+    execute format('create table if not exists public.%I (
+      id          uuid primary key,
+      usuario_id  uuid not null default auth.uid() references auth.users(id) on delete cascade,
+      datos       jsonb not null,
+      actualizado timestamptz not null default now()
+    )', t);
+    execute format('create index if not exists %I on public.%I(usuario_id, actualizado desc)', t || '_usuario_idx', t);
+    execute format('alter table public.%I enable row level security', t);
+    execute format('drop policy if exists "solo mios" on public.%I', t);
+    execute format('create policy "solo mios" on public.%I for all using (usuario_id = auth.uid()) with check (usuario_id = auth.uid())', t);
+    execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+  end loop;
+end $$;

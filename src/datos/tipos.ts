@@ -70,7 +70,14 @@ export interface Api {
   guardarAjustesEquipo(equipoId: string, datos: Record<string, unknown>): Promise<void>;
   leerAjustesUsuario(): Promise<Record<string, unknown> | null>;
   guardarAjustesUsuario(datos: Record<string, unknown>): Promise<void>;
+
+  // Datos propios de cada entrenador (su biblioteca de ejercicios y sesiones)
+  listarMios<T extends { id: string }>(tabla: TablaUsuario): Promise<T[]>;
+  guardarMio<T extends { id: string }>(tabla: TablaUsuario, fila: T): Promise<T>;
+  borrarMio(tabla: TablaUsuario, id: string): Promise<void>;
 }
+
+export type TablaUsuario = "ejercicios" | "sesiones";
 
 /** Tablas con datos de un equipo. */
 export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion";

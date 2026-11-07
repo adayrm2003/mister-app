@@ -2,7 +2,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "./datos/api";
 import { AJUSTES_EQUIPO_BASE, AJUSTES_USUARIO_BASE, esModalidad, type Ajustes, type AjustesEquipo, type AjustesUsuario } from "./datos/modelo";
-import type { Equipo, Fila, Tabla } from "./datos/tipos";
+import type { Equipo, Fila, Tabla, TablaUsuario } from "./datos/tipos";
 import { mensajeDe, useUi } from "./componentes/ui";
 
 interface EstadoEquipo {
@@ -107,4 +107,29 @@ export function useColeccion<T extends Fila>(tabla: Tabla) {
   }, [tabla, avisar, recargar]);
 
   return { filas, cargando, guardar, borrar, recargar };
+}
+
+/** Biblioteca propia del entrenador (vale para todos sus equipos). */
+export function useMios<T extends { id: string }>(tabla: TablaUsuario) {
+  const [filas, setFilas] = useState<T[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const { avisar } = useUi();
+
+  const recargar = useCallback(async () => {
+    try { setFilas(await api.listarMios<T>(tabla)); } catch (err) { avisar(mensajeDe(err)); }
+    finally { setCargando(false); }
+  }, [tabla, avisar]);
+  useEffect(() => { recargar(); }, [recargar]);
+
+  const guardar = useCallback(async (fila: T) => {
+    setFilas((l) => (l.some((x) => x.id === fila.id) ? l.map((x) => (x.id === fila.id ? fila : x)) : [fila, ...l]));
+    try { await api.guardarMio(tabla, fila); } catch (err) { avisar(mensajeDe(err)); recargar(); throw err; }
+  }, [tabla, avisar, recargar]);
+
+  const borrar = useCallback(async (id: string) => {
+    setFilas((l) => l.filter((x) => x.id !== id));
+    try { await api.borrarMio(tabla, id); } catch (err) { avisar(mensajeDe(err)); recargar(); }
+  }, [tabla, avisar, recargar]);
+
+  return { filas, cargando, guardar, borrar, recargar, setFilas };
 }

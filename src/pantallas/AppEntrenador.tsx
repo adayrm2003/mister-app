@@ -8,6 +8,7 @@ import { ProveedorEquipo } from "../ContextoEquipo";
 import Ajustes from "./Ajustes";
 import Plantilla from "./Plantilla";
 import Partidos, { PartidoDetalle } from "./Partidos";
+import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
@@ -70,7 +71,10 @@ export default function AppEntrenador() {
             <Route path="/inicio" element={<Inicio />} />
             <Route path="/plantilla" element={<Plantilla />} />
             <Route path="/ajustes" element={<Ajustes />} />
-            <Route path="/ejercicios" element={<Proximamente titulo="Ejercicios" fase={5} texto="Aquí tendrás tu biblioteca de ejercicios con pizarra animada y, en la fase 6, tus sesiones." Icono={IcoEjercicios} />} />
+            <Route path="/ejercicios" element={<Ejercicios />} />
+            <Route path="/ejercicios/nuevo" element={<EditorEjercicio />} />
+            <Route path="/ejercicios/:id" element={<EjercicioDetalle />} />
+            <Route path="/ejercicios/:id/editar" element={<EditorEjercicio />} />
             <Route path="/calendario" element={<Proximamente titulo="Calendario" fase={7} texto="Aquí verás la semana y el mes con tus entrenamientos, partidos y torneos, y podrás pasar lista." Icono={IcoCalendario} />} />
             <Route path="/partidos" element={<Partidos />} />
             <Route path="/partidos/:id" element={<PartidoDetalle />} />
