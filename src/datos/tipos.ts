@@ -33,6 +33,8 @@ export interface DatosRegistro {
   contrasena: string;
   rol: Rol;
   nombreClub?: string;
+  /** Fecha de la versión de los textos legales que aceptó al registrarse. */
+  aceptaLegal?: string;
 }
 
 export type EventoSesion = "entrada" | "salida" | "recuperacion";

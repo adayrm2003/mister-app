@@ -3,6 +3,7 @@ import { api } from "../datos/api";
 import { useSesion } from "../Sesion";
 import { IcoAuto, IcoLuna, IcoPersona, IcoSalir, IcoSol } from "./Iconos";
 import { Hoja, useTema, useUi, type Tema } from "./ui";
+import { PieLegal } from "../pantallas/Legal";
 
 /** Botón redondo de la cabecera que abre: tema de color y cerrar sesión. */
 export default function MenuCuenta({ extra }: { extra?: React.ReactNode }) {
@@ -37,6 +38,7 @@ export default function MenuCuenta({ extra }: { extra?: React.ReactNode }) {
             </div>
           </div>
           {extra}
+          <div className="campo"><span className="etiqueta">Información legal</span><PieLegal /></div>
           <button className="btn btn-gris btn-ancho" type="button" onClick={salir}><IcoSalir /> Cerrar sesión</button>
         </Hoja>
       )}

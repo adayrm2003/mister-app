@@ -1,0 +1,17 @@
+.legal { min-height: 100vh; min-height: 100dvh; background: var(--cal); }
+.legal-cabecera { border-bottom: 1px solid var(--linea); }
+.legal-pagina { max-width: 760px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+.legal-resumen { white-space: normal !important; }
+.legal-documento { display: flex; flex-direction: column; gap: 14px; }
+.legal-documento h1 { font-size: 40px; }
+.legal-documento section { display: flex; flex-direction: column; gap: 8px; }
+.legal-documento h2 { font-size: 22px; margin-top: 8px; }
+.legal-documento p { max-width: 68ch; line-height: 1.6; overflow-wrap: anywhere; }
+.legal-otros { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--linea); }
+.legal-otros a { color: var(--cesped); font-weight: 700; min-height: 32px; display: inline-flex; align-items: center; }
+
+.pie-legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 13px; }
+.pie-legal a { color: var(--tinta-2); text-decoration: underline; text-underline-offset: 2px; min-height: 32px; display: inline-flex; align-items: center; }
+.acepto { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; cursor: pointer; }
+.acepto input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: var(--cesped); }
+.acepto a { color: var(--cesped); font-weight: 700; }

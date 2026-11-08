@@ -67,7 +67,7 @@ export function crearApiNube(url: string, clave: string): Api {
       const { data, error } = await sb.auth.signUp({
         email: normalizarCorreo(d.email),
         password: d.contrasena,
-        options: { data: { rol: d.rol, nombre_club: d.nombreClub?.trim() || null }, emailRedirectTo: location.origin }
+        options: { data: { rol: d.rol, nombre_club: d.nombreClub?.trim() || null, acepta_legal: d.aceptaLegal ?? null, acepta_legal_en: new Date().toISOString() }, emailRedirectTo: location.origin }
       });
       traducir(error);
       return { hayQueConfirmarCorreo: !data.session };

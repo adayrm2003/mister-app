@@ -3,6 +3,9 @@ import { api } from "../datos/api";
 import { correoValido, type Rol } from "../datos/tipos";
 import { IcoAtras, IcoCorreo, IcoOjo, IcoOjoTachado, IcoPersona, IcoSilbato, LogoMister } from "../componentes/Iconos";
 import { mensajeDe } from "../componentes/ui";
+import { Link } from "react-router-dom";
+import { PieLegal } from "./Legal";
+import { ACTUALIZADO } from "../legal/textos";
 import "./acceso.css";
 
 type Vista = "entrar" | "registro" | "recuperar";
@@ -28,6 +31,7 @@ export default function Acceso() {
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [acepto, setAcepto] = useState(false);
 
   const irA = (v: Vista) => { setVista(v); setError(""); setOk(""); };
 
@@ -37,11 +41,12 @@ export default function Acceso() {
     if (!correoValido(email)) return setError("Escribe un correo válido, por ejemplo nombre@gmail.com.");
     if (vista !== "recuperar" && contrasena.length < 8) return setError("La contraseña tiene que tener al menos 8 caracteres.");
     if (vista === "registro" && rol === "directiva" && !nombreClub.trim()) return setError("Escribe el nombre del club.");
+    if (vista === "registro" && !acepto) return setError("Para crear la cuenta tienes que aceptar los términos de uso y la política de privacidad.");
     setEnviando(true);
     try {
       if (vista === "entrar") await api.entrar(email, contrasena);
       else if (vista === "registro") {
-        const r = await api.registrar({ email, contrasena, rol, nombreClub });
+        const r = await api.registrar({ email, contrasena, rol, nombreClub, aceptaLegal: ACTUALIZADO });
         if (r.hayQueConfirmarCorreo) { setOk(`Te hemos enviado un correo a ${email.trim()}. Ábrelo y pulsa el enlace para activar tu cuenta.`); irAEntrarSinBorrar(); }
       } else {
         await api.recuperarContrasena(email);
@@ -113,6 +118,12 @@ export default function Acceso() {
             </div>
           )}
 
+          {vista === "registro" && (
+            <label className="acepto">
+              <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} />
+              <span>He leído y acepto los <Link to="/legal/terminos">términos de uso</Link> y la <Link to="/legal/privacidad">política de privacidad</Link>.</span>
+            </label>
+          )}
           {error && <p className="mensaje mensaje-error" role="alert">{error}</p>}
           {ok && <p className="mensaje mensaje-ok" role="status"><IcoCorreo style={{ width: 18, height: 18, verticalAlign: "-3px", marginRight: 6 }} />{ok}</p>}
 
@@ -130,6 +141,7 @@ export default function Acceso() {
             <b>Modo prueba.</b> La app aún no está conectada a Supabase: las cuentas y los datos se guardan solo en este navegador.
           </p>
         )}
+        <PieLegal />
       </main>
     </div>
   );
