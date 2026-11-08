@@ -2,7 +2,7 @@
 // Son una base redactada para esta app; conviene que los revise un profesional antes de publicarla.
 
 export const TITULAR = {
-  nombre: "[Nombre y apellidos o razón social del titular]",
+  nombre: "Aday Román Martín",
   nif: "[NIF/CIF]",
   domicilio: "[Domicilio]",
   correo: "[Correo de contacto para privacidad]",
