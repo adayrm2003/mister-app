@@ -37,7 +37,7 @@ export default function Legal() {
             <h1>{documento.titulo}</h1>
             <p className="suave">Última actualización: {ACTUALIZADO}</p>
             {faltanDatosTitular() && (
-              <p className="mensaje mensaje-aviso">Borrador: faltan por completar los datos del titular (nombre, NIF, domicilio y correo de contacto).</p>
+              <p className="mensaje mensaje-aviso">Borrador: faltan por completar los datos del titular.</p>
             )}
             {documento.secciones.map((s) => (
               <section key={s.titulo}>

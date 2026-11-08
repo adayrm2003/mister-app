@@ -3,10 +3,7 @@
 
 export const TITULAR = {
   nombre: "Aday Román Martín",
-  nif: "[NIF/CIF]",
-  domicilio: "[Domicilio]",
-  correo: "[Correo de contacto para privacidad]",
-  web: "[Dirección web de la app]"
+  correo: "adayrm.2003@gmail.com"
 };
 
 export const ACTUALIZADO = "8 de noviembre de 2026";
@@ -23,7 +20,7 @@ export const DOCUMENTOS: DocumentoLegal[] = [
     resumen: "Las normas para usar Míster: cuentas, uso correcto y responsabilidades.",
     secciones: [
       { titulo: "1. Quién presta el servicio", parrafos: [
-        `Míster es una aplicación para clubes y entrenadores de fútbol ofrecida por ${t.nombre}, con NIF ${t.nif} y domicilio en ${t.domicilio}. Contacto: ${t.correo}.`,
+        `Míster es una aplicación para clubes y entrenadores de fútbol ofrecida por ${t.nombre}. Contacto: ${t.correo}.`,
         "Al crear una cuenta o usar la app aceptas estos términos. Si no estás de acuerdo, no uses la app."
       ] },
       { titulo: "2. Qué es Míster", parrafos: [
@@ -66,7 +63,7 @@ export const DOCUMENTOS: DocumentoLegal[] = [
     resumen: "Qué datos se guardan, para qué, dónde y cómo ejercer tus derechos.",
     secciones: [
       { titulo: "1. Quién trata los datos", parrafos: [
-        `Datos de las cuentas (directiva y entrenadores): el responsable es ${t.nombre}, NIF ${t.nif}, ${t.domicilio}. Contacto para privacidad: ${t.correo}.`,
+        `Datos de las cuentas (directiva y entrenadores): el responsable es ${t.nombre}. Contacto para privacidad y para ejercer tus derechos: ${t.correo}.`,
         "Datos de los jugadores y de la actividad de cada equipo: el responsable es el club que los introduce en la app. El titular de Míster actúa como encargado del tratamiento: guarda esos datos por cuenta del club, solo para prestarle el servicio y siguiendo sus instrucciones."
       ] },
       { titulo: "2. Qué datos se guardan", parrafos: [
