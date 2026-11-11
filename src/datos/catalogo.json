@@ -1,0 +1,3323 @@
+[
+ {
+  "id": "ABP-01",
+  "nombre": "Córner ofensivo",
+  "tipo": "Balón parado (ABP)",
+  "objetivo": "Atacar córners",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 22,
+  "espacio": "Área",
+  "duracion": 12,
+  "intensidad": "media",
+  "material": "Portería, balones, petos",
+  "descripcion": "Se trabajan varias jugadas de córner: al primer palo, al segundo y en corto.",
+  "reglas": [
+   "Defensa pasiva y luego activa"
+  ],
+  "puntosClave": [
+   "Bloqueos",
+   "Carreras sincronizadas",
+   "Golpeo preciso"
+  ],
+  "variantes": [
+   "Córner en corto"
+  ]
+ },
+ {
+  "id": "ABP-02",
+  "nombre": "Córner defensivo",
+  "tipo": "Balón parado (ABP)",
+  "objetivo": "Defender córners",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 22,
+  "espacio": "Área",
+  "duracion": 12,
+  "intensidad": "media",
+  "material": "Portería, balones, petos",
+  "descripcion": "Organizar defensa de córner: zona, hombre o mixta.",
+  "reglas": [
+   "Atacantes con jugadas propias"
+  ],
+  "puntosClave": [
+   "Ver balón y rival",
+   "Despejes",
+   "Salir rápido tras despejar"
+  ],
+  "variantes": [
+   "Contraataque tras despejar"
+  ]
+ },
+ {
+  "id": "ABP-03",
+  "nombre": "Faltas directas",
+  "tipo": "Balón parado (ABP)",
+  "objetivo": "Golpeo de falta",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 12,
+  "espacio": "Frontal del área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones, barrera de maniquíes",
+  "descripcion": "Golpeo de faltas desde distintas posiciones con barrera.",
+  "reglas": [
+   "Rotar lanzadores"
+  ],
+  "puntosClave": [
+   "Superficie de golpeo",
+   "Efecto",
+   "Elegir el lado"
+  ],
+  "variantes": [
+   "Con portero real"
+  ]
+ },
+ {
+  "id": "ABP-04",
+  "nombre": "Saque de banda ofensivo",
+  "tipo": "Balón parado (ABP)",
+  "objetivo": "Aprovechar los saques de banda",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 12,
+  "espacio": "Banda",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Balones, petos",
+  "descripcion": "Jugadas preparadas de saque de banda con desmarques y descargas.",
+  "reglas": [
+   "Defensa activa"
+  ],
+  "puntosClave": [
+   "Desmarque de apoyo",
+   "Saque rápido",
+   "Recibir y jugar"
+  ],
+  "variantes": [
+   "Saque largo al área"
+  ]
+ },
+ {
+  "id": "ABP-05",
+  "nombre": "Penaltis",
+  "tipo": "Balón parado (ABP)",
+  "objetivo": "Lanzamiento de penaltis",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 22,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "Tanda de penaltis con presión competitiva.",
+  "reglas": [
+   "Por equipos"
+  ],
+  "puntosClave": [
+   "Elegir lado antes",
+   "No cambiar de idea",
+   "Golpeo seguro"
+  ],
+  "variantes": [
+   "Con ruido o presión externa"
+  ]
+ },
+ {
+  "id": "CAL-01",
+  "nombre": "Movilidad dinámica con balón",
+  "tipo": "Calentamiento",
+  "objetivo": "Activar articulaciones y tocar balón desde el minuto 1",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 30,
+  "espacio": "20x20 m",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "1 balón por jugador, conos",
+  "descripcion": "Cada jugador conduce libremente por el cuadrado. A la señal del entrenador hace un movimiento de movilidad (skipping, talones, aperturas de cadera, zancadas) sin perder el balón cerca.",
+  "reglas": [
+   "Nadie puede chocar con un compañero",
+   "Cambio de movimiento cada 30-45 s"
+  ],
+  "puntosClave": [
+   "Cabeza levantada al conducir",
+   "Movimientos amplios y controlados",
+   "Aumentar ritmo poco a poco"
+  ],
+  "variantes": [
+   "Añadir toques con interior/exterior/planta",
+   "Señales visuales (colores de conos) en vez de voz"
+  ]
+ },
+ {
+  "id": "CAL-02",
+  "nombre": "Pase en parejas con desplazamiento",
+  "tipo": "Calentamiento",
+  "objetivo": "Entrar en calor con pase y control",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 30,
+  "espacio": "Parejas a 8-10 m",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "1 balón por pareja",
+  "descripcion": "Por parejas, se pasan el balón mientras se desplazan por el campo: pase, control orientado y vuelta a pasar. El entrenador cambia la superficie de contacto.",
+  "reglas": [
+   "Máximo 2 toques",
+   "Cambiar de superficie cada minuto"
+  ],
+  "puntosClave": [
+   "Pase tenso y a ras de suelo",
+   "Control hacia el lado contrario al que viene el balón",
+   "Comunicarse"
+  ],
+  "variantes": [
+   "1 toque",
+   "Pase con la pierna mala",
+   "Añadir pase aéreo corto"
+  ]
+ },
+ {
+  "id": "CAL-03",
+  "nombre": "Rueda de pases en Y",
+  "tipo": "Calentamiento",
+  "objetivo": "Activación con patrón de pase y desmarque",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 14,
+  "espacio": "Figura en Y de 15-20 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "4 conos, 2-3 balones",
+  "descripcion": "Cuatro conos forman una Y. El balón sale de la base, juega a la punta, apoyo de cara, pase al tercer hombre que abre a una de las ramas. Cada jugador sigue a su pase.",
+  "reglas": [
+   "Cada jugador va al cono al que pasa",
+   "Alternar rama derecha e izquierda"
+  ],
+  "puntosClave": [
+   "Perfilarse antes de recibir",
+   "Pase al pie bueno del compañero",
+   "Ritmo constante"
+  ],
+  "variantes": [
+   "Finalizar con tiro a portería",
+   "Añadir un defensor pasivo en el centro"
+  ]
+ },
+ {
+  "id": "CAL-04",
+  "nombre": "Juego de los pañuelos con balón",
+  "tipo": "Calentamiento",
+  "objetivo": "Activación lúdica y velocidad de reacción",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 20,
+  "espacio": "15x15 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Petos, 1 balón por jugador",
+  "descripcion": "Cada jugador lleva un peto en la cintura como cola y conduce su balón. Debe quitar colas a los demás sin perder su balón ni su peto.",
+  "reglas": [
+   "Si pierdes la cola, haces 5 toques y vuelves",
+   "Prohibido agarrar"
+  ],
+  "puntosClave": [
+   "Proteger el balón con el cuerpo",
+   "Mirar alrededor",
+   "Cambios de ritmo"
+  ],
+  "variantes": [
+   "Solo se puede quitar cola con la mano contraria a la pierna que conduce",
+   "Equipos: colas de un color contra otro"
+  ]
+ },
+ {
+  "id": "CAL-05",
+  "nombre": "Rondo de activación 4x1",
+  "tipo": "Calentamiento",
+  "objetivo": "Activación técnica con oposición suave",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 5,
+  "jugadoresMax": 5,
+  "espacio": "8x8 m",
+  "duracion": 6,
+  "intensidad": "media",
+  "material": "1 balón, 4 conos",
+  "descripcion": "Cuatro jugadores en los lados de un cuadrado se pasan el balón con un defensor dentro. Si el defensor toca balón, cambia con quien perdió.",
+  "reglas": [
+   "2 toques",
+   "Cada 10 pases seguidos, punto"
+  ],
+  "puntosClave": [
+   "Pase al pie lejano del defensor",
+   "Ofrecer línea de pase siempre",
+   "Control orientado"
+  ],
+  "variantes": [
+   "1 toque",
+   "Dos defensores (4x2)"
+  ]
+ },
+ {
+  "id": "CAL-06",
+  "nombre": "Activación neuromuscular (FIFA 11+)",
+  "tipo": "Calentamiento",
+  "objetivo": "Prevenir lesiones y preparar el cuerpo",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 30,
+  "espacio": "Carril de 20 m",
+  "duracion": 12,
+  "intensidad": "media",
+  "material": "Conos",
+  "descripcion": "Circuito por carriles: carrera suave con giros de cadera, saltos laterales, planchas, sentadillas a una pierna y aceleraciones progresivas. Basado en el programa preventivo FIFA 11+.",
+  "reglas": [
+   "Ida corriendo, vuelta trotando",
+   "Mantener la técnica antes que la velocidad"
+  ],
+  "puntosClave": [
+   "Rodillas alineadas con la punta del pie",
+   "Aterrizar suave en los saltos",
+   "Tronco estable"
+  ],
+  "variantes": [
+   "Versión para los más pequeños con juegos en vez de series",
+   "Hacerlo por parejas para corregirse"
+  ]
+ },
+ {
+  "id": "CAL-07",
+  "nombre": "Pilla-pilla con pase",
+  "tipo": "Calentamiento",
+  "objetivo": "Activación y pase bajo presión",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 20,
+  "espacio": "20x20 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "2-3 balones, petos",
+  "descripcion": "Dos o tres jugadores con peto pillan. Solo está a salvo quien tiene el balón en los pies. Los demás se pasan los balones para salvar a quien está en peligro.",
+  "reglas": [
+   "Quien es pillado se pone el peto",
+   "No se puede devolver el balón al que te lo pasó"
+  ],
+  "puntosClave": [
+   "Ver al compañero en peligro",
+   "Pase rápido y preciso",
+   "Moverse a espacios libres"
+  ],
+  "variantes": [
+   "Menos balones = más difícil",
+   "Pillar solo con balón en la mano (para los pilladores)"
+  ]
+ },
+ {
+  "id": "CAL-08",
+  "nombre": "Circuito técnico de calentamiento",
+  "tipo": "Calentamiento",
+  "objetivo": "Activación con técnica individual",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "Recorrido de 25 m",
+  "duracion": 10,
+  "intensidad": "baja",
+  "material": "Conos, picas, aros, 1 balón por jugador",
+  "descripcion": "Recorrido con slalom entre conos, conducción por aros, pase contra pica o pared y recepción. Los jugadores salen en hilera cada 5 segundos.",
+  "reglas": [
+   "Salida escalonada",
+   "Si se derriba un cono, se repite el tramo"
+  ],
+  "puntosClave": [
+   "Toques cortos en el slalom",
+   "Usar ambas piernas",
+   "Acelerar al final"
+  ],
+  "variantes": [
+   "Cronometrar por equipos",
+   "Añadir tiro al final"
+  ]
+ },
+ {
+  "id": "CON-01",
+  "nombre": "Slalom de conos",
+  "tipo": "Conducción y regate",
+  "objetivo": "Conducción con cambios de dirección",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "Fila de 8 conos a 1,5 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "8 conos por fila, balones",
+  "descripcion": "Los jugadores hacen zig-zag entre conos conduciendo el balón con distintas superficies y vuelven por fuera acelerando.",
+  "reglas": [
+   "Interior en la ida, exterior en la vuelta",
+   "Competición contra reloj"
+  ],
+  "puntosClave": [
+   "Toques cortos",
+   "Balón pegado al pie",
+   "Levantar la vista al final"
+  ],
+  "variantes": [
+   "Solo pierna mala",
+   "Conos a distancias irregulares"
+  ]
+ },
+ {
+  "id": "CON-02",
+  "nombre": "Cuadrado de regates (fintas)",
+  "tipo": "Conducción y regate",
+  "objetivo": "Aprender fintas básicas",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "15x15 m con conos centrales",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, balones",
+  "descripcion": "Cada jugador conduce hacia un cono central como si fuera un defensor, hace una finta (bicicleta, amago, cola de vaca, ruleta, pisada) y acelera hacia otro lado.",
+  "reglas": [
+   "Una finta nueva cada 2 minutos",
+   "No repetir el mismo cono seguido"
+  ],
+  "puntosClave": [
+   "Engañar con el cuerpo, no solo con el pie",
+   "Acelerar tras la finta",
+   "Distancia de 1-2 m al cono"
+  ],
+  "variantes": [
+   "Defensor real pasivo y luego activo",
+   "Elegir la finta según la posición del defensor"
+  ]
+ },
+ {
+  "id": "CON-03",
+  "nombre": "Conducción en el cuadrado con interferencias",
+  "tipo": "Conducción y regate",
+  "objetivo": "Conducir con la cabeza levantada",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 24,
+  "espacio": "20x20 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Balones, conos",
+  "descripcion": "Todos conducen dentro del cuadrado. El entrenador muestra dedos o colores y los jugadores deben gritar el número/color sin parar de conducir.",
+  "reglas": [
+   "Espacio cada vez más pequeño",
+   "Quien choque hace 5 toques"
+  ],
+  "puntosClave": [
+   "Mirar arriba cada 2-3 toques",
+   "Proteger el balón",
+   "Cambiar de ritmo"
+  ],
+  "variantes": [
+   "Al color, ir a tocar un cono de ese color",
+   "Dos defensores robando"
+  ]
+ },
+ {
+  "id": "CON-04",
+  "nombre": "Cambios de dirección y ritmo",
+  "tipo": "Conducción y regate",
+  "objetivo": "Dominar giros con distintas superficies",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "Carril de 20 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Conos, balones",
+  "descripcion": "Conducción recta hasta un cono, giro (interior, exterior, planta, Cruyff) y aceleración de vuelta. El entrenador indica el giro.",
+  "reglas": [
+   "Cada giro 3 repeticiones por pierna"
+  ],
+  "puntosClave": [
+   "Frenar antes del giro",
+   "Primer toque tras el giro largo para acelerar",
+   "Cuerpo sobre el balón"
+  ],
+  "variantes": [
+   "Giro según señal visual",
+   "Perseguidor detrás"
+  ]
+ },
+ {
+  "id": "CON-05",
+  "nombre": "1x1 de conducción a línea",
+  "tipo": "Conducción y regate",
+  "objetivo": "Superar al rival conduciendo",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "10x15 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "Atacante con balón intenta cruzar la línea del defensor conduciendo y parar el balón sobre ella. El defensor sale desde su línea.",
+  "reglas": [
+   "Máximo 8 s por acción",
+   "Si el defensor roba, puede marcar en la línea contraria"
+  ],
+  "puntosClave": [
+   "Encarar con velocidad",
+   "Fintar cuando el defensor está cerca",
+   "Proteger tras regatear"
+  ],
+  "variantes": [
+   "Dos líneas de llegada (elegir)",
+   "Defensor sale desde un lateral"
+  ]
+ },
+ {
+  "id": "CON-06",
+  "nombre": "Protección del balón en círculo",
+  "tipo": "Conducción y regate",
+  "objetivo": "Proteger el balón con el cuerpo",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "Círculo de 5 m por pareja",
+  "duracion": 6,
+  "intensidad": "alta",
+  "material": "Balones, conos",
+  "descripcion": "Por parejas en un círculo. Uno protege el balón y el otro intenta sacarlo del círculo. 30 s y cambio.",
+  "reglas": [
+   "Prohibido agarrar",
+   "Punto por cada 10 s sin perder el balón"
+  ],
+  "puntosClave": [
+   "Cuerpo entre rival y balón",
+   "Brazos abiertos sin empujar",
+   "Pisar el balón con la planta para girar"
+  ],
+  "variantes": [
+   "Dos atacantes contra uno",
+   "Tras proteger, salir conduciendo a una puerta"
+  ]
+ },
+ {
+  "id": "CON-07",
+  "nombre": "Conducción en carrera con salida rápida",
+  "tipo": "Conducción y regate",
+  "objetivo": "Conducción a velocidad en espacio amplio",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "30 m",
+  "duracion": 8,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "Conducción a máxima velocidad durante 25-30 m con pocos toques largos. Por parejas en competición.",
+  "reglas": [
+   "Gana quien para el balón primero en la meta"
+  ],
+  "puntosClave": [
+   "Toques largos con el empeine exterior",
+   "No perder el control",
+   "Frenar con la planta"
+  ],
+  "variantes": [
+   "Con perseguidor",
+   "Terminar con tiro"
+  ]
+ },
+ {
+  "id": "CON-08",
+  "nombre": "Regate a mini porterías",
+  "tipo": "Conducción y regate",
+  "objetivo": "Regatear y finalizar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "15x20 m con 4 mini porterías",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "4 mini porterías, balones, petos",
+  "descripcion": "1x1 en un espacio con 4 mini porterías. El atacante puede marcar conduciendo en cualquiera de ellas. El defensor marca en dos puertas si roba.",
+  "reglas": [
+   "Gol solo conduciendo",
+   "Rotar cada 30 s"
+  ],
+  "puntosClave": [
+   "Mirar dónde hay menos defensa",
+   "Cambiar de dirección para engañar",
+   "Atacar rápido"
+  ],
+  "variantes": [
+   "2x2",
+   "Gol vale doble con pierna mala"
+  ]
+ },
+ {
+  "id": "COO-01",
+  "nombre": "Escalera de coordinación + pase",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Mejorar frecuencia de apoyos y coordinación",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "Escalera + 10 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Escalera de agilidad, conos, balones",
+  "descripcion": "El jugador hace un patrón en la escalera (un pie por hueco, dos pies, lateral, dentro-fuera) y al salir recibe un pase del entrenador y lo devuelve.",
+  "reglas": [
+   "Cambiar de patrón cada 2 series",
+   "Si pisa un travesaño, repite"
+  ],
+  "puntosClave": [
+   "Apoyos rápidos sobre la punta del pie",
+   "Brazos acompañan",
+   "Mirar el balón al salir"
+  ],
+  "variantes": [
+   "Recibir y tirar a portería",
+   "Usar aros o conos si no hay escalera"
+  ]
+ },
+ {
+  "id": "COO-02",
+  "nombre": "Semáforo",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Reacción a estímulos y control del balón",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "15x15 m",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "1 balón por jugador, conos de colores",
+  "descripcion": "Los niños conducen libremente. Verde = conducir rápido; amarillo = conducir despacio; rojo = parar el balón con la planta y sentarse encima.",
+  "reglas": [
+   "El último en reaccionar hace 3 toques extra",
+   "Añadir colores nuevos según se dominen"
+  ],
+  "puntosClave": [
+   "Balón siempre cerca",
+   "Escuchar/ver la señal",
+   "Frenar con la planta"
+  ],
+  "variantes": [
+   "Azul = cambio de dirección",
+   "Señales con conos levantados en vez de voz"
+  ]
+ },
+ {
+  "id": "COO-03",
+  "nombre": "Los piratas y el tesoro",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Conducción, protección y diversión",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 20,
+  "espacio": "Campo con 4 casas (aros)",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Aros, muchos balones, petos",
+  "descripcion": "En el centro hay muchos balones (el tesoro). Cuatro equipos tienen una casa cada uno. Deben llevar balones conduciendo a su casa. Cuando se acaba el centro, pueden robar en otras casas.",
+  "reglas": [
+   "Solo un balón por viaje",
+   "No se puede defender la propia casa"
+  ],
+  "puntosClave": [
+   "Conducir rápido con la cabeza alta",
+   "Elegir la casa con más balones",
+   "Trabajo en equipo"
+  ],
+  "variantes": [
+   "Uno de cada equipo puede defender",
+   "Balones traídos con la mano para los más pequeños"
+  ]
+ },
+ {
+  "id": "COO-04",
+  "nombre": "Malabares (toques) por niveles",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Sensibilidad con el balón",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 30,
+  "espacio": "Libre",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "1 balón por jugador",
+  "descripcion": "Cada jugador intenta encadenar toques sin que caiga el balón: nivel 1 con bote entre toques, nivel 2 sin bote con pie bueno, nivel 3 alternando pies, nivel 4 pie-muslo-cabeza.",
+  "reglas": [
+   "Cada jugador busca su récord",
+   "Pasar de nivel al hacer 10 seguidos"
+  ],
+  "puntosClave": [
+   "Golpear con el empeine y tobillo firme",
+   "Toques suaves y bajos",
+   "Mirar el balón"
+  ],
+  "variantes": [
+   "Por parejas pasándose sin que caiga",
+   "Competición por equipos sumando toques"
+  ]
+ },
+ {
+  "id": "COO-05",
+  "nombre": "Carrera de relevos con conducción",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Velocidad con balón y competición",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 24,
+  "espacio": "Carriles de 15 m",
+  "duracion": 8,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "Equipos en hilera. Cada jugador conduce hasta un cono, lo rodea y vuelve para entregar el balón al siguiente. Gana el equipo que termina antes.",
+  "reglas": [
+   "El balón se entrega parado al pie",
+   "Si el balón sale del carril, vuelta al inicio del tramo"
+  ],
+  "puntosClave": [
+   "Toques más largos en recto y cortos al girar",
+   "Girar con el exterior",
+   "Animar al equipo"
+  ],
+  "variantes": [
+   "Slalom en vez de recto",
+   "Conducir con la pierna mala"
+  ]
+ },
+ {
+  "id": "COO-06",
+  "nombre": "Cruzar el río (tiburones)",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Regate y protección en situación lúdica",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 20,
+  "espacio": "20x25 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Balones, petos",
+  "descripcion": "Los jugadores con balón deben cruzar el campo (el río) sin que los tiburones del centro les roben. Quien pierde el balón pasa a ser tiburón.",
+  "reglas": [
+   "Salida a la señal",
+   "Gana el último que sobrevive"
+  ],
+  "puntosClave": [
+   "Cambios de ritmo y dirección",
+   "Encarar al hueco",
+   "Proteger con el cuerpo"
+  ],
+  "variantes": [
+   "Tiburones solo se mueven lateralmente",
+   "Zonas seguras (islas) en mitad del campo"
+  ]
+ },
+ {
+  "id": "COO-07",
+  "nombre": "Circuito de habilidades motrices",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Desarrollar saltos, giros y equilibrio",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "Circuito de 20 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Vallas pequeñas, aros, conos, colchoneta",
+  "descripcion": "Recorrido con saltos a pies juntos por aros, vallas a una pierna, voltereta, carrera lateral y conducción final hasta una mini portería.",
+  "reglas": [
+   "Salida cada 5 s",
+   "Completar sin saltarse estaciones"
+  ],
+  "puntosClave": [
+   "Aterrizar con las dos piernas flexionadas",
+   "Mantener equilibrio",
+   "Diversión sobre velocidad"
+  ],
+  "variantes": [
+   "Cambiar el orden de estaciones",
+   "Hacerlo por parejas de la mano"
+  ]
+ },
+ {
+  "id": "COO-08",
+  "nombre": "Espejo",
+  "tipo": "Coordinación y juegos motores",
+  "objetivo": "Reacción y coordinación por parejas",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 30,
+  "espacio": "Parejas en 5x5 m",
+  "duracion": 6,
+  "intensidad": "media",
+  "material": "Conos",
+  "descripcion": "Por parejas enfrentadas. Uno hace movimientos (laterales, adelante, atrás, agacharse) y el otro los copia como un espejo. Cambiar de rol cada 30 s.",
+  "reglas": [
+   "Prohibido tocarse",
+   "Movimientos cortos y rápidos"
+  ],
+  "puntosClave": [
+   "Mirar a la cadera del compañero",
+   "Pasos cortos",
+   "Postura baja"
+  ],
+  "variantes": [
+   "Con balón en los pies",
+   "Al silbato, el espejo debe tocar un cono antes que el guía"
+  ]
+ },
+ {
+  "id": "DEF-01",
+  "nombre": "Entrada y temporización 1x1",
+  "tipo": "Defensa",
+  "objetivo": "Defensa individual: perfil y paciencia",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "10x15 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "El defensor debe impedir que el atacante cruce la línea. Se trabaja aproximación, perfil y momento de entrada.",
+  "reglas": [
+   "Atacante solo puede ganar conduciendo"
+  ],
+  "puntosClave": [
+   "Perfil cerrando el lado bueno",
+   "Distancia de 1-1,5 m",
+   "Entrar cuando el balón se separa"
+  ],
+  "variantes": [
+   "Defensor empieza de espaldas",
+   "Atacante con comodín"
+  ]
+ },
+ {
+  "id": "DEF-02",
+  "nombre": "Coberturas 2x2",
+  "tipo": "Defensa",
+  "objetivo": "Defensa y cobertura",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 16,
+  "espacio": "15x20 m con portería",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balones, petos",
+  "descripcion": "Dos defensores contra dos atacantes. Un defensor presiona al poseedor y el otro hace cobertura.",
+  "reglas": [
+   "Gol solo conduciendo"
+  ],
+  "puntosClave": [
+   "Presión al poseedor",
+   "Compañero en diagonal detrás",
+   "Comunicar"
+  ],
+  "variantes": [
+   "3x3 con permutas",
+   "Atacante extra"
+  ]
+ },
+ {
+  "id": "DEF-03",
+  "nombre": "Línea defensiva de 4: basculación",
+  "tipo": "Defensa",
+  "objetivo": "Movimiento coordinado de la defensa",
+  "fase": "defensa",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 14,
+  "espacio": "Medio campo",
+  "duracion": 15,
+  "intensidad": "media",
+  "material": "Conos, balones, petos",
+  "descripcion": "Una línea de 4 defensores bascula según el balón que mueven 5-6 atacantes en la banda. Se trabaja distancia entre defensas.",
+  "reglas": [
+   "Atacantes pasan sin oposición al principio"
+  ],
+  "puntosClave": [
+   "Distancias de 8-10 m",
+   "Basculación hacia el balón",
+   "Línea alineada"
+  ],
+  "variantes": [
+   "Atacantes atacan la línea",
+   "Trabajar fuera de juego"
+  ]
+ },
+ {
+  "id": "DEF-04",
+  "nombre": "Pressing tras pérdida (5 segundos)",
+  "tipo": "Defensa",
+  "objetivo": "Reacción defensiva inmediata",
+  "fase": "transicion-ad",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 10,
+  "jugadoresMax": 16,
+  "espacio": "30x30 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Posesión 6x6. Si un equipo pierde el balón y lo recupera en menos de 5 s, punto doble.",
+  "reglas": [
+   "El entrenador cuenta en voz alta"
+  ],
+  "puntosClave": [
+   "Presionar rápido al poseedor",
+   "Cerrar líneas de pase",
+   "Coordinación"
+  ],
+  "variantes": [
+   "Reducir a 3 s",
+   "Más espacio"
+  ]
+ },
+ {
+  "id": "DEF-05",
+  "nombre": "Defensa de centros",
+  "tipo": "Defensa",
+  "objetivo": "Despejar balones al área",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 14,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones, petos",
+  "descripcion": "Los extremos centran y 3 defensores contra 3 atacantes defienden el área con el portero.",
+  "reglas": [
+   "Defensores salen tras despejar"
+  ],
+  "puntosClave": [
+   "Ver balón y rival",
+   "Despejar alto y fuera",
+   "Marcar al hombre o zona"
+  ],
+  "variantes": [
+   "Más atacantes que defensores"
+  ]
+ },
+ {
+  "id": "DEF-06",
+  "nombre": "Bloque medio y salidas a presionar",
+  "tipo": "Defensa",
+  "objetivo": "Defensa colectiva por bloques",
+  "fase": "defensa",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 22,
+  "espacio": "Campo completo",
+  "duracion": 15,
+  "intensidad": "media",
+  "material": "Conos, balón, petos",
+  "descripcion": "El equipo defiende en bloque medio frente a un equipo que construye desde atrás. A la señal (pase atrás, balón en banda) salen a presionar.",
+  "reglas": [
+   "Señales de presión definidas por el entrenador"
+  ],
+  "puntosClave": [
+   "Bloque compacto",
+   "Cerrar dentro",
+   "Saltar juntos"
+  ],
+  "variantes": [
+   "Atacantes con superioridad numérica",
+   "Gol de los defensores tras robo vale doble"
+  ]
+ },
+ {
+  "id": "DEF-07",
+  "nombre": "Defensa del 1x1 en banda",
+  "tipo": "Defensa",
+  "objetivo": "Defender al extremo",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 12,
+  "espacio": "Banda 10x20 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "Defensor contra extremo en un carril de banda. El defensor debe evitar que centre o llegue a la línea de fondo.",
+  "reglas": [
+   "El atacante gana si centra o llega a línea de fondo"
+  ],
+  "puntosClave": [
+   "Orientar al extremo hacia fuera",
+   "No lanzarse",
+   "Usar la línea de banda"
+  ],
+  "variantes": [
+   "Atacante con apoyo del lateral"
+  ]
+ },
+ {
+  "id": "DEF-08",
+  "nombre": "Defensa de zona en inferioridad",
+  "tipo": "Defensa",
+  "objetivo": "Defender con menos jugadores",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 10,
+  "espacio": "25x20 m con portería",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balón, petos",
+  "descripcion": "Dos defensores contra tres atacantes. Deben retrasar el ataque hasta que llega un tercer defensor desde atrás.",
+  "reglas": [
+   "Tercer defensor sale 3 s después"
+  ],
+  "puntosClave": [
+   "Temporizar",
+   "Cerrar el centro",
+   "Comunicación"
+  ],
+  "variantes": [
+   "Tiempo de salida variable"
+  ]
+ },
+ {
+  "id": "DUE-01",
+  "nombre": "1x1 a portería",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Ganar el duelo y finalizar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 16,
+  "espacio": "15x20 m con portería",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balones, conos",
+  "descripcion": "El entrenador pasa el balón y atacante y defensor salen a la vez. El atacante debe marcar; si el defensor roba, marca en dos mini porterías.",
+  "reglas": [
+   "Máximo 8 s"
+  ],
+  "puntosClave": [
+   "Encarar con decisión",
+   "Defensor de perfil",
+   "Proteger y girar"
+  ],
+  "variantes": [
+   "Defensor sale con retraso",
+   "Atacante de espaldas"
+  ]
+ },
+ {
+  "id": "DUE-02",
+  "nombre": "2x1 en carril",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Fijar y pasar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 15,
+  "espacio": "Carril de 15x30 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balones",
+  "descripcion": "Dos atacantes contra un defensor en un carril. Deben llevar el balón conducido hasta la línea final.",
+  "reglas": [
+   "El defensor solo puede moverse en su zona"
+  ],
+  "puntosClave": [
+   "Conducir hacia el defensor",
+   "Pase en el momento justo",
+   "Desmarque del compañero"
+  ],
+  "variantes": [
+   "Defensor entra desde atrás",
+   "Finalizar en portería"
+  ]
+ },
+ {
+  "id": "DUE-03",
+  "nombre": "1x1 de espaldas",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Recibir de espaldas y girarse",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 16,
+  "espacio": "10x15 m con portería",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balones",
+  "descripcion": "El delantero recibe de espaldas con el defensor pegado. Debe girarse, proteger o descargar.",
+  "reglas": [
+   "Pase del entrenador desde atrás"
+  ],
+  "puntosClave": [
+   "Sentir al defensor",
+   "Girarse al lado contrario",
+   "Usar el cuerpo"
+  ],
+  "variantes": [
+   "Comodín para descargar",
+   "Defensor más agresivo"
+  ]
+ },
+ {
+  "id": "DUE-04",
+  "nombre": "Duelos por números",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Reacción y competitividad",
+  "fase": "global",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 20,
+  "espacio": "20x30 m con 2 porterías",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Dos equipos con números. El entrenador dice un número (o varios) y esos jugadores salen a disputar el balón lanzado.",
+  "reglas": [
+   "Si dice dos números, 2x2"
+  ],
+  "puntosClave": [
+   "Reacción rápida",
+   "Ganar el primer contacto",
+   "Finalizar rápido"
+  ],
+  "variantes": [
+   "Operaciones matemáticas para los pequeños",
+   "Salida desde posición sentada"
+  ]
+ },
+ {
+  "id": "DUE-05",
+  "nombre": "3x2 con regreso",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Ataque en superioridad y defensa en inferioridad",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 5,
+  "jugadoresMax": 15,
+  "espacio": "40x30 m con 2 porterías",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balones, petos",
+  "descripcion": "Tres atacan a dos. Termina la acción y los dos defensores atacan contra uno de los atacantes que vuelve.",
+  "reglas": [
+   "Acción continua sin parar"
+  ],
+  "puntosClave": [
+   "Ocupar carriles",
+   "Defensores cierran centro",
+   "Transición rápida"
+  ],
+  "variantes": [
+   "4x3",
+   "Tiempo límite"
+  ]
+ },
+ {
+  "id": "DUE-06",
+  "nombre": "Duelos aéreos",
+  "tipo": "Duelos 1x1 y 2x1",
+  "objetivo": "Ganar balones por alto",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "Parejas",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Balones",
+  "descripcion": "El entrenador lanza balones altos entre dos jugadores que compiten por cabecearlos hacia un compañero o una zona.",
+  "reglas": [
+   "Prohibido empujar con brazos"
+  ],
+  "puntosClave": [
+   "Tomar impulso",
+   "Brazos para equilibrio",
+   "Atacar el balón en el punto más alto"
+  ],
+  "variantes": [
+   "Tras el cabezazo, jugar 1x1"
+  ]
+ },
+ {
+  "id": "FIN-01",
+  "nombre": "Tiro tras conducción",
+  "tipo": "Finalización",
+  "objetivo": "Tiro a portería en carrera",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 16,
+  "espacio": "Frontal del área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, conos, balones",
+  "descripcion": "El jugador conduce desde 25 m, sortea un cono y tira desde fuera del área. Portero real.",
+  "reglas": [
+   "Alternar lado de salida",
+   "Recoger el propio balón"
+  ],
+  "puntosClave": [
+   "Mirar al portero antes de tirar",
+   "Pierna de apoyo junto al balón",
+   "Precisión antes que potencia"
+  ],
+  "variantes": [
+   "Tiro con la pierna mala",
+   "Defensor que persigue"
+  ]
+ },
+ {
+  "id": "FIN-02",
+  "nombre": "Pared y tiro",
+  "tipo": "Finalización",
+  "objetivo": "Combinar y finalizar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 16,
+  "espacio": "Frontal del área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, conos, balones",
+  "descripcion": "El atacante hace pared con un compañero en la frontal y tira al primer o segundo toque.",
+  "reglas": [
+   "Rotar posiciones tras cada acción"
+  ],
+  "puntosClave": [
+   "Pase firme a la pared",
+   "Desmarque tras pasar",
+   "Tiro rápido"
+  ],
+  "variantes": [
+   "Defensor pasivo",
+   "Tiro de primeras obligatorio"
+  ]
+ },
+ {
+  "id": "FIN-03",
+  "nombre": "Centro y remate",
+  "tipo": "Finalización",
+  "objetivo": "Atacar centros laterales",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 5,
+  "jugadoresMax": 16,
+  "espacio": "Medio campo con portería",
+  "duracion": 12,
+  "intensidad": "media",
+  "material": "Portería, conos, balones",
+  "descripcion": "Un extremo conduce por banda y centra; dos rematadores atacan primer y segundo palo.",
+  "reglas": [
+   "El centro debe ser antes de línea de fondo",
+   "Remate a 1 toque"
+  ],
+  "puntosClave": [
+   "Rematadores entran a la vez del centro",
+   "Cruzar las carreras",
+   "Rematar hacia abajo"
+  ],
+  "variantes": [
+   "Añadir un defensor",
+   "Centro raso atrás (pase de la muerte)"
+  ]
+ },
+ {
+  "id": "FIN-04",
+  "nombre": "Finalización 2x1",
+  "tipo": "Finalización",
+  "objetivo": "Decidir entre pasar o tirar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 15,
+  "espacio": "30x30 m con portería",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Portería, conos, balones",
+  "descripcion": "Dos atacantes salen desde medio campo contra un defensor. Deben finalizar en menos de 10 s.",
+  "reglas": [
+   "Fuera de juego activo",
+   "Si el defensor roba, marca en mini porterías"
+  ],
+  "puntosClave": [
+   "Atacar al defensor para fijarlo",
+   "Pase cuando el defensor se compromete",
+   "Finalizar rápido"
+  ],
+  "variantes": [
+   "3x2",
+   "Defensor que llega desde atrás"
+  ]
+ },
+ {
+  "id": "FIN-05",
+  "nombre": "Batería de tiros desde distintos ángulos",
+  "tipo": "Finalización",
+  "objetivo": "Repetición de finalización",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 16,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, 5 conos, balones",
+  "descripcion": "Cinco conos alrededor del área. El jugador recibe pase del entrenador en cada cono y finaliza. Recorre los cinco.",
+  "reglas": [
+   "Un toque de control y tiro"
+  ],
+  "puntosClave": [
+   "Ajustar al ángulo",
+   "Buscar el palo largo",
+   "Superficie adecuada"
+  ],
+  "variantes": [
+   "Tiro al primer toque",
+   "Portero sale a achicar"
+  ]
+ },
+ {
+  "id": "FIN-06",
+  "nombre": "Remate de cabeza",
+  "tipo": "Finalización",
+  "objetivo": "Técnica de cabeceo a portería",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 16,
+  "espacio": "Área pequeña",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "El entrenador lanza con la mano o con centros cortos y el jugador remata de cabeza hacia abajo.",
+  "reglas": [
+   "Remates con salto y sin salto"
+  ],
+  "puntosClave": [
+   "Golpear con la frente",
+   "Ojos abiertos",
+   "Remate hacia el suelo"
+  ],
+  "variantes": [
+   "Con oposición pasiva",
+   "Desde centros reales"
+  ]
+ },
+ {
+  "id": "FIN-07",
+  "nombre": "Juego de finalización 3x3 con porteros",
+  "tipo": "Finalización",
+  "objetivo": "Finalizar con oposición real",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 8,
+  "espacio": "30x25 m con 2 porterías",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balones, petos",
+  "descripcion": "Partido 3x3 en espacio corto para provocar muchos tiros. El entrenador mete balón rápido cuando sale.",
+  "reglas": [
+   "Partidos de 2 min",
+   "Gol desde fuera de una línea vale doble"
+  ],
+  "puntosClave": [
+   "Tirar en cuanto haya hueco",
+   "Seguir los rechaces",
+   "Presionar alto"
+  ],
+  "variantes": [
+   "4x4",
+   "Solo gol de primeras"
+  ]
+ },
+ {
+  "id": "FIN-08",
+  "nombre": "Uno contra el portero",
+  "tipo": "Finalización",
+  "objetivo": "Definir frente al portero",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "Desde medio campo",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balones",
+  "descripcion": "El atacante sale desde medio campo y encara solo al portero. Debe definir en menos de 6 s.",
+  "reglas": [
+   "Defensor persigue desde 3 m detrás"
+  ],
+  "puntosClave": [
+   "Mirar la posición del portero",
+   "Regatear o tirar raso cruzado",
+   "No esperar demasiado"
+  ],
+  "variantes": [
+   "Salida en distintas posiciones",
+   "Portero sale a cuerpo"
+  ]
+ },
+ {
+  "id": "FIN-09",
+  "nombre": "Finalización tras centro raso atrás",
+  "tipo": "Finalización",
+  "objetivo": "Remate desde el punto de penalti",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 16,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "El extremo llega a línea de fondo y da pase atrás al punto de penalti. El rematador llega desde atrás y finaliza de primeras.",
+  "reglas": [
+   "Remate de primeras"
+  ],
+  "puntosClave": [
+   "Llegar desde atrás, no esperar",
+   "Interior del pie para colocar",
+   "Pase atrás tenso"
+  ],
+  "variantes": [
+   "Añadir defensor en el área",
+   "Dos rematadores escalonados"
+  ]
+ },
+ {
+  "id": "FIN-10",
+  "nombre": "Rechaces del portero",
+  "tipo": "Finalización",
+  "objetivo": "Atacar segundas jugadas",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 12,
+  "espacio": "Área",
+  "duracion": 8,
+  "intensidad": "alta",
+  "material": "Portería, balones",
+  "descripcion": "Un jugador tira desde la frontal; dos atacantes esperan el rechace del portero para rematar.",
+  "reglas": [
+   "Los rematadores salen al golpeo"
+  ],
+  "puntosClave": [
+   "Anticiparse al rechace",
+   "Remate rápido",
+   "Atacar el área"
+  ],
+  "variantes": [
+   "Defensor que también busca el rechace"
+  ]
+ },
+ {
+  "id": "FIS-01",
+  "nombre": "Sprints cortos",
+  "tipo": "Físico y prevención",
+  "objetivo": "Velocidad",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 22,
+  "espacio": "20 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos",
+  "descripcion": "Series de sprints de 10-20 m con recuperación completa.",
+  "reglas": [
+   "Recuperación completa"
+  ],
+  "puntosClave": [
+   "Técnica de carrera",
+   "Salida explosiva",
+   "Brazos"
+  ],
+  "variantes": [
+   "Con balón"
+  ]
+ },
+ {
+  "id": "FIS-02",
+  "nombre": "Resistencia con balón",
+  "tipo": "Físico y prevención",
+  "objetivo": "Resistencia específica",
+  "fase": "global",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 22,
+  "espacio": "Campo",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Balones, porterías",
+  "descripcion": "Juegos reducidos de alta intensidad con pausas cortas.",
+  "reglas": [
+   "Series de 3-4 min"
+  ],
+  "puntosClave": [
+   "Intensidad",
+   "Recuperación activa"
+  ],
+  "variantes": [
+   "Más jugadores"
+  ]
+ },
+ {
+  "id": "FIS-03",
+  "nombre": "Fuerza del core",
+  "tipo": "Físico y prevención",
+  "objetivo": "Prevenir lesiones",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 30,
+  "espacio": "Libre",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Esterillas",
+  "descripcion": "Planchas frontales, laterales y puentes.",
+  "reglas": [
+   "30 s por ejercicio"
+  ],
+  "puntosClave": [
+   "Cuerpo alineado",
+   "Respiración"
+  ],
+  "variantes": [
+   "Con inestabilidad"
+  ]
+ },
+ {
+  "id": "FIS-04",
+  "nombre": "Agilidad con conos",
+  "tipo": "Físico y prevención",
+  "objetivo": "Cambios de dirección",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "Circuito",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos",
+  "descripcion": "Circuito de agilidad en T, en estrella o en zig-zag.",
+  "reglas": [
+   "Cronometrar"
+  ],
+  "puntosClave": [
+   "Pasos cortos",
+   "Centro de gravedad bajo"
+  ],
+  "variantes": [
+   "Con balón"
+  ]
+ },
+ {
+  "id": "FIS-05",
+  "nombre": "Vuelta a la calma y estiramientos",
+  "tipo": "Físico y prevención",
+  "objetivo": "Recuperación",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 30,
+  "espacio": "Libre",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "Ninguno",
+  "descripcion": "Trote suave y estiramientos al final de la sesión.",
+  "reglas": [
+   "Mantener 20-30 s"
+  ],
+  "puntosClave": [
+   "Sin rebotes",
+   "Respiración"
+  ],
+  "variantes": [
+   "Charla final mientras se estira"
+  ]
+ },
+ {
+  "id": "JRE-01",
+  "nombre": "Partido 3x3 sin porteros",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Juego reducido básico",
+  "fase": "global",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 6,
+  "espacio": "20x15 m con mini porterías",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Mini porterías, balón, petos",
+  "descripcion": "Partido 3x3 en espacio pequeño para muchos contactos con el balón.",
+  "reglas": [
+   "Partidos de 3 min",
+   "Saque de banda con el pie"
+  ],
+  "puntosClave": [
+   "Participación de todos",
+   "Atacar y defender",
+   "Comunicación"
+  ],
+  "variantes": [
+   "4x4",
+   "Gol solo conduciendo"
+  ]
+ },
+ {
+  "id": "JRE-02",
+  "nombre": "Partido 4x4 con 4 porterías",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Cambio de orientación y lectura",
+  "fase": "global",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 8,
+  "espacio": "25x25 m con 4 mini porterías",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "4 mini porterías, balón, petos",
+  "descripcion": "Cada equipo ataca dos mini porterías y defiende dos.",
+  "reglas": [
+   "Partidos de 3 min"
+  ],
+  "puntosClave": [
+   "Atacar la portería menos defendida",
+   "Cambios de orientación",
+   "Defensa compacta"
+  ],
+  "variantes": [
+   "Gol tras cambio de orientación vale doble"
+  ]
+ },
+ {
+  "id": "JRE-03",
+  "nombre": "Partido con comodines en banda",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Usar la amplitud",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 10,
+  "jugadoresMax": 14,
+  "espacio": "35x25 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido 4x4 con comodines en las bandas que juegan con el poseedor.",
+  "reglas": [
+   "Comodines a 2 toques"
+  ],
+  "puntosClave": [
+   "Usar la banda",
+   "Centros",
+   "Entradas al área"
+  ],
+  "variantes": [
+   "Gol de centro vale doble"
+  ]
+ },
+ {
+  "id": "JRE-04",
+  "nombre": "Partido a 2 toques",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Velocidad de circulación",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 22,
+  "espacio": "Campo según jugadores",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido normal con limitación de 2 toques por jugador.",
+  "reglas": [
+   "Si se dan 3 toques, falta"
+  ],
+  "puntosClave": [
+   "Mirar antes de recibir",
+   "Desmarques continuos",
+   "Pase sencillo"
+  ],
+  "variantes": [
+   "1 toque en campo propio"
+  ]
+ },
+ {
+  "id": "JRE-05",
+  "nombre": "Partido con zonas",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Ocupación del espacio",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 22,
+  "espacio": "Campo dividido en tercios",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido donde cada jugador tiene una zona asignada, para trabajar posiciones y apoyos.",
+  "reglas": [
+   "Cambio de zonas cada 5 min"
+  ],
+  "puntosClave": [
+   "Ocupar posición",
+   "Apoyos",
+   "Pase entre zonas"
+  ],
+  "variantes": [
+   "Un jugador libre por equipo"
+  ]
+ },
+ {
+  "id": "JRE-06",
+  "nombre": "Partido con gol tras X pases",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Combinar antes de finalizar",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 22,
+  "espacio": "Campo según jugadores",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido donde el gol solo vale si se han dado al menos 4 pases antes.",
+  "reglas": [
+   "Gol sin pases previos no cuenta"
+  ],
+  "puntosClave": [
+   "Paciencia",
+   "Apoyos",
+   "Finalizar cuando sea posible"
+  ],
+  "variantes": [
+   "Gol tras pase de cabeza vale doble"
+  ]
+ },
+ {
+  "id": "JRE-07",
+  "nombre": "Partido de 7 contra 7 condicionado",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Aplicar contenidos de la semana",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 16,
+  "espacio": "Fútbol 7",
+  "duracion": 20,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido de fútbol 7 donde el entrenador pone una condición según el objetivo de la sesión.",
+  "reglas": [
+   "Condición definida por el entrenador"
+  ],
+  "puntosClave": [
+   "Aplicar lo aprendido",
+   "Jugar en equipo",
+   "Competir"
+  ],
+  "variantes": [
+   "Cambios de condición cada 5 min"
+  ]
+ },
+ {
+  "id": "JRE-08",
+  "nombre": "Partido con superioridad rotativa",
+  "tipo": "Juegos reducidos y partidos condicionados",
+  "objetivo": "Atacar con superioridad",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 9,
+  "jugadoresMax": 13,
+  "espacio": "30x25 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido 4x4 con un jugador extra que juega con el equipo que defiende para practicar ataque en inferioridad.",
+  "reglas": [
+   "Cambiar de jugador extra cada 2 min"
+  ],
+  "puntosClave": [
+   "Buscar espacios",
+   "Ataque rápido",
+   "Defensa ordenada"
+  ],
+  "variantes": [
+   "Dos jugadores extra"
+  ]
+ },
+ {
+  "id": "PAS-01",
+  "nombre": "Pase en triángulo",
+  "tipo": "Pase y control",
+  "objetivo": "Pase y control orientado",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 18,
+  "espacio": "Triángulo de 10 m",
+  "duracion": 10,
+  "intensidad": "baja",
+  "material": "Conos, balones",
+  "descripcion": "Tres jugadores en triángulo se pasan el balón. Control orientado con una pierna y pase con la otra. Cambiar de sentido cada minuto.",
+  "reglas": [
+   "2 toques",
+   "Seguir al pase"
+  ],
+  "puntosClave": [
+   "Abrir el cuerpo antes de recibir",
+   "Control hacia el siguiente pase",
+   "Pase a la pierna buena"
+  ],
+  "variantes": [
+   "1 toque",
+   "Añadir defensor en el centro"
+  ]
+ },
+ {
+  "id": "PAS-02",
+  "nombre": "Cuadrado de pases (FIFA)",
+  "tipo": "Pase y control",
+  "objetivo": "Pase y control en grupo",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "Grupos de 4 en 10x10 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, 2 balones por grupo",
+  "descripcion": "Grupos de 4 en un cuadrado con 2 balones. Pasan y cambian de cono. El entrenador indica la superficie y el número de toques.",
+  "reglas": [
+   "Nunca dos jugadores en el mismo cono",
+   "Si se pierde balón, empieza el conteo"
+  ],
+  "puntosClave": [
+   "Comunicación con nombre",
+   "Pase tenso",
+   "Recibir con la pierna lejana"
+  ],
+  "variantes": [
+   "Pared antes de pasar",
+   "Pase solo en diagonal"
+  ]
+ },
+ {
+  "id": "PAS-03",
+  "nombre": "Pase contra la pared (o rebotador)",
+  "tipo": "Pase y control",
+  "objetivo": "Repetición de pase y control",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 20,
+  "espacio": "Frente a pared a 3-8 m",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "Pared o rebotador, balones",
+  "descripcion": "El jugador pasa contra una pared y controla el rebote. Alterna pierna buena y mala, interior y exterior.",
+  "reglas": [
+   "Series de 30 s",
+   "Contar pases buenos"
+  ],
+  "puntosClave": [
+   "Tobillo firme",
+   "Pierna de apoyo junto al balón",
+   "Mirar dónde pasar"
+  ],
+  "variantes": [
+   "Control y pase al primer toque",
+   "Distancia mayor y pase aéreo"
+  ]
+ },
+ {
+  "id": "PAS-04",
+  "nombre": "Pase y cambio de juego",
+  "tipo": "Pase y control",
+  "objetivo": "Pase largo y control aéreo",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 20,
+  "espacio": "Dos cuadrados separados 25-35 m",
+  "duracion": 12,
+  "intensidad": "media",
+  "material": "Conos, balones",
+  "descripcion": "Dos grupos en cuadrados separados. Tras 3 pases cortos en un cuadrado, un jugador cambia de juego con pase largo al otro cuadrado.",
+  "reglas": [
+   "El pase largo debe caer dentro del cuadrado",
+   "Defensor pasivo en cada cuadrado"
+  ],
+  "puntosClave": [
+   "Golpeo con el empeine",
+   "Control amortiguado con pecho o muslo",
+   "Levantar la cabeza antes del cambio"
+  ],
+  "variantes": [
+   "Defensor activo",
+   "Cambio de juego al primer toque"
+  ]
+ },
+ {
+  "id": "PAS-05",
+  "nombre": "Pared (1-2) y tercer hombre",
+  "tipo": "Pase y control",
+  "objetivo": "Combinaciones de pase",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 18,
+  "espacio": "Carril de 20 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, mini portería o portería",
+  "descripcion": "A pasa a B, B devuelve de cara (pared), A juega a C en profundidad (tercer hombre), C finaliza o conduce.",
+  "reglas": [
+   "2 toques máx",
+   "Rotar posiciones"
+  ],
+  "puntosClave": [
+   "Apoyo de cara al balón",
+   "Pase a la carrera del compañero",
+   "Sincronizar desmarque"
+  ],
+  "variantes": [
+   "Defensor pasivo",
+   "Terminar con tiro"
+  ]
+ },
+ {
+  "id": "PAS-06",
+  "nombre": "Control orientado bajo presión",
+  "tipo": "Pase y control",
+  "objetivo": "Controlar orientando hacia el espacio libre",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 3,
+  "jugadoresMax": 12,
+  "espacio": "10x10 m con 2 puertas de conos",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, balones",
+  "descripcion": "Pasador, receptor y defensor. El defensor presiona por un lado y el receptor debe controlar hacia el otro y salir conduciendo por una puerta de conos.",
+  "reglas": [
+   "El defensor elige lado al último momento"
+  ],
+  "puntosClave": [
+   "Mirar antes de recibir",
+   "Controlar hacia el lado contrario a la presión",
+   "Primer toque al espacio"
+  ],
+  "variantes": [
+   "Defensor activo total",
+   "Control y pase a un tercero"
+  ]
+ },
+ {
+  "id": "PAS-07",
+  "nombre": "Pase al hueco (profundidad)",
+  "tipo": "Pase y control",
+  "objetivo": "Pase en profundidad y desmarque de ruptura",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 16,
+  "espacio": "Medio campo",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, portería, petos",
+  "descripcion": "Un mediocentro recibe y juega al espacio por detrás de una línea defensiva (conos o defensores pasivos) para el desmarque de un delantero que finaliza.",
+  "reglas": [
+   "Fuera de juego activo",
+   "El delantero no puede salir antes del pase"
+  ],
+  "puntosClave": [
+   "Pase con el peso justo",
+   "Desmarque en diagonal",
+   "Timing entre pasador y receptor"
+  ],
+  "variantes": [
+   "Dos delanteros con desmarques cruzados",
+   "Defensores activos"
+  ]
+ },
+ {
+  "id": "PAS-08",
+  "nombre": "Rueda de pases en rombo",
+  "tipo": "Pase y control",
+  "objetivo": "Automatizar pase, control y movilidad",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 16,
+  "espacio": "Rombo de 15 m",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, balones",
+  "descripcion": "Cuatro estaciones en rombo. Patrón: pase vertical, apoyo, pase al lateral y tercer hombre. Cada jugador sigue a su pase.",
+  "reglas": [
+   "Patrón cambia cada 3 min"
+  ],
+  "puntosClave": [
+   "Calidad sobre velocidad al principio",
+   "Perfil corporal abierto",
+   "Comunicación"
+  ],
+  "variantes": [
+   "Con dos balones simultáneos",
+   "Terminar con centro y remate"
+  ]
+ },
+ {
+  "id": "PAS-09",
+  "nombre": "Pase con las dos piernas en carrera",
+  "tipo": "Pase y control",
+  "objetivo": "Pase con ambas piernas en movimiento",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 20,
+  "espacio": "Pasillo de 30 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Balones",
+  "descripcion": "Parejas avanzan por un pasillo paralelos a 8 m y se pasan el balón con la pierna más alejada del compañero.",
+  "reglas": [
+   "Si el balón se para, vuelven al inicio"
+  ],
+  "puntosClave": [
+   "Pase delante del compañero",
+   "Ritmo de carrera constante",
+   "Usar ambas piernas"
+  ],
+  "variantes": [
+   "1 toque",
+   "Terminan con tiro a portería"
+  ]
+ },
+ {
+  "id": "PAS-10",
+  "nombre": "Juego de pase a portería pequeña",
+  "tipo": "Pase y control",
+  "objetivo": "Precisión de pase",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 16,
+  "espacio": "Parejas con puerta de conos de 1 m",
+  "duracion": 8,
+  "intensidad": "baja",
+  "material": "Conos, balones",
+  "descripcion": "Por parejas, a 6-10 m, deben pasar el balón por una puerta de conos en medio. Cada pase que entra es un punto.",
+  "reglas": [
+   "Alternar pierna buena y mala"
+  ],
+  "puntosClave": [
+   "Interior del pie",
+   "Mirar el objetivo",
+   "Pierna de apoyo apuntando"
+  ],
+  "variantes": [
+   "Puerta más pequeña o distancia mayor",
+   "Puerta móvil"
+  ]
+ },
+ {
+  "id": "POR-01",
+  "nombre": "Blocaje frontal",
+  "tipo": "Porteros",
+  "objetivo": "Atrapar balones frontales",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 4,
+  "espacio": "Portería",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "El entrenador tira a distintas alturas y el portero blocaja.",
+  "reglas": [
+   "10 tiros por serie"
+  ],
+  "puntosClave": [
+   "Manos en W",
+   "Atraer el balón al pecho",
+   "Posición de base"
+  ],
+  "variantes": [
+   "Tiros más fuertes",
+   "Desde más cerca"
+  ]
+ },
+ {
+  "id": "POR-02",
+  "nombre": "Desvíos laterales",
+  "tipo": "Porteros",
+  "objetivo": "Desviar balones",
+  "fase": "analitico",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 4,
+  "espacio": "Portería",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "Tiros a los lados para que el portero desvíe fuera.",
+  "reglas": [
+   "Alternar lados"
+  ],
+  "puntosClave": [
+   "Mano adelantada",
+   "Desviar fuera",
+   "Levantarse rápido"
+  ],
+  "variantes": [
+   "Doble tiro"
+  ]
+ },
+ {
+  "id": "POR-03",
+  "nombre": "Juego aéreo",
+  "tipo": "Porteros",
+  "objetivo": "Salidas a centros",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 6,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "Centros desde banda para que el portero salga a blocar o despejar de puños.",
+  "reglas": [
+   "Con atacante pasivo"
+  ],
+  "puntosClave": [
+   "Pierna de impulso",
+   "Punto más alto",
+   "Comunicación"
+  ],
+  "variantes": [
+   "Con oposición"
+  ]
+ },
+ {
+  "id": "POR-04",
+  "nombre": "Juego con el pie",
+  "tipo": "Porteros",
+  "objetivo": "Participar en salida de balón",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 6,
+  "espacio": "Portería",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Portería, balones",
+  "descripcion": "El portero recibe pases y debe jugar con el pie a compañeros.",
+  "reglas": [
+   "Con presión"
+  ],
+  "puntosClave": [
+   "Perfil abierto",
+   "Primer control seguro",
+   "Pase preciso"
+  ],
+  "variantes": [
+   "Pase largo"
+  ]
+ },
+ {
+  "id": "POR-05",
+  "nombre": "Uno contra uno del portero",
+  "tipo": "Porteros",
+  "objetivo": "Defender mano a mano",
+  "fase": "defensa",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 2,
+  "jugadoresMax": 8,
+  "espacio": "Área",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Portería, balones",
+  "descripcion": "El atacante sale contra el portero, que debe achicar.",
+  "reglas": [
+   "Atacante desde 20 m"
+  ],
+  "puntosClave": [
+   "Achicar espacio",
+   "Esperar",
+   "Cuerpo grande"
+  ],
+  "variantes": [
+   "Ángulo"
+  ]
+ },
+ {
+  "id": "POR-06",
+  "nombre": "Reflejos",
+  "tipo": "Porteros",
+  "objetivo": "Reacción rápida",
+  "fase": "analitico",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 1,
+  "jugadoresMax": 4,
+  "espacio": "Portería",
+  "duracion": 8,
+  "intensidad": "alta",
+  "material": "Portería, balones",
+  "descripcion": "Tiros rápidos desde cerca con rebotes impredecibles.",
+  "reglas": [
+   "Series cortas"
+  ],
+  "puntosClave": [
+   "Posición baja",
+   "Manos preparadas",
+   "Reacción"
+  ],
+  "variantes": [
+   "De espaldas y girarse"
+  ]
+ },
+ {
+  "id": "POS-01",
+  "nombre": "Posesión 4x4 + 2 comodines",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Mantener el balón con superioridad",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 10,
+  "jugadoresMax": 10,
+  "espacio": "25x20 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Dos equipos de 4 y dos comodines que juegan con quien tiene el balón. Objetivo: 10 pases seguidos = punto.",
+  "reglas": [
+   "Comodines a 1-2 toques",
+   "Prohibido devolver al pasador"
+  ],
+  "puntosClave": [
+   "Abrir el campo",
+   "Desmarques de apoyo",
+   "Presionar tras pérdida"
+  ],
+  "variantes": [
+   "Comodines en bandas",
+   "Gol en mini portería tras 5 pases"
+  ]
+ },
+ {
+  "id": "POS-02",
+  "nombre": "Juego de posición 3 zonas",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Ocupar espacios y progresar",
+  "fase": "ataque",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 18,
+  "espacio": "40x30 m dividido en 3 zonas",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "El campo se divide en tres franjas. El equipo con balón debe tener jugadores en las tres zonas y progresar desde la zona 1 a la 3. Punto al llegar con control a la zona 3.",
+  "reglas": [
+   "Máximo 2 jugadores por zona",
+   "Defensores pueden moverse libres"
+  ],
+  "puntosClave": [
+   "Ocupación racional del espacio",
+   "Pase entre líneas",
+   "Paciencia y circulación"
+  ],
+  "variantes": [
+   "Finalizar en portería tras llegar a la zona 3",
+   "Limitar defensores por zona"
+  ]
+ },
+ {
+  "id": "POS-03",
+  "nombre": "Posesión con cambio de orientación",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Atraer y cambiar de lado",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 12,
+  "jugadoresMax": 16,
+  "espacio": "30x30 m con 2 puertas laterales",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Posesión 6x6. Punto al pasar por una puerta de conos de un lado y, en la misma jugada, por la del lado contrario.",
+  "reglas": [
+   "2 toques"
+  ],
+  "puntosClave": [
+   "Atraer al rival a un lado",
+   "Cambio rápido de orientación",
+   "Amplitud máxima"
+  ],
+  "variantes": [
+   "Comodín central",
+   "Puertas más pequeñas"
+  ]
+ },
+ {
+  "id": "POS-04",
+  "nombre": "Posesión 5x5 con porteros como apoyos",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Posesión con salida desde el portero",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 12,
+  "jugadoresMax": 12,
+  "espacio": "35x25 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Dos equipos de 5 y dos porteros en los fondos que juegan con quien tiene el balón (con el pie). Punto al conectar de un portero al otro.",
+  "reglas": [
+   "Porteros a 2 toques",
+   "No se puede devolver al portero que te pasó"
+  ],
+  "puntosClave": [
+   "Usar al portero para reiniciar",
+   "Atraer presión y salir",
+   "Desmarques en profundidad"
+  ],
+  "variantes": [
+   "Porteros en portería real y gol vale doble",
+   "Limitación de toques a 2"
+  ]
+ },
+ {
+  "id": "POS-05",
+  "nombre": "Posesión por parejas",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Responsabilidad y apoyo cercano",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 12,
+  "espacio": "20x20 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Posesión 4x4 donde cada jugador tiene una pareja fija en el equipo rival a la que debe marcar.",
+  "reglas": [
+   "Solo puedes quitar el balón a tu pareja",
+   "Punto cada 6 pases"
+  ],
+  "puntosClave": [
+   "Desmarcarse de tu par",
+   "Defensa individual",
+   "Ayudar al compañero con balón"
+  ],
+  "variantes": [
+   "Permitir ayudas defensivas",
+   "Comodín libre"
+  ]
+ },
+ {
+  "id": "POS-06",
+  "nombre": "Posesión con zonas prohibidas",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Usar amplitud y evitar el centro saturado",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 14,
+  "espacio": "30x25 m con zona central prohibida",
+  "duracion": 10,
+  "intensidad": "media",
+  "material": "Conos, balón, petos",
+  "descripcion": "Posesión en la que la zona central no puede ser pisada, obligando a jugar por fuera y con pases por encima/a través.",
+  "reglas": [
+   "Pase puede atravesar la zona, nadie pisarla"
+  ],
+  "puntosClave": [
+   "Amplitud",
+   "Pase tenso que atraviese",
+   "Paciencia"
+  ],
+  "variantes": [
+   "Solo un jugador por equipo puede pisarla",
+   "Zona central como zona de 1 toque"
+  ]
+ },
+ {
+  "id": "POS-07",
+  "nombre": "Conservación 3x3 + 3 comodines (Barça)",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Superioridad 6x3 y presión",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 9,
+  "jugadoresMax": 9,
+  "espacio": "15x15 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Tres equipos de 3. Dos equipos atacan juntos contra uno. El equipo que pierde el balón pasa a defender.",
+  "reglas": [
+   "2 toques",
+   "Cada robo = punto"
+  ],
+  "puntosClave": [
+   "Ocupar los vértices",
+   "Presión del trío coordinada",
+   "Transición inmediata"
+  ],
+  "variantes": [
+   "1 toque",
+   "Defensores con limitación de tiempo para robar"
+  ]
+ },
+ {
+  "id": "POS-08",
+  "nombre": "Posesión con finalización en mini porterías",
+  "tipo": "Posesión y juego de posición",
+  "objetivo": "Conservar para encontrar el momento de atacar",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 14,
+  "espacio": "30x25 m con 4 mini porterías",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Mini porterías, balón, petos",
+  "descripcion": "Posesión entre dos equipos. Tras 5 pases seguidos se puede marcar en cualquiera de las cuatro mini porterías de las esquinas.",
+  "reglas": [
+   "Gol antes de 5 pases no vale"
+  ],
+  "puntosClave": [
+   "Elegir la portería con menos defensa",
+   "Cambiar de orientación",
+   "Presión tras pérdida"
+  ],
+  "variantes": [
+   "Defensa solo dos porterías",
+   "Gol directo de cambio de juego vale doble"
+  ]
+ },
+ {
+  "id": "RON-01",
+  "nombre": "Rondo 5x2",
+  "tipo": "Rondos",
+  "objetivo": "Conservación y presión tras pérdida",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 7,
+  "jugadoresMax": 7,
+  "espacio": "10x10 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Cinco jugadores en el perímetro mantienen el balón contra dos defensores dentro. Quien pierde el balón entra a defender junto con el último pasador.",
+  "reglas": [
+   "2 toques",
+   "Punto cada 10 pases o cada pase entre los defensores"
+  ],
+  "puntosClave": [
+   "Ofrecer siempre 2 líneas de pase",
+   "Pase al pie lejano",
+   "Defensores coordinados: uno presiona, otro cubre"
+  ],
+  "variantes": [
+   "1 toque",
+   "Jugador interior (comodín) en el centro"
+  ]
+ },
+ {
+  "id": "RON-02",
+  "nombre": "Rondo 4x1 para iniciación",
+  "tipo": "Rondos",
+  "objetivo": "Primer contacto con el rondo",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 5,
+  "jugadoresMax": 5,
+  "espacio": "8x8 m",
+  "duracion": 8,
+  "intensidad": "media",
+  "material": "Conos, balón",
+  "descripcion": "Cuatro alrededor y uno dentro. Libres de toques al principio. Si el defensor toca, cambia.",
+  "reglas": [
+   "Toques libres al inicio, luego 3 y 2"
+  ],
+  "puntosClave": [
+   "Moverse por el lado del cuadrado",
+   "Mirar antes de pasar",
+   "No pasar al compañero de al lado siempre"
+  ],
+  "variantes": [
+   "Si el defensor no roba en 1 min, cambio igualmente",
+   "Prohibido devolver al que te pasó"
+  ]
+ },
+ {
+  "id": "RON-03",
+  "nombre": "Rondo 4x4+3",
+  "tipo": "Rondos",
+  "objetivo": "Posesión con superioridad y comodines",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 11,
+  "jugadoresMax": 11,
+  "espacio": "20x20 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos de 3 colores",
+  "descripcion": "Dos equipos de 4 y 3 comodines que juegan con el que tiene el balón. El equipo poseedor junta 7 contra 4.",
+  "reglas": [
+   "Comodines a 1 toque",
+   "Punto cada 8 pases"
+  ],
+  "puntosClave": [
+   "Amplitud y profundidad",
+   "Tras pérdida presionar 5 s",
+   "Usar al comodín para salir de presión"
+  ],
+  "variantes": [
+   "Comodines solo en el perímetro",
+   "Gol en mini portería tras 6 pases"
+  ]
+ },
+ {
+  "id": "RON-04",
+  "nombre": "Rondo de transición en dos cuadrados",
+  "tipo": "Rondos",
+  "objetivo": "Rondo con transición entre zonas",
+  "fase": "transicion-ad",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 10,
+  "jugadoresMax": 12,
+  "espacio": "Dos cuadrados de 10x10 m juntos",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Dos cuadrados contiguos. En uno hay un rondo 4x2. Si los defensores roban, pasan el balón al otro cuadrado donde sus compañeros juegan y los que perdieron van a presionar.",
+  "reglas": [
+   "2 toques",
+   "Solo 2 jugadores pueden ir a presionar al otro cuadrado"
+  ],
+  "puntosClave": [
+   "Reaccionar rápido tras robo o pérdida",
+   "Primer pase seguro tras robar",
+   "Presión intensa inmediata"
+  ],
+  "variantes": [
+   "Tres cuadrados en línea",
+   "Limitar a 1 toque en el rondo"
+  ]
+ },
+ {
+  "id": "RON-05",
+  "nombre": "Rondo 3x1 en triángulo",
+  "tipo": "Rondos",
+  "objetivo": "Rondo básico con movilidad",
+  "fase": "ataque",
+  "niveles": [
+   "iniciacion",
+   "intermedio"
+  ],
+  "jugadoresMin": 4,
+  "jugadoresMax": 4,
+  "espacio": "Triángulo móvil de 6-8 m",
+  "duracion": 6,
+  "intensidad": "media",
+  "material": "Balón",
+  "descripcion": "Tres atacantes forman un triángulo y se mueven para ofrecer línea de pase a quien tiene el balón contra un defensor.",
+  "reglas": [
+   "Sin conos: los atacantes se mueven libremente"
+  ],
+  "puntosClave": [
+   "Formar siempre triángulo",
+   "Moverse cuando el defensor tapa la línea",
+   "Pase rápido"
+  ],
+  "variantes": [
+   "2 toques obligatorio",
+   "Espacio más reducido"
+  ]
+ },
+ {
+  "id": "RON-06",
+  "nombre": "Rondo de pase entre líneas",
+  "tipo": "Rondos",
+  "objetivo": "Superar líneas con pase",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 9,
+  "jugadoresMax": 9,
+  "espacio": "15x15 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Rondo 6x3 con un jugador atacante dentro del cuadrado. Doble punto si el balón llega al jugador interior y este juega de cara.",
+  "reglas": [
+   "2 toques perímetro, 1 toque interior"
+  ],
+  "puntosClave": [
+   "Buscar el pase vertical",
+   "Jugador interior perfilado",
+   "Paciencia para atraer al defensor"
+  ],
+  "variantes": [
+   "Dos jugadores interiores",
+   "Defensores 4"
+  ]
+ },
+ {
+  "id": "RON-07",
+  "nombre": "Rondo competitivo por parejas",
+  "tipo": "Rondos",
+  "objetivo": "Rondo con rotación por parejas",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 8,
+  "espacio": "10x10 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Cuatro parejas: tres parejas fuera y una dentro. Si roba la pareja de dentro, entra la pareja culpable.",
+  "reglas": [
+   "Cada pareja cuenta los pases que hace; gana quien menos tiempo defiende"
+  ],
+  "puntosClave": [
+   "Coordinarse en defensa con la pareja",
+   "Comunicación",
+   "Presión agresiva"
+  ],
+  "variantes": [
+   "1 toque",
+   "Cuadrado más pequeño"
+  ]
+ },
+ {
+  "id": "RON-08",
+  "nombre": "Rondo posicional 4+2x2",
+  "tipo": "Rondos",
+  "objetivo": "Conservación con jugadores interiores",
+  "fase": "ataque",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 8,
+  "espacio": "12x12 m",
+  "duracion": 10,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Cuatro jugadores en las bandas y dos interiores mantienen contra dos defensores. Los interiores deben recibir entre los defensores.",
+  "reglas": [
+   "Bandas 2 toques, interiores 1"
+  ],
+  "puntosClave": [
+   "Interiores siempre detrás de la línea de presión",
+   "Perfiles abiertos",
+   "Paciencia"
+  ],
+  "variantes": [
+   "Cambiar roles cada 2 min",
+   "Añadir un tercer defensor"
+  ]
+ },
+ {
+  "id": "TAC-01",
+  "nombre": "Salida de balón desde portero",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Construir juego desde atrás",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 10,
+  "jugadoresMax": 18,
+  "espacio": "Medio campo",
+  "duracion": 15,
+  "intensidad": "media",
+  "material": "Portería, balones, petos, conos",
+  "descripcion": "Portero, defensas y mediocentro salen jugando contra 3-4 atacantes que presionan. Objetivo: superar la línea de medio campo con control.",
+  "reglas": [
+   "Portero saca con el pie"
+  ],
+  "puntosClave": [
+   "Abrir centrales",
+   "Mediocentro perfilado",
+   "Paciencia"
+  ],
+  "variantes": [
+   "Más presionadores",
+   "Salida en largo como alternativa"
+  ]
+ },
+ {
+  "id": "TAC-02",
+  "nombre": "Presión alta organizada",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Recuperar el balón arriba",
+  "fase": "defensa",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 12,
+  "jugadoresMax": 20,
+  "espacio": "Campo completo",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Portería, balones, petos",
+  "descripcion": "El equipo presiona la salida del rival. Se trabaja quién salta, coberturas y cierres de línea.",
+  "reglas": [
+   "Punto por robo en campo rival"
+  ],
+  "puntosClave": [
+   "Orientar la presión a banda",
+   "Cerrar pase interior",
+   "Saltar juntos"
+  ],
+  "variantes": [
+   "Con superioridad del equipo que sale"
+  ]
+ },
+ {
+  "id": "TAC-03",
+  "nombre": "Ataque por bandas",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Desbordar y centrar",
+  "fase": "ataque",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 16,
+  "espacio": "Medio campo",
+  "duracion": 15,
+  "intensidad": "media",
+  "material": "Portería, balones, petos",
+  "descripcion": "Combinaciones de lateral, extremo e interior por banda para llegar a línea de fondo y centrar.",
+  "reglas": [
+   "Patrón libre o definido por el entrenador"
+  ],
+  "puntosClave": [
+   "Desdobles",
+   "Superioridad en banda",
+   "Entradas al área"
+  ],
+  "variantes": [
+   "Con defensa",
+   "Con contraataque rival"
+  ]
+ },
+ {
+  "id": "TAC-04",
+  "nombre": "Juego interior y entre líneas",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Progresar por dentro",
+  "fase": "ataque",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 12,
+  "jugadoresMax": 18,
+  "espacio": "40x40 m",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Conos, balón, petos",
+  "descripcion": "Partido donde el gol solo vale si antes un jugador ha recibido entre líneas (en una zona central marcada).",
+  "reglas": [
+   "Zona central marcada con conos"
+  ],
+  "puntosClave": [
+   "Perfiles abiertos",
+   "Pase vertical",
+   "Jugar de cara"
+  ],
+  "variantes": [
+   "Más defensores"
+  ]
+ },
+ {
+  "id": "TAC-05",
+  "nombre": "Contra el estilo del rival",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Preparar el próximo partido",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 22,
+  "espacio": "Campo completo",
+  "duracion": 20,
+  "intensidad": "media",
+  "material": "Porterías, balones, petos",
+  "descripcion": "El equipo B simula el estilo del próximo rival (presión alta, juego directo, bloque bajo) y el equipo A practica cómo contrarrestarlo.",
+  "reglas": [
+   "El entrenador explica el plan antes"
+  ],
+  "puntosClave": [
+   "Aplicar el plan",
+   "Reconocer el estilo rival",
+   "Ajustes en marcha"
+  ],
+  "variantes": [
+   "Cambiar el estilo del equipo B durante el ejercicio"
+  ]
+ },
+ {
+  "id": "TAC-06",
+  "nombre": "Fútbol 11 con condiciones",
+  "tipo": "Táctica colectiva",
+  "objetivo": "Aplicar el modelo de juego",
+  "fase": "global",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 18,
+  "jugadoresMax": 22,
+  "espacio": "Campo completo",
+  "duracion": 25,
+  "intensidad": "alta",
+  "material": "Porterías, balón, petos",
+  "descripcion": "Partido de fútbol 11 con una regla que obliga a aplicar el contenido trabajado.",
+  "reglas": [
+   "Condición definida por el entrenador"
+  ],
+  "puntosClave": [
+   "Organización",
+   "Modelo de juego",
+   "Competir"
+  ],
+  "variantes": [
+   "Diferentes condiciones por parte"
+  ]
+ },
+ {
+  "id": "TRA-01",
+  "nombre": "Contraataque 3x2 + 1",
+  "tipo": "Transiciones",
+  "objetivo": "Atacar rápido tras robar",
+  "fase": "transicion-da",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 6,
+  "jugadoresMax": 14,
+  "espacio": "Medio campo",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Portería, balones, petos",
+  "descripcion": "Tras recuperar el balón en medio campo, tres atacantes salen contra dos defensores; un tercer defensor llega desde atrás.",
+  "reglas": [
+   "Máximo 10 s para finalizar"
+  ],
+  "puntosClave": [
+   "Primer pase vertical",
+   "Ocupar carriles",
+   "Finalizar rápido"
+  ],
+  "variantes": [
+   "4x3",
+   "Salida desde robo real en rondo"
+  ]
+ },
+ {
+  "id": "TRA-02",
+  "nombre": "Juego de transición con porterías",
+  "tipo": "Transiciones",
+  "objetivo": "Ataque-defensa continuo",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 16,
+  "espacio": "40x30 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balones, petos",
+  "descripcion": "4x4 con porterías. Cuando un equipo marca, el entrenador mete un balón rápido al otro equipo que ataca inmediatamente.",
+  "reglas": [
+   "Partidos de 3 min"
+  ],
+  "puntosClave": [
+   "Reacción rápida",
+   "Repliegue",
+   "Ataque con pocos pases"
+  ],
+  "variantes": [
+   "Superioridad para el equipo que acaba de recibir gol"
+  ]
+ },
+ {
+  "id": "TRA-03",
+  "nombre": "Oleadas 3x2",
+  "tipo": "Transiciones",
+  "objetivo": "Transiciones continuas",
+  "fase": "global",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 9,
+  "jugadoresMax": 18,
+  "espacio": "Campo de 40x30 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Porterías, balones, petos",
+  "descripcion": "Grupos de tres en cada fondo. Tres atacan contra dos; tras la acción, los dos defensores y un nuevo jugador atacan hacia el otro lado.",
+  "reglas": [
+   "Acción continua"
+  ],
+  "puntosClave": [
+   "Velocidad",
+   "Decisiones rápidas",
+   "Atacar espacios"
+  ],
+  "variantes": [
+   "4x3",
+   "Toques limitados"
+  ]
+ },
+ {
+  "id": "TRA-04",
+  "nombre": "Repliegue tras pérdida",
+  "tipo": "Transiciones",
+  "objetivo": "Volver rápido a defender",
+  "fase": "transicion-ad",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 16,
+  "espacio": "Campo de 50x35 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Portería, balones, petos",
+  "descripcion": "Los atacantes pierden el balón a propósito o por robo y deben replegar a su campo antes de que el rival llegue a una línea.",
+  "reglas": [
+   "El entrenador indica la pérdida"
+  ],
+  "puntosClave": [
+   "Correr hacia la portería propia",
+   "Cerrar el centro",
+   "Retrasar al poseedor"
+  ],
+  "variantes": [
+   "Pressing en vez de repliegue según zona"
+  ]
+ },
+ {
+  "id": "TRA-05",
+  "nombre": "Partido con mini porterías de transición",
+  "tipo": "Transiciones",
+  "objetivo": "Robar y marcar rápido",
+  "fase": "transicion-da",
+  "niveles": [
+   "intermedio",
+   "avanzado"
+  ],
+  "jugadoresMin": 8,
+  "jugadoresMax": 16,
+  "espacio": "30x30 m",
+  "duracion": 12,
+  "intensidad": "alta",
+  "material": "Mini porterías, balones, petos",
+  "descripcion": "Posesión 5x5. El equipo que defiende, al robar, puede marcar en dos mini porterías en menos de 6 s.",
+  "reglas": [
+   "Gol tras robo en menos de 6 s"
+  ],
+  "puntosClave": [
+   "Pase vertical tras robo",
+   "Presión tras pérdida",
+   "Velocidad"
+  ],
+  "variantes": [
+   "Mini porterías en distintas posiciones"
+  ]
+ },
+ {
+  "id": "TRA-06",
+  "nombre": "Transición en tres zonas",
+  "tipo": "Transiciones",
+  "objetivo": "Atacar y defender en zonas",
+  "fase": "global",
+  "niveles": [
+   "avanzado"
+  ],
+  "jugadoresMin": 14,
+  "jugadoresMax": 20,
+  "espacio": "60x40 m",
+  "duracion": 15,
+  "intensidad": "alta",
+  "material": "Porterías, balones, petos",
+  "descripcion": "El campo se divide en tres zonas. Tras robar en la zona central, los jugadores atacan en superioridad. Si pierden, deben volver.",
+  "reglas": [
+   "Solo se puede robar en la zona central"
+  ],
+  "puntosClave": [
+   "Equilibrio defensivo",
+   "Ataque rápido",
+   "Reorganización"
+  ],
+  "variantes": [
+   "Más jugadores en la zona central"
+  ]
+ }
+]
