@@ -63,6 +63,12 @@ language sql stable security definer set search_path = public as $$
   )
 $$;
 
+-- ¿Estoy asignado como entrenador a este equipo?
+create or replace function public.entreno_este_equipo(p_equipo uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from entrenadores_equipo a where a.equipo_id = p_equipo and a.email = public.mi_correo())
+$$;
+
 -- Lista de entrenadores del club de la directiva, indicando si ya tienen cuenta
 create or replace function public.asignaciones_del_club()
 returns table (id uuid, equipo_id uuid, email text, registrado boolean)
@@ -119,7 +125,9 @@ create policy "renombrar mi club" on public.clubes for update using (dueno_id = 
 
 -- Equipos: la directiva los gestiona; el entrenador solo ve los suyos
 drop policy if exists "ver equipos" on public.equipos;
-create policy "ver equipos" on public.equipos for select using (public.puedo_ver_equipo(id));
+-- Se mira la propia fila (club_id) y no se vuelve a buscar el equipo: así, al crear un equipo,
+-- la app puede leerlo en el mismo paso (antes daba "new row violates row-level security policy").
+create policy "ver equipos" on public.equipos for select using (public.es_mi_club(club_id) or public.entreno_este_equipo(id));
 drop policy if exists "crear equipos" on public.equipos;
 create policy "crear equipos" on public.equipos for insert with check (public.es_mi_club(club_id));
 drop policy if exists "editar equipos" on public.equipos;
@@ -151,7 +159,7 @@ grant select on public.perfiles to authenticated;
 grant select, update on public.clubes to authenticated;
 grant select, insert, update, delete on public.equipos, public.entrenadores_equipo to authenticated;
 revoke all on function public.al_crear_usuario() from public, anon, authenticated;
-grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() to authenticated;
+grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.entreno_este_equipo(uuid), public.mi_correo() to authenticated;
 
 -- =====================================================================
 -- FASE 3: ajustes, plantilla, partidos y alineaciones
@@ -295,5 +303,5 @@ select u.id, lower(u.email), 'entrenador' from auth.users u
 where u.email is not null and not exists (select 1 from public.perfiles p where p.id = u.id);
 
 -- Las funciones de ayuda solo las pueden usar usuarios con sesión iniciada
-revoke execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() from public, anon;
-grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.mi_correo() to authenticated;
+revoke execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.entreno_este_equipo(uuid), public.mi_correo() from public, anon;
+grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.entreno_este_equipo(uuid), public.mi_correo() to authenticated;
