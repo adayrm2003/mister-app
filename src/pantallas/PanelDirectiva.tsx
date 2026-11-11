@@ -5,7 +5,7 @@ import { IcoCheck, IcoCorreo, IcoLapiz, IcoMas, IcoMover, IcoPapelera, IcoPlanti
 import MenuCuenta from "../componentes/MenuCuenta";
 import { useNavigate } from "react-router-dom";
 import { useSesion } from "../Sesion";
-import { Escudo, Hoja, iniciales, mensajeDe, reducirImagen, useUi } from "../componentes/ui";
+import { Escudo, Hoja, abrirImagen, iniciales, mensajeDe, prepararEscudo, useUi, type FondoEscudo } from "../componentes/ui";
 import { esModalidad, nombreModalidad } from "../datos/modelo";
 import "./directiva.css";
 
@@ -303,10 +303,26 @@ function HojaClub({ club, alCerrar, alGuardar }: { club: Club; alCerrar: () => v
   const [error, setError] = useState("");
   const { confirmar } = useUi();
 
+  // La imagen original se guarda mientras la hoja está abierta, para poder quitar o devolver el fondo
+  const [original, setOriginal] = useState<HTMLImageElement | null>(null);
+  const [quitarFondo, setQuitarFondo] = useState(true);
+  const [fondo, setFondo] = useState<FondoEscudo>("sin-tocar");
+  // El escudo que ya estaba guardado también se puede limpiar sin volver a subirlo
+  useEffect(() => {
+    if (!club.escudo) return;
+    const img = new Image();
+    img.onload = () => { setOriginal(img); setQuitarFondo(false); };
+    img.src = club.escudo;
+  }, [club.escudo]);
+  function preparar(img: HTMLImageElement, quitar: boolean) {
+    const r = prepararEscudo(img, quitar);
+    setEscudo(r.imagen); setFondo(r.fondo);
+  }
   async function elegir(archivo: File | undefined) {
     if (!archivo) return;
     setProcesando(true); setError("");
-    try { setEscudo(await reducirImagen(archivo)); } catch (err) { setError(mensajeDe(err)); }
+    try { const img = await abrirImagen(archivo); setOriginal(img); setQuitarFondo(true); preparar(img, true); }
+    catch (err) { setError(mensajeDe(err)); }
     finally { setProcesando(false); }
   }
   async function quitar() {
@@ -336,7 +352,13 @@ function HojaClub({ club, alCerrar, alGuardar }: { club: Club; alCerrar: () => v
               {escudo && <button className="btn btn-texto" type="button" onClick={quitar}><IcoPapelera /> Quitar escudo</button>}
             </div>
           </div>
-          <small className="suave">Mejor una imagen cuadrada con el fondo transparente. Tus entrenadores lo verán en su app.</small>
+          {original && (
+            <label className="interruptor">
+              <input id="quitar-fondo" type="checkbox" checked={quitarFondo} onChange={(e) => { setQuitarFondo(e.target.checked); preparar(original, e.target.checked); }} />
+              <span><b>Quitar el fondo</b><small className="suave">{({ "sin-tocar": "Se usa la imagen tal cual.", "quitado": "Se ha quitado el fondo que rodeaba al escudo.", "ya-transparente": "La imagen ya tenía el fondo transparente.", "no-liso": "El fondo de esta imagen no es de un solo color, así que se deja tal cual." } as const)[fondo]}</small></span>
+            </label>
+          )}
+          <small className="suave">Si el escudo tiene un fondo blanco o de un solo color, la app lo quita sola y recorta lo que sobra. Tus entrenadores lo verán en su app.</small>
         </div>
         {error && <p className="mensaje mensaje-error" role="alert">{error}</p>}
         <div className="hoja-acciones">

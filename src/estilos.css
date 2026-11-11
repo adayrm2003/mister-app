@@ -237,3 +237,7 @@ body:has(.directiva) .aviso-flotante, body:has(.acceso) .aviso-flotante { bottom
 .lista-clubes label.activo { border-color: var(--cesped); background: var(--cesped-suave); }
 .lista-clubes input { position: absolute; opacity: 0; pointer-events: none; }
 .lista-clubes label:has(input:focus-visible) { outline: 3px solid var(--peto); outline-offset: 2px; }
+.interruptor { display: flex; align-items: center; gap: 12px; min-height: 52px; cursor: pointer; }
+.interruptor input { width: 24px; height: 24px; accent-color: var(--cesped); flex: none; }
+.interruptor span { display: flex; flex-direction: column; min-width: 0; }
+.interruptor small { font-size: 14px; }
