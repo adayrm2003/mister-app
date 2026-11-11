@@ -305,3 +305,128 @@ where u.email is not null and not exists (select 1 from public.perfiles p where 
 -- Las funciones de ayuda solo las pueden usar usuarios con sesión iniciada
 revoke execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.entreno_este_equipo(uuid), public.mi_correo() from public, anon;
 grant execute on function public.asignaciones_del_club(), public.puedo_ver_equipo(uuid), public.es_mi_club(uuid), public.entreno_este_equipo(uuid), public.mi_correo() to authenticated;
+
+-- =====================================================================
+-- FASE 9: la directiva añade entrenadores a su club; cada entrenador crea sus equipos.
+-- La directiva ve los equipos (nombre, modalidad y entrenador), los pasa a otro entrenador
+-- o los borra, pero NO ve lo de dentro (jugadores, partidos, estadísticas...).
+-- =====================================================================
+create table if not exists public.entrenadores_club (
+  id      uuid primary key default gen_random_uuid(),
+  club_id uuid not null references public.clubes(id) on delete cascade,
+  email   text not null check (email = lower(trim(email)) and email like '%@%'),
+  creado  timestamptz not null default now(),
+  unique (club_id, email)
+);
+create index if not exists entrenadores_club_email_idx on public.entrenadores_club(email);
+alter table public.entrenadores_club enable row level security;
+
+-- Los entrenadores que ya estaban asignados a un equipo pasan a ser del club
+insert into public.entrenadores_club (club_id, email)
+select distinct e.club_id, a.email from public.entrenadores_equipo a join public.equipos e on e.id = a.equipo_id
+on conflict (club_id, email) do nothing;
+
+-- ¿Me ha añadido este club como entrenador?
+create or replace function public.soy_del_club(p_club uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from entrenadores_club m where m.club_id = p_club and m.email = public.mi_correo())
+$$;
+
+-- Lo de dentro de un equipo (jugadores, partidos...) solo lo ve su entrenador
+create or replace function public.puedo_ver_equipo(p_equipo uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select public.entreno_este_equipo(p_equipo)
+$$;
+
+-- Entrenadores del club: la directiva los gestiona; cada entrenador ve los clubes que le han añadido
+drop policy if exists "ver entrenadores del club" on public.entrenadores_club;
+create policy "ver entrenadores del club" on public.entrenadores_club for select using (public.es_mi_club(club_id) or email = public.mi_correo());
+drop policy if exists "añadir entrenadores al club" on public.entrenadores_club;
+create policy "añadir entrenadores al club" on public.entrenadores_club for insert with check (public.es_mi_club(club_id));
+revoke all on public.entrenadores_club from anon, authenticated;
+grant select, insert on public.entrenadores_club to authenticated;
+
+-- Clubes: la directiva ve el suyo; el entrenador, los clubes que le han añadido (nombre y escudo)
+drop policy if exists "ver club" on public.clubes;
+create policy "ver club" on public.clubes for select using (dueno_id = auth.uid() or public.soy_del_club(id));
+
+-- Equipos: los crea el entrenador (con crear_mi_equipo); él lo renombra; él o la directiva lo borran
+drop policy if exists "crear equipos" on public.equipos;
+drop policy if exists "editar equipos" on public.equipos;
+create policy "editar equipos" on public.equipos for update
+  using (public.entreno_este_equipo(id)) with check (public.entreno_este_equipo(id) and public.soy_del_club(club_id));
+drop policy if exists "borrar equipos" on public.equipos;
+create policy "borrar equipos" on public.equipos for delete using (public.es_mi_club(club_id) or public.entreno_este_equipo(id));
+revoke insert on public.equipos from authenticated;
+
+-- Quién entrena cada equipo: solo se cambia con las funciones de abajo
+drop policy if exists "crear asignaciones" on public.entrenadores_equipo;
+drop policy if exists "mover asignaciones" on public.entrenadores_equipo;
+drop policy if exists "quitar asignaciones" on public.entrenadores_equipo;
+revoke insert, update, delete on public.entrenadores_equipo from authenticated;
+
+-- El entrenador crea un equipo en un club que le ha añadido, y queda como su entrenador
+create or replace function public.crear_mi_equipo(p_club uuid, p_nombre text)
+returns table (id uuid, club_id uuid, nombre text)
+language plpgsql security definer set search_path = public as $$
+declare v_correo text := public.mi_correo(); v_id uuid; v_nombre text := trim(coalesce(p_nombre, ''));
+begin
+  if v_correo is null then raise exception 'Tu sesión ha caducado. Vuelve a entrar.'; end if;
+  if not public.soy_del_club(p_club) then raise exception 'Ese club aún no te ha añadido como entrenador.'; end if;
+  if char_length(v_nombre) not between 1 and 40 then raise exception 'El nombre del equipo tiene que tener entre 1 y 40 letras.'; end if;
+  insert into equipos (club_id, nombre) values (p_club, v_nombre) returning equipos.id into v_id;
+  insert into entrenadores_equipo (equipo_id, email) values (v_id, v_correo);
+  return query select v_id, p_club, v_nombre;
+end $$;
+
+-- La directiva pasa un equipo de su club a otro entrenador del club
+create or replace function public.pasar_equipo(p_equipo uuid, p_email text) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_club uuid; v_correo text := lower(trim(coalesce(p_email, '')));
+begin
+  select e.club_id into v_club from equipos e where e.id = p_equipo and public.es_mi_club(e.club_id);
+  if v_club is null then raise exception 'Ese equipo no es de tu club.'; end if;
+  if not exists (select 1 from entrenadores_club m where m.club_id = v_club and m.email = v_correo) then
+    raise exception 'Ese entrenador no está en tu club.';
+  end if;
+  delete from entrenadores_equipo where equipo_id = p_equipo;
+  insert into entrenadores_equipo (equipo_id, email) values (p_equipo, v_correo);
+end $$;
+
+-- La directiva quita a un entrenador del club; sus equipos se quedan en el club sin entrenador
+create or replace function public.quitar_entrenador(p_email text) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_club uuid; v_correo text := lower(trim(coalesce(p_email, '')));
+begin
+  select c.id into v_club from clubes c where c.dueno_id = auth.uid();
+  if v_club is null then raise exception 'Solo la cuenta de la directiva puede hacer esto.'; end if;
+  delete from entrenadores_equipo a using equipos e where e.id = a.equipo_id and e.club_id = v_club and a.email = v_correo;
+  delete from entrenadores_club where club_id = v_club and email = v_correo;
+end $$;
+
+-- Lo que ve la directiva de cada equipo: nombre, modalidad y entrenador (nada de dentro)
+create or replace function public.equipos_del_club()
+returns table (id uuid, nombre text, modalidad text, entrenador text)
+language sql stable security definer set search_path = public as $$
+  select e.id, e.nombre, aj.datos->>'modalidad',
+         (select min(a.email) from entrenadores_equipo a where a.equipo_id = e.id)
+  from equipos e
+  join clubes c on c.id = e.club_id and c.dueno_id = auth.uid()
+  left join ajustes_equipo aj on aj.equipo_id = e.id
+  order by e.nombre
+$$;
+
+-- Entrenadores del club, indicando si ya tienen cuenta
+create or replace function public.entrenadores_del_club()
+returns table (id uuid, email text, registrado boolean)
+language sql stable security definer set search_path = public as $$
+  select m.id, m.email, exists (select 1 from perfiles p where p.email = m.email)
+  from entrenadores_club m
+  join clubes c on c.id = m.club_id and c.dueno_id = auth.uid()
+  order by m.email
+$$;
+
+revoke execute on function public.soy_del_club(uuid), public.crear_mi_equipo(uuid, text), public.pasar_equipo(uuid, text),
+  public.quitar_entrenador(text), public.equipos_del_club(), public.entrenadores_del_club() from public, anon;
+grant execute on function public.soy_del_club(uuid), public.crear_mi_equipo(uuid, text), public.pasar_equipo(uuid, text),
+  public.quitar_entrenador(text), public.equipos_del_club(), public.entrenadores_del_club() to authenticated;
