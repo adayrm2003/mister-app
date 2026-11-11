@@ -34,10 +34,12 @@ export default function App() {
     );
   }
   if (perfil.rol === "directiva") {
+    // La directiva entra en su panel; si se ha añadido como entrenador, también puede usar sus equipos
     return (
       <Routes>
         <Route path="/club" element={<PanelDirectiva />} />
-        <Route path="*" element={<Navigate to="/club" replace />} />
+        <Route path="/" element={<Navigate to="/club" replace />} />
+        <Route path="*" element={<AppEntrenador esDirectiva />} />
       </Routes>
     );
   }

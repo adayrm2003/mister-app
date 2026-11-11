@@ -46,3 +46,6 @@
 .entrenador-equipo .pastilla { flex: none; }
 .lista-equipos .avatar-correo { width: 32px; height: 32px; font-size: 15px; }
 .lista-equipos label b.correo { overflow-wrap: anywhere; }
+.entrenar-yo { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.entrenar-yo b { font-size: 17px; }
+.entrenar-yo p { font-size: 15px; }

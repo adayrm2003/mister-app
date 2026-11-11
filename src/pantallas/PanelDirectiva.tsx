@@ -3,6 +3,8 @@ import { api } from "../datos/api";
 import { correoValido, type Club, type EntrenadorClub, type EquipoClub } from "../datos/tipos";
 import { IcoCheck, IcoCorreo, IcoLapiz, IcoMas, IcoMover, IcoPapelera, IcoPlantilla, IcoSilbato, LogoMister } from "../componentes/Iconos";
 import MenuCuenta from "../componentes/MenuCuenta";
+import { useNavigate } from "react-router-dom";
+import { useSesion } from "../Sesion";
 import { Escudo, Hoja, iniciales, mensajeDe, reducirImagen, useUi } from "../componentes/ui";
 import { esModalidad, nombreModalidad } from "../datos/modelo";
 import "./directiva.css";
@@ -30,6 +32,17 @@ export default function PanelDirectiva() {
   const [formulario, setFormulario] = useState<Formulario>(null);
   const [error, setError] = useState("");
   const { confirmar, avisar } = useUi();
+  const { perfil } = useSesion();
+  const ir = useNavigate();
+  const miCorreo = perfil?.email.toLowerCase() ?? "";
+  const yoEntreno = entrenadores.some((e) => e.email === miCorreo);
+  const [apuntandome, setApuntandome] = useState(false);
+
+  async function entrenarYo() {
+    setApuntandome(true);
+    try { await api.anadirEntrenador(miCorreo); avisar("Ya eres entrenador de tu club"); ir("/inicio"); }
+    catch (err) { avisar(mensajeDe(err)); setApuntandome(false); }
+  }
 
   const cargar = useCallback(async () => {
     try {
@@ -46,8 +59,8 @@ export default function PanelDirectiva() {
   async function quitarEntrenador(en: EntrenadorClub) {
     const n = equiposDe(en.email).length;
     const ok = await confirmar({
-      titulo: "¿Quitar a este entrenador del club?",
-      texto: `${en.email} ya no verá el escudo ni el nombre del club.` + (n ? ` ${n === 1 ? "Su equipo se queda" : `Sus ${n} equipos se quedan`} en el club sin entrenador, con todos sus datos, para que se ${n === 1 ? "lo" : "los"} pases a otro.` : ""),
+      titulo: en.email === miCorreo ? "¿Dejar de entrenar?" : "¿Quitar a este entrenador del club?",
+      texto: (en.email === miCorreo ? "Dejarás de ver la parte de entrenador. Tu panel del club sigue igual." : `${en.email} ya no verá el escudo ni el nombre del club.`) + (n ? ` ${n === 1 ? "Su equipo se queda" : `Sus ${n} equipos se quedan`} en el club sin entrenador, con todos sus datos, para que se ${n === 1 ? "lo" : "los"} pases a otro.` : ""),
       boton: "Quitar"
     });
     if (!ok) return;
@@ -88,6 +101,19 @@ export default function PanelDirectiva() {
           </button>
         )}
 
+        {!cargando && club && (yoEntreno ? (
+          <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => ir("/inicio")}>
+            <IcoSilbato /> Ir a mis equipos
+          </button>
+        ) : (
+          <div className="tarjeta entrenar-yo">
+            <div><b>¿También entrenas?</b><p className="suave">Usa la app como entrenador con esta misma cuenta: crea tu equipo, tu plantilla y tus sesiones.</p></div>
+            <button className="btn btn-borde btn-ancho" type="button" onClick={entrenarYo} disabled={apuntandome}>
+              <IcoSilbato /> {apuntandome ? "Un momento…" : "Entrenar yo también"}
+            </button>
+          </div>
+        ))}
+
         <div className="segmentos-dir" role="tablist" aria-label="Secciones del club">
           <button role="tab" type="button" aria-selected={pestana === "entrenadores"} onClick={() => setPestana("entrenadores")}>
             Entrenadores <span className="contador">{entrenadores.length}</span>
@@ -119,9 +145,11 @@ export default function PanelDirectiva() {
                       <div className="entrenador-cabeza">
                         <span className="avatar-correo">{en.email[0].toUpperCase()}</span>
                         <div className="fila-texto"><b>{en.email}</b></div>
-                        {en.registrado
-                          ? <span className="pastilla pastilla-ok"><IcoCheck style={{ width: 14, height: 14 }} />Con cuenta</span>
-                          : <span className="pastilla pastilla-aviso">Sin cuenta</span>}
+                        {en.email === miCorreo
+                          ? <span className="pastilla pastilla-ok">Tú</span>
+                          : en.registrado
+                            ? <span className="pastilla pastilla-ok"><IcoCheck style={{ width: 14, height: 14 }} />Con cuenta</span>
+                            : <span className="pastilla pastilla-aviso">Sin cuenta</span>}
                       </div>
                       {suyos.length === 0 ? (
                         <p className="suave sin-entrenador">{en.registrado ? "Aún no ha creado su equipo." : "Cuando entre, creará su equipo."}</p>
@@ -135,7 +163,7 @@ export default function PanelDirectiva() {
                       {!en.registrado && (
                         <p className="nota-registro"><IcoCorreo /> Dile que se registre en Míster con este correo como «Entrenador».</p>
                       )}
-                      <button className="btn btn-texto btn-quitar" type="button" onClick={() => quitarEntrenador(en)}><IcoPapelera /> Quitar del club</button>
+                      <button className="btn btn-texto btn-quitar" type="button" onClick={() => quitarEntrenador(en)}><IcoPapelera /> {en.email === miCorreo ? "Dejar de entrenar" : "Quitar del club"}</button>
                     </article>
                   );
                 })}

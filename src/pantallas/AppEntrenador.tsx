@@ -3,7 +3,7 @@ import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "reac
 import { api } from "../datos/api";
 import type { Club, Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
-import { IcoAjustes, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { IcoAjustes, IcoAtras, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
 import { ProveedorEquipo } from "../ContextoEquipo";
 import Ajustes from "./Ajustes";
 import Plantilla from "./Plantilla";
@@ -31,7 +31,7 @@ const PESTANAS = [
   { a: "/partidos", texto: "Partidos", Icono: IcoPartidos }
 ];
 
-export default function AppEntrenador() {
+export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: boolean }) {
   const ubicacion = useLocation();
   const [equipos, setEquipos] = useState<Equipo[] | null>(null);
   const [clubes, setClubes] = useState<Club[]>([]);
@@ -54,9 +54,10 @@ export default function AppEntrenador() {
 
   if (equipos === null) return <div className="cargando" aria-label="Cargando"><LogoMister size={88} /></div>;
   if (equipos.length === 0) {
+    if (esDirectiva && clubes.length === 0) return <Navigate to="/club" replace />;
     return clubes.length === 0
       ? <SinClub alComprobar={() => cargar()} error={error} />
-      : <PrimerEquipo clubes={clubes} alCrear={(e) => cargar(e.id)} />;
+      : <PrimerEquipo clubes={clubes} alCrear={(e) => cargar(e.id)} volverAlPanel={esDirectiva} />;
   }
 
   const equipo = equipos.find((e) => e.id === activoId) ?? equipos[0];
@@ -81,7 +82,7 @@ export default function AppEntrenador() {
               <SelectorEquipo equipo={equipo} equipos={equipos} clubes={clubes} elegir={elegir} alCrear={(e) => cargar(e.id)} />
             </div>
             <BotonAjustes />
-            <MenuCuenta />
+            <MenuCuenta extra={esDirectiva && <IrAlPanel />} />
           </header>
           <Routes>
             <Route path="/inicio" element={<Inicio />} />
@@ -148,7 +149,7 @@ function SelectorEquipo({ equipo, equipos, clubes, elegir, alCrear }: { equipo: 
   );
 }
 
-function PrimerEquipo({ clubes, alCrear }: { clubes: Club[]; alCrear: (e: Equipo) => void }) {
+function PrimerEquipo({ clubes, alCrear, volverAlPanel }: { clubes: Club[]; alCrear: (e: Equipo) => void; volverAlPanel?: boolean }) {
   const club = clubes[0];
   return (
     <div className="sin-equipo">
@@ -156,6 +157,7 @@ function PrimerEquipo({ clubes, alCrear }: { clubes: Club[]; alCrear: (e: Equipo
       <h1>Crea tu equipo</h1>
       <p>{clubes.length === 1 ? <>Ya estás en <b style={{ color: "var(--tinta)" }}>{club.nombre}</b>.</> : "Ya estás en varios clubes."} Ponle nombre a tu equipo y elige a qué jugáis.</p>
       <CrearEquipo clubes={clubes} alCrear={alCrear} />
+      {volverAlPanel && <IrAlPanel texto />}
     </div>
   );
 }
@@ -179,6 +181,16 @@ function SinClub({ alComprobar, error }: { alComprobar: () => Promise<void>; err
         if (await confirmar({ titulo: "¿Cerrar sesión?", boton: "Cerrar sesión", peligro: false })) await api.salir();
       }}><IcoSalir /> Cerrar sesión</button>
     </div>
+  );
+}
+
+/** Para la directiva que también entrena: vuelve a su panel del club. */
+function IrAlPanel({ texto = false }: { texto?: boolean }) {
+  const ir = useNavigate();
+  return (
+    <button className={"btn btn-ancho " + (texto ? "btn-texto" : "btn-borde")} type="button" onClick={() => ir("/club")}>
+      <IcoAtras /> Ir al panel del club
+    </button>
   );
 }
 
