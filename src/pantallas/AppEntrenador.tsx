@@ -16,6 +16,7 @@ import Estadisticas from "./Estadisticas";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
+import Biblioteca, { FichaBiblioteca } from "./Biblioteca";
 import CrearEquipo from "../componentes/CrearEquipo";
 import "./entrenador.css";
 
@@ -88,6 +89,8 @@ export default function AppEntrenador() {
             <Route path="/ajustes" element={<Ajustes />} />
             <Route path="/ejercicios" element={<Ejercicios />} />
             <Route path="/ejercicios/nuevo" element={<EditorEjercicio />} />
+            <Route path="/ejercicios/biblioteca" element={<Biblioteca />} />
+            <Route path="/ejercicios/biblioteca/:id" element={<FichaBiblioteca />} />
             <Route path="/ejercicios/:id" element={<EjercicioDetalle />} />
             <Route path="/ejercicios/:id/editar" element={<EditorEjercicio />} />
             <Route path="/sesiones" element={<Sesiones />} />

@@ -15,7 +15,7 @@ const sinAcentos = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toL
 export function SelectorBiblioteca() {
   return (
     <nav className="segmentos-dir selector-biblioteca" aria-label="Biblioteca">
-      <NavLink to="/ejercicios" end className={({ isActive }) => (isActive ? "activo" : "")}>Ejercicios</NavLink>
+      <NavLink to="/ejercicios" className={({ isActive }) => (isActive ? "activo" : "")}>Ejercicios</NavLink>
       <NavLink to="/sesiones" end className={({ isActive }) => (isActive ? "activo" : "")}>Sesiones</NavLink>
     </nav>
   );

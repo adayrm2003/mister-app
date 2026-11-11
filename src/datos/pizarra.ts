@@ -22,6 +22,8 @@ export interface Ejercicio {
   notas: string;
   pizarra: Pizarra;
   actualizado: string;
+  /** Si es una copia de un ejercicio de la biblioteca Míster, su código (por ejemplo "RON-03"). */
+  origen?: string;
 }
 
 export const FLECHAS: { valor: TipoFlecha; texto: string }[] = [

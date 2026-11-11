@@ -94,11 +94,16 @@ export interface Api {
   leerAjustesUsuario(): Promise<Record<string, unknown> | null>;
   guardarAjustesUsuario(datos: Record<string, unknown>): Promise<void>;
 
+  /** Biblioteca de ejercicios de Míster (la misma para todos; solo lectura). */
+  catalogoEjercicios(): Promise<EjercicioCatalogo[]>;
+
   // Datos propios de cada entrenador (su biblioteca de ejercicios y sesiones)
   listarMios<T extends { id: string }>(tabla: TablaUsuario): Promise<T[]>;
   guardarMio<T extends { id: string }>(tabla: TablaUsuario, fila: T): Promise<T>;
   borrarMio(tabla: TablaUsuario, id: string): Promise<void>;
 }
+
+import type { EjercicioCatalogo } from "./catalogo";
 
 export type TablaUsuario = "ejercicios" | "sesiones";
 

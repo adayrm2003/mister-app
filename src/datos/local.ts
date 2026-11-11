@@ -2,6 +2,7 @@
 // Sirve para probar la app sin Supabase. Las mismas reglas de acceso que en la nube:
 // la directiva solo ve su club y el entrenador solo los equipos asignados a su correo.
 import { type Api, type Club, type EquipoClub, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, ErrorApp, normalizarCorreo } from "./tipos";
+import { cargarCatalogoLocal } from "./catalogo";
 
 interface Usuario extends Perfil { hash: string }
 interface ClubGuardado extends Club { duenoId: string }
@@ -247,6 +248,10 @@ export const apiLocal: Api = {
     if (!dueno) throw new ErrorApp("Solo la directiva del club puede borrar equipos.");
     borrarEquipoDe(bd, equipoId);
     guardar(bd);
+  },
+
+  async catalogoEjercicios() {
+    return cargarCatalogoLocal();
   },
 
   async listar<T extends Fila>(tabla: Tabla, equipoId: string) {

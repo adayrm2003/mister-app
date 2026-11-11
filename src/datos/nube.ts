@@ -2,6 +2,7 @@
 // garantiza en el servidor que cada usuario solo ve lo que le toca.
 import { createClient, type AuthError, type PostgrestError } from "@supabase/supabase-js";
 import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
+import { cargarCatalogoLocal, type EjercicioCatalogo } from "./catalogo";
 
 // Solo se convierten los nombres de primer nivel (equipoId <-> equipo_id); lo de dentro (jsonb) se guarda tal cual.
 const aSnake = (o: object) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k.replace(/[A-Z]/g, (m) => "_" + m.toLowerCase()), v]));
@@ -165,6 +166,13 @@ export function crearApiNube(url: string, clave: string): Api {
     async borrarEquipo(id) {
       const { error } = await sb.from("equipos").delete().eq("id", id);
       traducir(error);
+    },
+
+    async catalogoEjercicios() {
+      const { data, error } = await sb.from("ejercicios_catalogo").select("datos").order("id");
+      // Sin conexión o si algo falla, se usa la copia que viene dentro de la app
+      if (error || !data?.length) return cargarCatalogoLocal();
+      return data.map((f) => f.datos as EjercicioCatalogo);
     },
 
     async listar<T extends Fila>(tabla: Parameters<Api["listar"]>[0], equipoId: string) {

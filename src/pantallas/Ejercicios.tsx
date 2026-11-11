@@ -8,6 +8,7 @@ import { useUi } from "../componentes/ui";
 import { ejerciciosDeEjemplo } from "../datos/ejemplos";
 import { copiarEjercicio, ejercicioVacio, type Ejercicio } from "../datos/pizarra";
 import { SelectorBiblioteca } from "./Sesiones";
+import { SelectorEjercicios } from "./Biblioteca";
 import "./ejercicios.css";
 
 const tieneDibujo = (e: Ejercicio) => e.pizarra.piezas.length > 0;
@@ -49,6 +50,7 @@ export default function Ejercicios() {
   return (
     <main className="pagina pagina-ancha">
       <SelectorBiblioteca />
+      <SelectorEjercicios />
       <div className="titulo-con-accion">
         <h1>Ejercicios</h1>
         <span className="pastilla">{filas.length} en tu biblioteca</span>
