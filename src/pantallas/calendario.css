@@ -25,7 +25,7 @@
 
 .cal-dia-elegido { display: flex; flex-direction: column; gap: 8px; }
 .cal-dia-elegido h2 { font-size: 22px; }
-.cal-vacio { display: flex; align-items: center; gap: 10px; padding: 16px; border-radius: 16px; border: 2px dashed var(--linea); background: none; color: var(--tinta-2); font-weight: 600; text-align: left; }
+.cal-vacio { display: flex; align-items: center; gap: 10px; padding: 16px; border-radius: 16px; border: 1px dashed var(--linea); background: none; color: var(--tinta-2); font-weight: 600; text-align: left; }
 .cal-vacio svg { width: 24px; height: 24px; flex: none; }
 
 .cita {
@@ -66,7 +66,7 @@
 @media (min-width: 720px) { .asistencia { grid-template-columns: 1fr 1fr; } }
 .asistente {
   display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 14px 8px 8px; border-radius: 16px;
-  border: 2px solid var(--linea); background: var(--superficie); text-align: left; transition: background-color .12s, border-color .12s;
+  border: 1px solid var(--linea); background: var(--superficie); text-align: left; transition: background-color .12s, border-color .12s;
 }
 .asistente-dorsal { width: 44px; height: 44px; border-radius: 50%; background: var(--superficie-2); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 22px; flex: none; }
 .asistente-nombre { flex: 1; font-weight: 700; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

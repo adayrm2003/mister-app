@@ -16,7 +16,7 @@
 .paso-texto { font-weight: 700; color: var(--tinta-2); font-size: 15px; min-width: 96px; text-align: center; }
 
 .pizarra-pasos { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.pizarra-pasos button { min-width: 48px; min-height: 48px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie); font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.pizarra-pasos button { min-width: 48px; min-height: 48px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie); font-family: var(--f-display); font-weight: 800; font-size: 22px; }
 .pizarra-pasos button[aria-selected="true"] { border-color: var(--cesped); background: var(--cesped); color: var(--sobre-cesped); }
 .pizarra-pasos .anadir-paso { font-family: var(--f-texto); font-size: 15px; font-weight: 700; padding: 0 14px; border-style: dashed; color: var(--cesped); }
 .pizarra-pasos .borrar-paso { margin-left: auto; display: grid; place-items: center; color: var(--tinta-2); }
@@ -25,7 +25,7 @@
 .pizarra-herramientas { display: flex; flex-direction: column; gap: 8px; background: var(--superficie); border: 1px solid var(--linea); border-radius: 18px; padding: 12px; }
 .herramientas-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
 .herramientas-fila button {
-  min-height: 52px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie);
+  min-height: 52px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie);
   display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 15px; padding: 4px 8px;
 }
 .herramientas-fila button[aria-pressed="true"] { border-color: var(--amarilla); background: color-mix(in srgb, var(--amarilla) 22%, var(--superficie)); }

@@ -1,11 +1,10 @@
 .acceso { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; background: var(--cal); }
 .acceso-portada {
   width: 100%; background: var(--cesped); color: var(--sobre-cesped);
-  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 44px, transparent 44px 88px);
   padding: calc(36px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 72px max(20px, env(safe-area-inset-left, 0px));
   display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
 }
-.acceso-portada svg { border-radius: 16px; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+.acceso-portada svg { border-radius: 16px; box-shadow: 0 0 0 1.5px rgba(255,255,255,.3); }
 .acceso-portada h1 { font-size: 64px; margin-top: 6px; }
 .acceso-portada p { font-weight: 600; opacity: .9; }
 .acceso-tarjeta {
@@ -25,7 +24,7 @@
 .roles legend { margin-bottom: 8px; padding: 0; }
 .rol {
   position: relative; display: flex; flex-direction: column; gap: 2px; padding: 14px 12px; min-height: 120px;
-  border: 2px solid var(--linea); border-radius: 16px; cursor: pointer; background: var(--superficie);
+  border: 1px solid var(--linea); border-radius: 16px; cursor: pointer; background: var(--superficie);
 }
 .rol input { position: absolute; opacity: 0; pointer-events: none; }
 .rol svg { width: 28px; height: 28px; color: var(--tinta-2); margin-bottom: 6px; }

@@ -1,7 +1,7 @@
 // Genera los iconos PNG de la app a partir de dibujos SVG. Uso: npm run iconos
 import sharp from "sharp";
 
-const franjas = (w) => `<rect width="${w}" height="${w}" fill="#0F6B45"/><rect width="${w / 4}" height="${w}" fill="#0C5E3C"/><rect x="${w / 2}" width="${w / 4}" height="${w}" fill="#0C5E3C"/>`;
+const franjas = (w) => `<rect width="${w}" height="${w}" fill="#1A7F53"/><rect width="${w / 4}" height="${w}" fill="#167049"/><rect x="${w / 2}" width="${w / 4}" height="${w}" fill="#167049"/>`;
 // Dibujo a sangre (sin esquinas redondeadas): el móvil recorta la forma
 const dibujo = (escala) => {
   const c = 256, s = escala;

@@ -19,7 +19,7 @@
 .mc-titulo { font-size: clamp(36px, 9vw, 64px); }
 .mc-nota { font-weight: 700; font-size: 19px; color: var(--cesped); }
 
-.mc-crono { background: var(--superficie); border: 2px solid var(--linea); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mc-crono { background: var(--superficie); border: 1px solid var(--linea); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .mc-tiempo { font-family: var(--f-display); font-weight: 900; font-size: clamp(96px, 30vw, 170px); line-height: .9; font-variant-numeric: tabular-nums; }
 .mc-tiempo-texto { font-weight: 700; color: var(--tinta-2); font-size: 17px; }
 .mc-crono.pasado { border-color: var(--derrota); background: var(--error-fondo); }

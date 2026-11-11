@@ -17,7 +17,7 @@
 .token { background: none; border: 0; padding: 4px; touch-action: none; cursor: grab; display: block; -webkit-touch-callout: none; }
 .token:focus-visible { outline: 3px solid var(--amarilla); border-radius: 12px; }
 
-.zona { background: var(--superficie); border: 2px dashed var(--linea); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, background-color .15s; }
+.zona { background: var(--superficie); border: 1px dashed var(--linea); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, background-color .15s; }
 .zona-resto { border-style: solid; border-width: 1px; }
 .zona-marcada { border-color: var(--cesped); background: var(--cesped-suave); }
 .zona-vacia { font-size: 15px; }

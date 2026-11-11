@@ -2,7 +2,7 @@
 .buscador .entrada { background: var(--superficie); }
 .filtro-tipos { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin: 0 -4px; padding-inline: 4px; }
 .filtro-tipos::-webkit-scrollbar { display: none; }
-.filtro-tipos button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--linea); background: var(--superficie); font-weight: 700; font-size: 15px; }
+.filtro-tipos button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--linea); background: var(--superficie); font-weight: 700; font-size: 15px; }
 .filtro-tipos button[aria-checked="true"] { background: var(--cesped); border-color: var(--cesped); color: var(--sobre-cesped); }
 
 .tarjetas-ejercicio { display: grid; grid-template-columns: 1fr; gap: 10px; }

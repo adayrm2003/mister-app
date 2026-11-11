@@ -6,15 +6,15 @@
   --tinta: #0E1D16;
   --tinta-2: #4B5D54;
   --linea: #D5DED8;
-  --cesped: #0F6B45;
-  --cesped-hover: #0B5838;
+  --cesped: #1A7F53;
+  --cesped-hover: #146B45;
   --sobre-cesped: #FFFFFF;
-  --cesped-suave: #DDEDE3;
+  --cesped-suave: #E4F2E9;
   --peto: #FF6B1A;
   --peto-hover: #F05C0A;
   --sobre-peto: #1C0D03;
-  --campo-a: #2E7D4F;
-  --campo-b: #29714A;
+  --campo-a: #3A8C5C;
+  --campo-b: #348053;
   --equipo: #FF6B1A;
   --rival: #1F3F8F;
   --victoria: #1A9353;
@@ -27,7 +27,7 @@
   --error-fondo: #FBE3E3;
   --error-tinta: #7A1717;
   --velo: rgba(8, 18, 14, .5);
-  --sombra: 0 1px 2px rgba(14,29,22,.06), 0 8px 24px rgba(14,29,22,.08);
+  --sombra: 0 1px 2px rgba(14,29,22,.04), 0 4px 14px rgba(14,29,22,.05);
   --sombra-alta: 0 -4px 30px rgba(14,29,22,.18);
   --f-display: "Big Shoulders Display", "Barlow Condensed", "Arial Narrow", sans-serif;
   --f-texto: "Barlow", "Segoe UI", Roboto, system-ui, sans-serif;
@@ -38,24 +38,24 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --cal: #08120E; --superficie: #111F19; --superficie-2: #182A22; --tinta: #E8F0EB; --tinta-2: #9BAFA4;
-    --linea: #22362D; --cesped: #34B87A; --cesped-hover: #45C98A; --sobre-cesped: #03140B; --cesped-suave: #12352A;
-    --peto: #FF7D33; --peto-hover: #FF8F4D; --campo-a: #22603D; --campo-b: #1E5737;
+    --linea: #22362D; --cesped: #4CC88E; --cesped-hover: #5FD49C; --sobre-cesped: #03140B; --cesped-suave: #153D30;
+    --peto: #FF7D33; --peto-hover: #FF8F4D; --campo-a: #2A6E47; --campo-b: #256440;
     --equipo: #FF7D33; --rival: #3A63C9; --victoria: #3CC07A; --empate: #8D9BA3; --derrota: #F06060;
     --aviso-fondo: #3A3210; --aviso-tinta: #FBE7A1; --error-fondo: #3D1717; --error-tinta: #FFC9C9;
     --velo: rgba(0,0,0,.6);
-    --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --sombra: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
     --sombra-alta: 0 -4px 30px rgba(0,0,0,.5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --cal: #08120E; --superficie: #111F19; --superficie-2: #182A22; --tinta: #E8F0EB; --tinta-2: #9BAFA4;
-  --linea: #22362D; --cesped: #34B87A; --cesped-hover: #45C98A; --sobre-cesped: #03140B; --cesped-suave: #12352A;
-  --peto: #FF7D33; --peto-hover: #FF8F4D; --campo-a: #22603D; --campo-b: #1E5737;
+  --linea: #22362D; --cesped: #4CC88E; --cesped-hover: #5FD49C; --sobre-cesped: #03140B; --cesped-suave: #153D30;
+  --peto: #FF7D33; --peto-hover: #FF8F4D; --campo-a: #2A6E47; --campo-b: #256440;
   --equipo: #FF7D33; --rival: #3A63C9; --victoria: #3CC07A; --empate: #8D9BA3; --derrota: #F06060;
   --aviso-fondo: #3A3210; --aviso-tinta: #FBE7A1; --error-fondo: #3D1717; --error-tinta: #FFC9C9;
   --velo: rgba(0,0,0,.6);
-  --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --sombra: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
   --sombra-alta: 0 -4px 30px rgba(0,0,0,.5);
   color-scheme: dark;
 }
@@ -94,7 +94,7 @@ p { margin: 0; }
 .btn-principal:hover:not(:disabled) { background: var(--cesped-hover); }
 .btn-peto { background: var(--peto); color: var(--sobre-peto); }
 .btn-peto:hover:not(:disabled) { background: var(--peto-hover); }
-.btn-borde { background: var(--superficie); color: var(--tinta); border: 2px solid var(--cesped); }
+.btn-borde { background: var(--superficie); color: var(--tinta); border: 1px solid var(--cesped); }
 .btn-gris { background: var(--superficie-2); color: var(--tinta); }
 .btn-peligro { background: var(--derrota); color: #fff; }
 .btn-texto { background: none; color: var(--cesped); min-height: 44px; padding: 0 8px; }
@@ -106,9 +106,9 @@ p { margin: 0; }
 .campo > span { font-weight: 600; font-size: 15px; }
 .entrada {
   width: 100%; min-height: 54px; padding: 0 16px; border-radius: 14px;
-  background: var(--superficie); border: 2px solid var(--linea); font-size: 17px;
+  background: var(--superficie); border: 1px solid var(--linea); font-size: 17px;
 }
-.entrada:focus { outline: none; border-color: var(--cesped); }
+.entrada:focus { outline: none; border-color: var(--cesped); box-shadow: 0 0 0 1px var(--cesped); }
 .entrada-con-boton { position: relative; }
 .entrada-con-boton .entrada { padding-right: 56px; }
 .entrada-con-boton button { position: absolute; right: 5px; top: 5px; width: 44px; height: 44px; border: 0; background: none; color: var(--tinta-2); border-radius: 10px; display: grid; place-items: center; }
@@ -163,7 +163,7 @@ p { margin: 0; }
 body:has(.directiva) .aviso-flotante, body:has(.acceso) .aviso-flotante { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
 
 .selector-tema { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.selector-tema button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; min-height: 76px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie); font-weight: 600; font-size: 15px; }
+.selector-tema button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; min-height: 76px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie); font-weight: 600; font-size: 15px; }
 .selector-tema button svg { width: 24px; height: 24px; }
 .selector-tema button[aria-pressed="true"] { border-color: var(--cesped); background: var(--cesped-suave); }
 
@@ -193,7 +193,7 @@ body:has(.directiva) .aviso-flotante, body:has(.acceso) .aviso-flotante { bottom
 .formulario { display: flex; flex-direction: column; gap: 16px; }
 .opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; }
 .opciones button {
-  min-height: 52px; padding: 6px 10px; border-radius: 14px; border: 2px solid var(--linea); background: var(--superficie);
+  min-height: 52px; padding: 6px 10px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie);
   font-weight: 700; font-size: 16px; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
 }
 .opciones button small { font-weight: 500; font-size: 12px; color: var(--tinta-2); }
@@ -203,7 +203,7 @@ body:has(.directiva) .aviso-flotante, body:has(.acceso) .aviso-flotante { bottom
 .contador-num button:disabled { opacity: .4; }
 .contador-num output { min-width: 44px; text-align: center; font-family: var(--f-display); font-weight: 800; font-size: 28px; }
 .colores { display: flex; flex-wrap: wrap; gap: 10px; }
-.muestra-color { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--linea); padding: 0; position: relative; }
+.muestra-color { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--linea); padding: 0; position: relative; }
 .muestra-color[aria-pressed="true"] { outline: 3px solid var(--tinta); outline-offset: 2px; }
 .muestra-otro { overflow: hidden; display: grid; place-items: center; cursor: pointer; background: conic-gradient(#f33, #fd0, #3c3, #0bf, #63f, #f3c, #f33); }
 .muestra-otro input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

@@ -37,9 +37,9 @@ export function LogoMister({ size = 56 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 512 512" aria-hidden="true">
       <clipPath id="logo-recorte"><rect width="512" height="512" rx="116" /></clipPath>
       <g clipPath="url(#logo-recorte)">
-        <rect width="512" height="512" fill="#0F6B45" />
-        <rect width="128" height="512" fill="#0C5E3C" />
-        <rect x="256" width="128" height="512" fill="#0C5E3C" />
+        <rect width="512" height="512" fill="#1A7F53" />
+        <rect width="128" height="512" fill="#167049" />
+        <rect x="256" width="128" height="512" fill="#167049" />
       </g>
       <path d="M256 70v372" stroke="#fff" strokeWidth="22" strokeLinecap="round" />
       <circle cx="256" cy="256" r="108" fill="none" stroke="#fff" strokeWidth="22" />
