@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../datos/api";
-import type { Equipo } from "../datos/tipos";
+import type { Club, Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
-import { IcoAjustes, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { IcoAjustes, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
 import { ProveedorEquipo } from "../ContextoEquipo";
 import Ajustes from "./Ajustes";
 import Plantilla from "./Plantilla";
@@ -16,6 +16,7 @@ import Estadisticas from "./Estadisticas";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
+import CrearEquipo from "../componentes/CrearEquipo";
 import "./entrenador.css";
 
 
@@ -32,27 +33,36 @@ const PESTANAS = [
 export default function AppEntrenador() {
   const ubicacion = useLocation();
   const [equipos, setEquipos] = useState<Equipo[] | null>(null);
+  const [clubes, setClubes] = useState<Club[]>([]);
   const [activoId, setActivoId] = useState<string | null>(() => { try { return localStorage.getItem(CLAVE_EQUIPO); } catch { return null; } });
   const [error, setError] = useState("");
 
-  const cargar = useCallback(async () => {
-    try { setEquipos(await api.misEquipos()); setError(""); } catch (e) { setError(mensajeDe(e)); setEquipos([]); }
-  }, []);
-  useEffect(() => { cargar(); }, [cargar]);
-
-  const elegir = (id: string) => {
+  const elegir = useCallback((id: string) => {
     setActivoId(id);
     try { localStorage.setItem(CLAVE_EQUIPO, id); } catch { /* nada */ }
-  };
+  }, []);
+
+  const cargar = useCallback(async (activo?: string) => {
+    try {
+      const [eq, cl] = await Promise.all([api.misEquipos(), api.misClubes()]);
+      if (activo) elegir(activo);
+      setEquipos(eq); setClubes(cl); setError("");
+    } catch (e) { setError(mensajeDe(e)); setEquipos([]); }
+  }, [elegir]);
+  useEffect(() => { cargar(); }, [cargar]);
 
   if (equipos === null) return <div className="cargando" aria-label="Cargando"><LogoMister size={88} /></div>;
-  if (equipos.length === 0) return <SinEquipo alComprobar={cargar} error={error} />;
+  if (equipos.length === 0) {
+    return clubes.length === 0
+      ? <SinClub alComprobar={() => cargar()} error={error} />
+      : <PrimerEquipo clubes={clubes} alCrear={(e) => cargar(e.id)} />;
+  }
 
   const equipo = equipos.find((e) => e.id === activoId) ?? equipos[0];
   const ruta = ubicacion.pathname;
 
   return (
-    <ProveedorEquipo key={equipo.id} equipo={equipo} equipos={equipos}>
+    <ProveedorEquipo key={equipo.id} equipo={equipo} equipos={equipos} recargarEquipos={cargar}>
       <div className="entrenador">
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
@@ -67,7 +77,7 @@ export default function AppEntrenador() {
         <div className="entrenador-cuerpo">
           <header className="cabecera">
             <div className="cabecera-titulo">
-              <SelectorEquipo equipo={equipo} equipos={equipos} elegir={elegir} />
+              <SelectorEquipo equipo={equipo} equipos={equipos} clubes={clubes} elegir={elegir} alCrear={(e) => cargar(e.id)} />
             </div>
             <BotonAjustes />
             <MenuCuenta />
@@ -99,43 +109,63 @@ export default function AppEntrenador() {
   );
 }
 
-function SelectorEquipo({ equipo, equipos, elegir }: { equipo: Equipo; equipos: Equipo[]; elegir: (id: string) => void }) {
-  const [abierto, setAbierto] = useState(false);
+function SelectorEquipo({ equipo, equipos, clubes, elegir, alCrear }: { equipo: Equipo; equipos: Equipo[]; clubes: Club[]; elegir: (id: string) => void; alCrear: (e: Equipo) => void }) {
+  const [abierto, setAbierto] = useState<"lista" | "crear" | null>(null);
   const { avisar } = useUi();
-  const varios = equipos.length > 1;
   return (
     <>
-      <button className="selector-equipo" type="button" onClick={() => varios && setAbierto(true)} aria-haspopup={varios ? "dialog" : undefined} disabled={!varios}>
+      <button className="selector-equipo" type="button" onClick={() => setAbierto("lista")} aria-haspopup="dialog">
         {equipo.escudo ? <Escudo imagen={equipo.escudo} nombre={equipo.club ?? equipo.nombre} /> : <span className="escudo">{iniciales(equipo.nombre)}</span>}
         <span className="selector-nombre">{equipo.nombre}</span>
-        {varios && <IcoFlechaAbajo />}
+        <IcoFlechaAbajo />
       </button>
-      {abierto && (
-        <Hoja titulo="Elige equipo" alCerrar={() => setAbierto(false)}>
+      {abierto === "lista" && (
+        <Hoja titulo={equipos.length > 1 ? "Elige equipo" : "Tu equipo"} alCerrar={() => setAbierto(null)}>
           <div className="lista">
             {equipos.map((e) => (
-              <button key={e.id} type="button" className="fila fila-boton" onClick={() => { elegir(e.id); setAbierto(false); avisar(`Trabajando con ${e.nombre}`); }}>
+              <button key={e.id} type="button" className="fila fila-boton" onClick={() => { elegir(e.id); setAbierto(null); if (e.id !== equipo.id) avisar(`Trabajando con ${e.nombre}`); }}>
                 {e.escudo ? <Escudo imagen={e.escudo} nombre={e.club ?? e.nombre} tam="grande" /> : <span className="escudo escudo-grande">{iniciales(e.nombre)}</span>}
                 <span className="fila-texto"><b>{e.nombre}</b>{e.club && <span>{e.club}</span>}</span>
                 {e.id === equipo.id && <IcoCheck className="marca" />}
               </button>
             ))}
           </div>
+          {clubes.length > 0 && (
+            <button className="btn btn-borde btn-ancho" type="button" onClick={() => setAbierto("crear")}><IcoMas /> Crear otro equipo</button>
+          )}
+        </Hoja>
+      )}
+      {abierto === "crear" && (
+        <Hoja titulo="Nuevo equipo" alCerrar={() => setAbierto(null)}>
+          <CrearEquipo clubes={clubes} alCancelar={() => setAbierto(null)}
+            alCrear={(e) => { setAbierto(null); avisar(`Equipo «${e.nombre}» creado`); alCrear(e); }} />
         </Hoja>
       )}
     </>
   );
 }
 
-function SinEquipo({ alComprobar, error }: { alComprobar: () => Promise<void>; error: string }) {
+function PrimerEquipo({ clubes, alCrear }: { clubes: Club[]; alCrear: (e: Equipo) => void }) {
+  const club = clubes[0];
+  return (
+    <div className="sin-equipo">
+      <Escudo imagen={club.escudo} nombre={club.nombre} tam="enorme" />
+      <h1>Crea tu equipo</h1>
+      <p>{clubes.length === 1 ? <>Ya estás en <b style={{ color: "var(--tinta)" }}>{club.nombre}</b>.</> : "Ya estás en varios clubes."} Ponle nombre a tu equipo y elige a qué jugáis.</p>
+      <CrearEquipo clubes={clubes} alCrear={alCrear} />
+    </div>
+  );
+}
+
+function SinClub({ alComprobar, error }: { alComprobar: () => Promise<void>; error: string }) {
   const { perfil } = useSesion();
   const [comprobando, setComprobando] = useState(false);
   const { confirmar } = useUi();
   return (
     <div className="sin-equipo">
       <LogoMister size={72} />
-      <h1>Tu club aún no te ha asignado un equipo</h1>
-      <p>Pide a la directiva de tu club que te asigne a tu equipo con este correo:</p>
+      <h1>Tu club aún no te ha añadido</h1>
+      <p>Pide a la directiva de tu club que te añada como entrenador con este correo:</p>
       <p className="correo-grande">{perfil?.email}</p>
       {error && <p className="mensaje mensaje-error">{error}</p>}
       <button className="btn btn-principal btn-grande btn-ancho" type="button" disabled={comprobando}

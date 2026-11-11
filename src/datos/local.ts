@@ -1,7 +1,7 @@
 // MODO PRUEBA: imita las cuentas y la base de datos guardándolo todo en este navegador.
 // Sirve para probar la app sin Supabase. Las mismas reglas de acceso que en la nube:
 // la directiva solo ve su club y el entrenador solo los equipos asignados a su correo.
-import { type Api, type Asignacion, type Club, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Club, type EquipoClub, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, ErrorApp, normalizarCorreo } from "./tipos";
 
 interface Usuario extends Perfil { hash: string }
 interface ClubGuardado extends Club { duenoId: string }
@@ -9,7 +9,10 @@ interface Bd {
   usuarios: Usuario[];
   clubes: ClubGuardado[];
   equipos: Equipo[];
-  asignaciones: Omit<Asignacion, "registrado">[];
+  /** Quién entrena cada equipo. */
+  asignaciones: { id: string; equipoId: string; email: string }[];
+  /** Entrenadores que cada club ha añadido. */
+  miembros: { id: string; clubId: string; email: string }[];
   sesion: string | null;
   filas: Partial<Record<Tabla, Fila[]>>;
   ajustesEquipo: Record<string, Record<string, unknown>>;
@@ -19,7 +22,7 @@ interface Bd {
 }
 
 const CLAVE = "mister-modo-prueba";
-const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], sesion: null, filas: {}, ajustesEquipo: {}, ajustesUsuario: {}, mios: {} });
+const vacia = (): Bd => ({ usuarios: [], clubes: [], equipos: [], asignaciones: [], miembros: [], sesion: null, filas: {}, ajustesEquipo: {}, ajustesUsuario: {}, mios: {} });
 
 function leer(): Bd {
   try {
@@ -58,13 +61,17 @@ function equipoDelClub(bd: Bd, c: Club, equipoId: string) {
   return e;
 }
 
-/** Misma regla que en la nube: directiva del club o entrenador asignado. */
+/** Misma regla que en la nube: lo de dentro de un equipo solo lo ve su entrenador. */
 function comprobarEquipo(bd: Bd, equipoId: string) {
   const u = usuarioActual(bd);
-  const e = bd.equipos.find((x) => x.id === equipoId);
-  const dueno = e && bd.clubes.some((c) => c.id === e.clubId && c.duenoId === u.id);
-  const asignado = e && bd.asignaciones.some((a) => a.equipoId === e.id && a.email === u.email);
-  if (!dueno && !asignado) throw new ErrorApp("No tienes acceso a ese equipo.");
+  if (!bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === u.email)) throw new ErrorApp("No tienes acceso a ese equipo.");
+}
+const soyDelClub = (bd: Bd, u: Usuario, clubId: string) => bd.miembros.some((m) => m.clubId === clubId && m.email === u.email);
+function borrarEquipoDe(bd: Bd, equipoId: string) {
+  bd.equipos = bd.equipos.filter((e) => e.id !== equipoId);
+  bd.asignaciones = bd.asignaciones.filter((a) => a.equipoId !== equipoId);
+  for (const t of Object.keys(bd.filas) as Tabla[]) bd.filas[t] = bd.filas[t]!.filter((f) => f.equipoId !== equipoId);
+  delete bd.ajustesEquipo[equipoId];
 }
 
 export const apiLocal: Api = {
@@ -140,79 +147,64 @@ export const apiLocal: Api = {
     guardar(bd);
   },
 
-  async equiposDelClub() {
+  async entrenadoresDelClub() {
     const bd = leer();
     const c = clubDe(bd, usuarioActual(bd));
-    return bd.equipos.filter((e) => e.clubId === c.id).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+    return bd.miembros.filter((m) => m.clubId === c.id)
+      .map((m) => ({ id: m.id, email: m.email, registrado: bd.usuarios.some((u) => u.email === m.email) }))
+      .sort((a, b) => a.email.localeCompare(b.email));
   },
 
-  async crearEquipo(nombre) {
+  async anadirEntrenador(email) {
     await espera();
     const bd = leer();
     const c = clubDe(bd, usuarioActual(bd));
-    const e: Equipo = { id: id(), clubId: c.id, nombre: nombre.trim() };
-    bd.equipos.push(e);
-    guardar(bd);
-    return e;
-  },
-
-  async renombrarEquipo(equipoId, nombre) {
-    const bd = leer();
-    const c = clubDe(bd, usuarioActual(bd));
-    equipoDelClub(bd, c, equipoId).nombre = nombre.trim();
+    const correo = normalizarCorreo(email);
+    if (bd.miembros.some((m) => m.clubId === c.id && m.email === correo)) throw new ErrorApp("Ese entrenador ya está en tu club.");
+    bd.miembros.push({ id: id(), clubId: c.id, email: correo });
     guardar(bd);
   },
 
-  async borrarEquipo(equipoId) {
+  async quitarEntrenador(email) {
     const bd = leer();
     const c = clubDe(bd, usuarioActual(bd));
-    equipoDelClub(bd, c, equipoId);
-    bd.equipos = bd.equipos.filter((e) => e.id !== equipoId);
-    bd.asignaciones = bd.asignaciones.filter((a) => a.equipoId !== equipoId);
-    for (const t of Object.keys(bd.filas) as Tabla[]) bd.filas[t] = bd.filas[t]!.filter((f) => f.equipoId !== equipoId);
-    delete bd.ajustesEquipo[equipoId];
+    const correo = normalizarCorreo(email);
+    const delClub = new Set(bd.equipos.filter((e) => e.clubId === c.id).map((e) => e.id));
+    bd.asignaciones = bd.asignaciones.filter((a) => !(a.email === correo && delClub.has(a.equipoId)));
+    bd.miembros = bd.miembros.filter((m) => !(m.clubId === c.id && m.email === correo));
     guardar(bd);
   },
 
-  async asignacionesDelClub() {
+  async equiposDelClub() {
     const bd = leer();
     const c = clubDe(bd, usuarioActual(bd));
-    const misEquipos = new Set(bd.equipos.filter((e) => e.clubId === c.id).map((e) => e.id));
-    return bd.asignaciones
-      .filter((a) => misEquipos.has(a.equipoId))
-      .map((a) => ({ ...a, registrado: bd.usuarios.some((u) => u.email === a.email) }));
+    return bd.equipos.filter((e) => e.clubId === c.id)
+      .map((e): EquipoClub => ({
+        id: e.id, nombre: e.nombre,
+        modalidad: (bd.ajustesEquipo[e.id]?.modalidad as string | undefined) ?? null,
+        entrenador: bd.asignaciones.find((a) => a.equipoId === e.id)?.email ?? null
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   },
 
-  async asignarEntrenador(equipoId, email) {
+  async pasarEquipo(equipoId, email) {
     await espera();
     const bd = leer();
     const c = clubDe(bd, usuarioActual(bd));
     equipoDelClub(bd, c, equipoId);
     const correo = normalizarCorreo(email);
-    if (bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === correo)) throw new ErrorApp("Ese entrenador ya está en este equipo.");
+    if (!bd.miembros.some((m) => m.clubId === c.id && m.email === correo)) throw new ErrorApp("Ese entrenador no está en tu club.");
+    bd.asignaciones = bd.asignaciones.filter((a) => a.equipoId !== equipoId);
     bd.asignaciones.push({ id: id(), equipoId, email: correo });
     guardar(bd);
   },
 
-  async moverAsignacion(asigId, equipoId) {
+  async misClubes() {
     const bd = leer();
-    const c = clubDe(bd, usuarioActual(bd));
-    equipoDelClub(bd, c, equipoId);
-    const a = bd.asignaciones.find((x) => x.id === asigId);
-    if (!a) throw new ErrorApp("No se ha encontrado esa asignación.");
-    equipoDelClub(bd, c, a.equipoId);
-    if (bd.asignaciones.some((x) => x.equipoId === equipoId && x.email === a.email)) throw new ErrorApp("Ese entrenador ya está en el otro equipo.");
-    a.equipoId = equipoId;
-    guardar(bd);
-  },
-
-  async quitarAsignacion(asigId) {
-    const bd = leer();
-    const c = clubDe(bd, usuarioActual(bd));
-    const a = bd.asignaciones.find((x) => x.id === asigId);
-    if (a) equipoDelClub(bd, c, a.equipoId);
-    bd.asignaciones = bd.asignaciones.filter((x) => x.id !== asigId);
-    guardar(bd);
+    const u = usuarioActual(bd);
+    return bd.clubes.filter((c) => soyDelClub(bd, u, c.id))
+      .map((c) => ({ id: c.id, nombre: c.nombre, escudo: c.escudo ?? null }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   },
 
   async misEquipos() {
@@ -223,6 +215,39 @@ export const apiLocal: Api = {
       .filter((e) => ids.has(e.id))
       .map((e) => { const c = bd.clubes.find((x) => x.id === e.clubId); return { ...e, club: c?.nombre, escudo: c?.escudo ?? null }; })
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  },
+
+  async crearMiEquipo(clubId, nombre) {
+    await espera();
+    const bd = leer();
+    const u = usuarioActual(bd);
+    if (!soyDelClub(bd, u, clubId)) throw new ErrorApp("Ese club aún no te ha añadido como entrenador.");
+    const limpio = nombre.trim();
+    if (limpio.length < 1 || limpio.length > 40) throw new ErrorApp("El nombre del equipo tiene que tener entre 1 y 40 letras.");
+    const e: Equipo = { id: id(), clubId, nombre: limpio };
+    bd.equipos.push(e);
+    bd.asignaciones.push({ id: id(), equipoId: e.id, email: u.email });
+    guardar(bd);
+    return e;
+  },
+
+  async renombrarEquipo(equipoId, nombre) {
+    const bd = leer();
+    comprobarEquipo(bd, equipoId);
+    const e = bd.equipos.find((x) => x.id === equipoId);
+    if (e) e.nombre = nombre.trim();
+    guardar(bd);
+  },
+
+  async borrarEquipo(equipoId) {
+    const bd = leer();
+    const u = usuarioActual(bd);
+    const e = bd.equipos.find((x) => x.id === equipoId);
+    const dueno = e && bd.clubes.some((c) => c.id === e.clubId && c.duenoId === u.id);
+    const suyo = bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === u.email);
+    if (!dueno && !suyo) throw new ErrorApp("No puedes borrar ese equipo.");
+    borrarEquipoDe(bd, equipoId);
+    guardar(bd);
   },
 
   async listar<T extends Fila>(tabla: Tabla, equipoId: string) {

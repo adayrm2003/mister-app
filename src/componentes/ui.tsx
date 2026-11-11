@@ -1,5 +1,6 @@
 // Piezas comunes: hoja inferior, confirmación antes de borrar, avisos flotantes y tema.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 /* ---------- Hoja inferior (en ordenador se ve como ventana centrada) ---------- */
 export function Hoja({ titulo, children, alCerrar }: { titulo: string; children: ReactNode; alCerrar: () => void }) {
@@ -12,13 +13,15 @@ export function Hoja({ titulo, children, alCerrar }: { titulo: string; children:
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", tecla); document.body.style.overflow = ""; anterior?.focus?.(); };
   }, [alCerrar]);
-  return (
+  // Se pinta directamente en <body> para que ninguna cabecera ni la barra de pestañas la tape
+  return createPortal(
     <div className="velo" onMouseDown={(e) => { if (e.target === e.currentTarget) alCerrar(); }}>
       <div className="hoja" role="dialog" aria-modal="true" aria-label={titulo} ref={ref}>
         <h2>{titulo}</h2>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

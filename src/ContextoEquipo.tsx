@@ -13,6 +13,8 @@ interface EstadoEquipo {
   cambiarAjustesEquipo: (p: Partial<AjustesEquipo>) => void;
   cambiarAjustesUsuario: (p: Partial<AjustesUsuario>) => void;
   restaurarAjustes: () => Promise<void>;
+  /** Vuelve a leer los equipos del entrenador (tras crear, renombrar o borrar uno). */
+  recargarEquipos: (activo?: string) => Promise<void>;
 }
 const Contexto = createContext<EstadoEquipo | null>(null);
 export const useEquipo = () => useContext(Contexto)!;
@@ -20,7 +22,7 @@ export const useEquipo = () => useContext(Contexto)!;
 const soloClaves = <T extends object>(base: T, datos: Record<string, unknown> | null): Partial<T> =>
   datos ? (Object.fromEntries(Object.entries(datos).filter(([k]) => k in base)) as Partial<T>) : {};
 
-export function ProveedorEquipo({ equipo, equipos, children }: { equipo: Equipo; equipos: Equipo[]; children: ReactNode }) {
+export function ProveedorEquipo({ equipo, equipos, recargarEquipos, children }: { equipo: Equipo; equipos: Equipo[]; recargarEquipos: (activo?: string) => Promise<void>; children: ReactNode }) {
   const [deEquipo, setDeEquipo] = useState<AjustesEquipo>(AJUSTES_EQUIPO_BASE);
   const [deUsuario, setDeUsuario] = useState<AjustesUsuario>(AJUSTES_USUARIO_BASE);
   const [listos, setListos] = useState(false);
@@ -74,7 +76,7 @@ export function ProveedorEquipo({ equipo, equipos, children }: { equipo: Equipo;
   }, [equipo.id]);
 
   return (
-    <Contexto.Provider value={{ equipo, equipos, ajustes: { ...deEquipo, ...deUsuario }, ajustesListos: listos, cambiarAjustesEquipo, cambiarAjustesUsuario, restaurarAjustes }}>
+    <Contexto.Provider value={{ equipo, equipos, ajustes: { ...deEquipo, ...deUsuario }, ajustesListos: listos, cambiarAjustesEquipo, cambiarAjustesUsuario, restaurarAjustes, recargarEquipos }}>
       {children}
     </Contexto.Provider>
   );

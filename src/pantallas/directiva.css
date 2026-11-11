@@ -37,3 +37,12 @@
 .lista-equipos input { position: absolute; opacity: 0; pointer-events: none; }
 .lista-equipos label:has(input:focus-visible) { outline: 3px solid var(--peto); outline-offset: 2px; }
 .entrenador-cabeza .fila-texto b { overflow-wrap: anywhere; text-overflow: clip; }
+
+.contador-aviso { background: var(--aviso-fondo); color: var(--aviso-tinta); }
+.equipo-entrenador { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; min-width: 0; }
+.equipo-entrenador svg { width: 18px; height: 18px; color: var(--cesped); flex: none; }
+.btn.btn-quitar { align-self: flex-start; color: var(--derrota); }
+.btn-quitar svg { width: 20px; height: 20px; }
+.entrenador-equipo .pastilla { flex: none; }
+.lista-equipos .avatar-correo { width: 32px; height: 32px; font-size: 15px; }
+.lista-equipos label b.correo { overflow-wrap: anywhere; }

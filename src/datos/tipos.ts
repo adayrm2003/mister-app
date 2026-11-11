@@ -23,13 +23,22 @@ export interface Equipo {
   escudo?: string | null;
 }
 
-/** Un entrenador asignado a un equipo, identificado por su correo. */
-export interface Asignacion {
+/** Un entrenador que la directiva ha añadido a su club, identificado por su correo. */
+export interface EntrenadorClub {
   id: string;
-  equipoId: string;
   email: string;
   /** true si ese correo ya tiene cuenta creada en la app. */
   registrado: boolean;
+}
+
+/** Lo que la directiva ve de cada equipo de su club (nada de lo de dentro). */
+export interface EquipoClub {
+  id: string;
+  nombre: string;
+  /** "F7", "F8" o "F11" (la elige el entrenador). */
+  modalidad: string | null;
+  /** Correo del entrenador, o null si el equipo se ha quedado sin entrenador. */
+  entrenador: string | null;
 }
 
 export interface DatosRegistro {
@@ -58,17 +67,23 @@ export interface Api {
   miClub(): Promise<Club | null>;
   /** Cambia el nombre y el escudo del club de la directiva. */
   guardarClub(datos: { nombre: string; escudo: string | null }): Promise<void>;
-  equiposDelClub(): Promise<Equipo[]>;
-  crearEquipo(nombre: string): Promise<Equipo>;
-  renombrarEquipo(id: string, nombre: string): Promise<void>;
-  borrarEquipo(id: string): Promise<void>;
-  asignacionesDelClub(): Promise<Asignacion[]>;
-  asignarEntrenador(equipoId: string, email: string): Promise<void>;
-  moverAsignacion(id: string, equipoId: string): Promise<void>;
-  quitarAsignacion(id: string): Promise<void>;
+  entrenadoresDelClub(): Promise<EntrenadorClub[]>;
+  anadirEntrenador(email: string): Promise<void>;
+  /** Quita al entrenador del club; sus equipos se quedan en el club sin entrenador. */
+  quitarEntrenador(email: string): Promise<void>;
+  equiposDelClub(): Promise<EquipoClub[]>;
+  /** Pasa un equipo del club a otro entrenador del club. */
+  pasarEquipo(equipoId: string, email: string): Promise<void>;
 
   // Entrenador
+  /** Clubes que han añadido a este entrenador. */
+  misClubes(): Promise<Club[]>;
   misEquipos(): Promise<Equipo[]>;
+  crearMiEquipo(clubId: string, nombre: string): Promise<Equipo>;
+  renombrarEquipo(id: string, nombre: string): Promise<void>;
+
+  // Entrenador de ese equipo o directiva de su club
+  borrarEquipo(id: string): Promise<void>;
 
   // Datos de un equipo (solo si puedes ver ese equipo)
   listar<T extends Fila>(tabla: Tabla, equipoId: string): Promise<T[]>;

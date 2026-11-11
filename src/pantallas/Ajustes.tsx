@@ -4,12 +4,14 @@ import { Campo, Ficha } from "../componentes/Campo";
 import { Contador, ListaEditable, Opciones, SelectorColor } from "../componentes/Controles";
 import { IcoLapiz, IcoMas, IcoPapelera, IcoRecargar } from "../componentes/Iconos";
 import { mensajeDe, useUi } from "../componentes/ui";
+import { api } from "../datos/api";
 import { DURACIONES, MODALIDADES, jugadoresEnCampo, type Duracion, type Modalidad, type Sistema } from "../datos/modelo";
 import EditorSistema from "./EditorSistema";
 import "./ajustes.css";
 
 export default function Ajustes() {
-  const { equipo, ajustes: a, cambiarAjustesEquipo: equipoSet, cambiarAjustesUsuario: usuarioSet, restaurarAjustes } = useEquipo();
+  const { equipo, ajustes: a, cambiarAjustesEquipo: equipoSet, cambiarAjustesUsuario: usuarioSet, restaurarAjustes, recargarEquipos } = useEquipo();
+  const [nombreEquipo, setNombreEquipo] = useState(equipo.nombre);
   const { confirmar, avisar } = useUi();
   const [sistemaEditando, setSistemaEditando] = useState<Sistema | "nuevo" | null>(null);
   const n = jugadoresEnCampo(a);
@@ -47,6 +49,27 @@ export default function Ajustes() {
   return (
     <main className="pagina ajustes">
       <h1>Ajustes</h1>
+
+      <section className="apartado">
+        <header><h2>Tu equipo</h2>{equipo.club && <p className="suave">De {equipo.club}</p>}</header>
+        <form className="renombrar-equipo" onSubmit={async (e) => {
+          e.preventDefault();
+          const limpio = nombreEquipo.trim();
+          if (!limpio) return avisar("Escribe el nombre del equipo");
+          if (limpio === equipo.nombre) return;
+          try { await api.renombrarEquipo(equipo.id, limpio); await recargarEquipos(); avisar("Nombre guardado"); } catch (err) { avisar(mensajeDe(err)); }
+        }}>
+          <label className="campo"><span>Nombre del equipo</span>
+            <input id="ajustes-nombre-equipo" className="entrada" value={nombreEquipo} onChange={(e) => setNombreEquipo(e.target.value)} maxLength={40} />
+          </label>
+          <button className="btn btn-principal" type="submit" disabled={!nombreEquipo.trim() || nombreEquipo.trim() === equipo.nombre}>Guardar nombre</button>
+        </form>
+        <button className="btn btn-texto btn-borrar-equipo" type="button" onClick={async () => {
+          const ok = await confirmar({ titulo: `¿Borrar ${equipo.nombre}?`, texto: "Se borrarán sus jugadores, partidos, alineaciones y calendario. Tus ejercicios y sesiones no se tocan. Esto no se puede deshacer." });
+          if (!ok) return;
+          try { await api.borrarEquipo(equipo.id); avisar("Equipo borrado"); await recargarEquipos(); } catch (err) { avisar(mensajeDe(err)); }
+        }}><IcoPapelera /> Borrar este equipo</button>
+      </section>
 
       <section className="apartado">
         <header><h2>Qué entreno</h2><p className="suave">Solo verás los sistemas de juego de estas modalidades. Puedes elegir varias.</p></header>

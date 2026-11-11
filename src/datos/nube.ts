@@ -1,7 +1,7 @@
 // MODO NUBE: cuentas y datos en Supabase. La seguridad por filas (supabase/esquema.sql)
 // garantiza en el servidor que cada usuario solo ve lo que le toca.
 import { createClient, type AuthError, type PostgrestError } from "@supabase/supabase-js";
-import { type Api, type Asignacion, type Equipo, type EventoSesion, type Fila, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
 
 // Solo se convierten los nombres de primer nivel (equipoId <-> equipo_id); lo de dentro (jsonb) se guarda tal cual.
 const aSnake = (o: object) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k.replace(/[A-Z]/g, (m) => "_" + m.toLowerCase()), v]));
@@ -12,6 +12,7 @@ export function crearApiNube(url: string, clave: string): Api {
 
   function traducir(e: AuthError | PostgrestError | null): never | void {
     if (!e) return;
+    if ("code" in e && e.code === "P0001") throw new ErrorApp(e.message);
     const m = (e.message || "").toLowerCase();
     if (m.includes("invalid login")) throw new ErrorApp("El correo o la contraseña no son correctos.");
     if (m.includes("already registered") || m.includes("already been registered")) throw new ErrorApp("Ya hay una cuenta con ese correo. Prueba a entrar.");
@@ -100,52 +101,42 @@ export function crearApiNube(url: string, clave: string): Api {
       traducir(error);
     },
 
+    async entrenadoresDelClub() {
+      const { data, error } = await sb.rpc("entrenadores_del_club");
+      traducir(error);
+      return (data ?? []) as EntrenadorClub[];
+    },
+
+    async anadirEntrenador(email) {
+      const club = await clubId();
+      const { error } = await sb.from("entrenadores_club").insert({ club_id: club, email: normalizarCorreo(email) });
+      if (error?.message.includes("duplicate key")) throw new ErrorApp("Ese entrenador ya está en tu club.");
+      traducir(error);
+    },
+
+    async quitarEntrenador(email) {
+      const { error } = await sb.rpc("quitar_entrenador", { p_email: normalizarCorreo(email) });
+      traducir(error);
+    },
+
     async equiposDelClub() {
-      const club = await clubId();
-      const { data, error } = await sb.from("equipos").select("id,club_id,nombre").eq("club_id", club).order("nombre");
+      const { data, error } = await sb.rpc("equipos_del_club");
       traducir(error);
-      return (data ?? []).map(aEquipo);
+      return (data ?? []) as EquipoClub[];
     },
 
-    async crearEquipo(nombre) {
-      const club = await clubId();
-      const { data, error } = await sb.from("equipos").insert({ club_id: club, nombre: nombre.trim() }).select("id,club_id,nombre").single();
-      traducir(error);
-      return aEquipo(data!);
-    },
-
-    async renombrarEquipo(id, nombre) {
-      const { error } = await sb.from("equipos").update({ nombre: nombre.trim() }).eq("id", id);
+    async pasarEquipo(equipoId, email) {
+      const { error } = await sb.rpc("pasar_equipo", { p_equipo: equipoId, p_email: normalizarCorreo(email) });
       traducir(error);
     },
 
-    async borrarEquipo(id) {
-      const { error } = await sb.from("equipos").delete().eq("id", id);
+    async misClubes() {
+      const u = await usuario();
+      const { data, error } = await sb.from("entrenadores_club").select("clubes(id,nombre,escudo)").eq("email", normalizarCorreo(u.email ?? ""));
       traducir(error);
-    },
-
-    async asignacionesDelClub() {
-      const { data, error } = await sb.rpc("asignaciones_del_club");
-      traducir(error);
-      return ((data ?? []) as { id: string; equipo_id: string; email: string; registrado: boolean }[])
-        .map((f): Asignacion => ({ id: f.id, equipoId: f.equipo_id, email: f.email, registrado: f.registrado }));
-    },
-
-    async asignarEntrenador(equipoId, email) {
-      const { error } = await sb.from("entrenadores_equipo").insert({ equipo_id: equipoId, email: normalizarCorreo(email) });
-      if (error?.message.includes("duplicate key")) throw new ErrorApp("Ese entrenador ya está en este equipo.");
-      traducir(error);
-    },
-
-    async moverAsignacion(id, equipoId) {
-      const { error } = await sb.from("entrenadores_equipo").update({ equipo_id: equipoId }).eq("id", id);
-      if (error?.message.includes("duplicate key")) throw new ErrorApp("Ese entrenador ya está en el otro equipo.");
-      traducir(error);
-    },
-
-    async quitarAsignacion(id) {
-      const { error } = await sb.from("entrenadores_equipo").delete().eq("id", id);
-      traducir(error);
+      return ((data ?? []) as unknown as { clubes: Club | null }[])
+        .map((f) => f.clubes).filter((c): c is Club => !!c)
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
     },
 
     async misEquipos() {
@@ -157,6 +148,23 @@ export function crearApiNube(url: string, clave: string): Api {
         .order("nombre");
       traducir(error);
       return ((data ?? []) as unknown as Parameters<typeof aEquipo>[0][]).map(aEquipo);
+    },
+
+    async crearMiEquipo(club, nombre) {
+      const { data, error } = await sb.rpc("crear_mi_equipo", { p_club: club, p_nombre: nombre.trim() });
+      traducir(error);
+      const f = (data as { id: string; club_id: string; nombre: string }[])[0];
+      return aEquipo(f);
+    },
+
+    async renombrarEquipo(id, nombre) {
+      const { error } = await sb.from("equipos").update({ nombre: nombre.trim() }).eq("id", id);
+      traducir(error);
+    },
+
+    async borrarEquipo(id) {
+      const { error } = await sb.from("equipos").delete().eq("id", id);
+      traducir(error);
     },
 
     async listar<T extends Fila>(tabla: Parameters<Api["listar"]>[0], equipoId: string) {
