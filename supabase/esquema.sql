@@ -283,6 +283,12 @@ alter table public.partidos add column if not exists reloj jsonb;
 -- Anotaciones del entrenador durante el partido
 alter table public.partidos add column if not exists anotaciones jsonb not null default '[]'::jsonb;
 
+-- Escudo del club (imagen pequeña guardada como data URL; la sube la directiva)
+alter table public.clubes add column if not exists escudo text;
+do $$ begin
+  alter table public.clubes add constraint clubes_escudo_tamano check (escudo is null or (char_length(escudo) <= 400000 and escudo like 'data:image/%'));
+exception when duplicate_object then null; end $$;
+
 -- Cuentas que ya existían antes de crear estas tablas: se les crea su perfil (como entrenador)
 insert into public.perfiles (id, email, rol)
 select u.id, lower(u.email), 'entrenador' from auth.users u

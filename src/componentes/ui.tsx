@@ -88,3 +88,32 @@ export function iniciales(nombre: string) {
 }
 
 export const mensajeDe = (e: unknown) => (e instanceof Error ? e.message : "Algo ha fallado. Vuelve a intentarlo.");
+
+/** Escudo del club: la imagen si la hay; si no, las iniciales sobre verde. */
+export function Escudo({ imagen, nombre, tam = "normal" }: { imagen?: string | null; nombre: string; tam?: "normal" | "grande" | "enorme" }) {
+  const clase = "escudo" + (tam === "grande" ? " escudo-grande" : tam === "enorme" ? " escudo-enorme" : "");
+  if (imagen) return <img className={clase + " escudo-imagen"} src={imagen} alt={`Escudo de ${nombre}`} />;
+  return <span className={clase} aria-hidden="true">{iniciales(nombre)}</span>;
+}
+
+/** Reduce una imagen elegida por el usuario a un cuadrado de 256 px como máximo, para guardarla ligera. */
+export async function reducirImagen(archivo: File, lado = 256): Promise<string> {
+  if (!archivo.type.startsWith("image/")) throw new Error("Elige un archivo de imagen (PNG, JPG…).");
+  if (archivo.size > 15 * 1024 * 1024) throw new Error("La imagen es demasiado grande. Elige una de menos de 15 MB.");
+  const url = URL.createObjectURL(archivo);
+  try {
+    const img = await new Promise<HTMLImageElement>((ok, mal) => {
+      const i = new Image();
+      i.onload = () => ok(i);
+      i.onerror = () => mal(new Error("No se ha podido abrir esa imagen. Prueba con otra."));
+      i.src = url;
+    });
+    const escala = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * escala)), h = Math.max(1, Math.round(img.naturalHeight * escala));
+    const lienzo = document.createElement("canvas");
+    lienzo.width = w; lienzo.height = h;
+    lienzo.getContext("2d")!.drawImage(img, 0, 0, w, h);
+    const webp = lienzo.toDataURL("image/webp", 0.9);
+    return webp.startsWith("data:image/webp") ? webp : lienzo.toDataURL("image/png");
+  } finally { URL.revokeObjectURL(url); }
+}

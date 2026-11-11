@@ -134,6 +134,21 @@ p { margin: 0; }
 
 .escudo { width: 32px; height: 32px; border-radius: 50%; background: var(--cesped); color: var(--sobre-cesped); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 16px; flex: none; text-transform: uppercase; }
 .escudo-grande { width: 48px; height: 48px; font-size: 22px; }
+.escudo-enorme { width: 72px; height: 72px; font-size: 30px; }
+.escudo-imagen { background: none; border-radius: 0; object-fit: contain; }
+
+/* Tarjeta con el club (escudo + nombre) */
+.club-tarjeta { display: flex; align-items: center; gap: 14px; padding: 14px; width: 100%; text-align: left; }
+button.club-tarjeta { cursor: pointer; }
+.club-editar { width: 22px; height: 22px; color: var(--tinta-2); flex: none; }
+.club-tarjeta .fila-texto b { font-size: 19px; }
+.club-tarjeta .fila-texto span { font-size: 15px; }
+.elegir-escudo { display: flex; align-items: center; gap: 14px; }
+.elegir-escudo .escudo-hueco { width: 72px; height: 72px; border-radius: 50%; border: 1px dashed var(--linea); display: grid; place-items: center; color: var(--tinta-2); flex: none; }
+.elegir-escudo .escudo-hueco svg { width: 28px; height: 28px; }
+.elegir-escudo-botones { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 0; }
+.elegir-escudo label.btn { cursor: pointer; }
+.elegir-escudo input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 /* Hoja inferior y diálogos */
 .velo { position: fixed; inset: 0; background: var(--velo); z-index: 50; display: flex; align-items: flex-end; justify-content: center; animation: aparecer .15s ease-out; }

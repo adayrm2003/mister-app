@@ -9,6 +9,8 @@ export interface Perfil {
 export interface Club {
   id: string;
   nombre: string;
+  /** Imagen del escudo (data URL, ya reducida). */
+  escudo?: string | null;
 }
 
 export interface Equipo {
@@ -17,6 +19,8 @@ export interface Equipo {
   nombre: string;
   /** Nombre del club (solo se rellena al leer los equipos de un entrenador). */
   club?: string;
+  /** Escudo del club (solo se rellena al leer los equipos de un entrenador). */
+  escudo?: string | null;
 }
 
 /** Un entrenador asignado a un equipo, identificado por su correo. */
@@ -52,6 +56,8 @@ export interface Api {
 
   // Directiva
   miClub(): Promise<Club | null>;
+  /** Cambia el nombre y el escudo del club de la directiva. */
+  guardarClub(datos: { nombre: string; escudo: string | null }): Promise<void>;
   equiposDelClub(): Promise<Equipo[]>;
   crearEquipo(nombre: string): Promise<Equipo>;
   renombrarEquipo(id: string, nombre: string): Promise<void>;

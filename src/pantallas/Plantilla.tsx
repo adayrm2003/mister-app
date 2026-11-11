@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { Opciones } from "../componentes/Controles";
 import { IcoMas, IcoPapelera, IcoPlantilla } from "../componentes/Iconos";
-import { Hoja, useUi } from "../componentes/ui";
+import { Escudo, Hoja, useUi } from "../componentes/ui";
 import { colorTexto } from "../componentes/Campo";
 import { PIERNAS, PUESTOS, nuevoId, type Jugador, type Pierna, type Puesto } from "../datos/modelo";
 import "./plantilla.css";
@@ -18,6 +18,13 @@ export default function Plantilla() {
 
   return (
     <main className="pagina plantilla">
+      {equipo.club && (
+        <div className="club-tarjeta tarjeta">
+          <Escudo imagen={equipo.escudo} nombre={equipo.club} tam="enorme" />
+          <span className="fila-texto"><b>{equipo.club}</b><span>{equipo.nombre}</span></span>
+        </div>
+      )}
+
       <div className="titulo-con-accion">
         <h1>Plantilla</h1>
         <span className="pastilla">{jugadores.length} {jugadores.length === 1 ? "jugador" : "jugadores"}</span>

@@ -128,7 +128,16 @@ export const apiLocal: Api = {
     const bd = leer();
     const u = usuarioActual(bd);
     const c = bd.clubes.find((x) => x.duenoId === u.id);
-    return c ? { id: c.id, nombre: c.nombre } : null;
+    return c ? { id: c.id, nombre: c.nombre, escudo: c.escudo ?? null } : null;
+  },
+
+  async guardarClub({ nombre, escudo }) {
+    await espera();
+    const bd = leer();
+    const c = clubDe(bd, usuarioActual(bd));
+    c.nombre = nombre.trim();
+    c.escudo = escudo;
+    guardar(bd);
   },
 
   async equiposDelClub() {
@@ -212,7 +221,7 @@ export const apiLocal: Api = {
     const ids = new Set(bd.asignaciones.filter((a) => a.email === u.email).map((a) => a.equipoId));
     return bd.equipos
       .filter((e) => ids.has(e.id))
-      .map((e) => ({ ...e, club: bd.clubes.find((c) => c.id === e.clubId)?.nombre }))
+      .map((e) => { const c = bd.clubes.find((x) => x.id === e.clubId); return { ...e, club: c?.nombre, escudo: c?.escudo ?? null }; })
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   },
 

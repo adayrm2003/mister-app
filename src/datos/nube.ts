@@ -35,8 +35,8 @@ export function crearApiNube(url: string, clave: string): Api {
     if (!data) throw new ErrorApp("Solo la cuenta de la directiva puede hacer esto.");
     return data.id as string;
   }
-  const aEquipo = (f: { id: string; club_id: string; nombre: string; clubes?: { nombre: string } | null }): Equipo =>
-    ({ id: f.id, clubId: f.club_id, nombre: f.nombre, club: f.clubes?.nombre });
+  const aEquipo = (f: { id: string; club_id: string; nombre: string; clubes?: { nombre: string; escudo?: string | null } | null }): Equipo =>
+    ({ id: f.id, clubId: f.club_id, nombre: f.nombre, club: f.clubes?.nombre, escudo: f.clubes?.escudo ?? null });
 
   return {
     modo: "nube",
@@ -89,9 +89,15 @@ export function crearApiNube(url: string, clave: string): Api {
 
     async miClub() {
       const u = await usuario();
-      const { data, error } = await sb.from("clubes").select("id,nombre").eq("dueno_id", u.id).maybeSingle();
+      const { data, error } = await sb.from("clubes").select("id,nombre,escudo").eq("dueno_id", u.id).maybeSingle();
       traducir(error);
-      return data ? { id: data.id, nombre: data.nombre } : null;
+      return data ? { id: data.id, nombre: data.nombre, escudo: data.escudo ?? null } : null;
+    },
+
+    async guardarClub({ nombre, escudo }) {
+      const id = await clubId();
+      const { error } = await sb.from("clubes").update({ nombre: nombre.trim(), escudo }).eq("id", id);
+      traducir(error);
     },
 
     async equiposDelClub() {
@@ -146,7 +152,7 @@ export function crearApiNube(url: string, clave: string): Api {
       const u = await usuario();
       const { data, error } = await sb
         .from("equipos")
-        .select("id,club_id,nombre,clubes(nombre),entrenadores_equipo!inner(email)")
+        .select("id,club_id,nombre,clubes(nombre,escudo),entrenadores_equipo!inner(email)")
         .eq("entrenadores_equipo.email", normalizarCorreo(u.email ?? ""))
         .order("nombre");
       traducir(error);

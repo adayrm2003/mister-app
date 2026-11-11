@@ -3,7 +3,7 @@ import { api } from "../datos/api";
 import { correoValido, type Asignacion, type Club, type Equipo } from "../datos/tipos";
 import { IcoCheck, IcoCorreo, IcoLapiz, IcoMas, IcoMover, IcoPapelera, IcoPlantilla, IcoSilbato, LogoMister } from "../componentes/Iconos";
 import MenuCuenta from "../componentes/MenuCuenta";
-import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
+import { Escudo, Hoja, iniciales, mensajeDe, reducirImagen, useUi } from "../componentes/ui";
 import { Opciones } from "../componentes/Controles";
 import { AJUSTES_EQUIPO_BASE, MODALIDADES, esModalidad, nombreModalidad, type Modalidad } from "../datos/modelo";
 import "./directiva.css";
@@ -13,6 +13,7 @@ type Formulario =
   | { tipo: "asignar"; equipoId?: string }
   | { tipo: "renombrar"; equipo: Equipo }
   | { tipo: "mover"; asignacion: Asignacion }
+  | { tipo: "club" }
   | null;
 
 export default function PanelDirectiva() {
@@ -79,7 +80,7 @@ export default function PanelDirectiva() {
     <div className="directiva">
       <header className="cabecera">
         <div className="cabecera-titulo">
-          <LogoMister size={36} />
+          {club?.escudo ? <Escudo imagen={club.escudo} nombre={club.nombre} /> : <LogoMister size={36} />}
           <div style={{ minWidth: 0 }}>
             <span className="etiqueta" style={{ fontSize: 11 }}>Panel de directiva</span>
             <b style={{ display: "block" }}>{club?.nombre ?? "Mi club"}</b>
@@ -89,6 +90,17 @@ export default function PanelDirectiva() {
       </header>
 
       <main className="pagina">
+        {club && (
+          <button type="button" className="club-tarjeta tarjeta" onClick={() => setFormulario({ tipo: "club" })} aria-label="Editar nombre y escudo del club">
+            <Escudo imagen={club.escudo} nombre={club.nombre} tam="enorme" />
+            <span className="fila-texto">
+              <b>{club.nombre}</b>
+              <span>{club.escudo ? "Toca para cambiar el nombre o el escudo" : "Añade el escudo del club"}</span>
+            </span>
+            <IcoLapiz className="club-editar" />
+          </button>
+        )}
+
         <div className="segmentos-dir" role="tablist" aria-label="Secciones del club">
           <button role="tab" type="button" aria-selected={pestana === "equipos"} onClick={() => setPestana("equipos")}>
             Equipos <span className="contador">{equipos.length}</span>
@@ -212,6 +224,10 @@ export default function PanelDirectiva() {
         <HojaRenombrar equipo={formulario.equipo} modalidad={modalidades[formulario.equipo.id] ?? "F11"} alCerrar={() => setFormulario(null)}
           alGuardar={async () => { setFormulario(null); avisar("Equipo guardado"); await cargar(); }} />
       )}
+      {formulario?.tipo === "club" && club && (
+        <HojaClub club={club} alCerrar={() => setFormulario(null)}
+          alGuardar={async () => { setFormulario(null); avisar("Club guardado"); await cargar(); }} />
+      )}
       {formulario?.tipo === "mover" && (
         <HojaMover asignacion={formulario.asignacion} equipos={equipos} alCerrar={() => setFormulario(null)}
           alGuardar={async (nombre) => { setFormulario(null); avisar(`Ahora entrena a ${nombre}`); await cargar(); }} />
@@ -281,6 +297,58 @@ function HojaRenombrar({ equipo, modalidad: inicial, alCerrar, alGuardar }: { eq
         <div className="hoja-acciones">
           <button className="btn btn-gris cerrar-hoja" type="button" onClick={alCerrar}>Cancelar</button>
           <button className="btn btn-principal" type="submit">Guardar</button>
+        </div>
+      </form>
+    </Hoja>
+  );
+}
+
+function HojaClub({ club, alCerrar, alGuardar }: { club: Club; alCerrar: () => void; alGuardar: () => void }) {
+  const [nombre, setNombre] = useState(club.nombre);
+  const [escudo, setEscudo] = useState<string | null>(club.escudo ?? null);
+  const [procesando, setProcesando] = useState(false);
+  const [error, setError] = useState("");
+  const { confirmar } = useUi();
+
+  async function elegir(archivo: File | undefined) {
+    if (!archivo) return;
+    setProcesando(true); setError("");
+    try { setEscudo(await reducirImagen(archivo)); } catch (err) { setError(mensajeDe(err)); }
+    finally { setProcesando(false); }
+  }
+  async function quitar() {
+    if (await confirmar({ titulo: "¿Quitar el escudo?", texto: "Tus entrenadores verán las iniciales del club en su lugar.", boton: "Quitar" })) setEscudo(null);
+  }
+  async function enviar(e: FormEvent) {
+    e.preventDefault();
+    if (!nombre.trim()) return setError("El nombre del club no puede quedar vacío.");
+    setProcesando(true);
+    try { await api.guardarClub({ nombre, escudo }); alGuardar(); }
+    catch (err) { setError(mensajeDe(err)); setProcesando(false); }
+  }
+  return (
+    <Hoja titulo="Tu club" alCerrar={alCerrar}>
+      <form onSubmit={enviar} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <label className="campo"><span>Nombre del club</span>
+          <input id="club-nombre" className="entrada" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={80} autoComplete="organization" />
+        </label>
+        <div className="campo"><span>Escudo</span>
+          <div className="elegir-escudo">
+            {escudo ? <Escudo imagen={escudo} nombre={nombre || "tu club"} tam="enorme" /> : <span className="escudo-hueco"><IcoMas /></span>}
+            <div className="elegir-escudo-botones">
+              <label className="btn btn-borde">
+                <input id="club-escudo" type="file" accept="image/*" onChange={(e) => { elegir(e.target.files?.[0]); e.target.value = ""; }} />
+                {escudo ? "Cambiar imagen" : "Subir imagen"}
+              </label>
+              {escudo && <button className="btn btn-texto" type="button" onClick={quitar}><IcoPapelera /> Quitar escudo</button>}
+            </div>
+          </div>
+          <small className="suave">Mejor una imagen cuadrada con el fondo transparente. Tus entrenadores lo verán en su app.</small>
+        </div>
+        {error && <p className="mensaje mensaje-error" role="alert">{error}</p>}
+        <div className="hoja-acciones">
+          <button className="btn btn-gris cerrar-hoja" type="button" onClick={alCerrar}>Cancelar</button>
+          <button className="btn btn-principal" type="submit" disabled={procesando}>{procesando ? "Un momento…" : "Guardar"}</button>
         </div>
       </form>
     </Hoja>

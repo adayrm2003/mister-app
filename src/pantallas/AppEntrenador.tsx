@@ -14,7 +14,7 @@ import ModoCampo from "./ModoCampo";
 import Calendario, { EventoDetalle } from "./Calendario";
 import Estadisticas from "./Estadisticas";
 import MenuCuenta from "../componentes/MenuCuenta";
-import { Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
+import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
 import "./entrenador.css";
 
@@ -106,7 +106,7 @@ function SelectorEquipo({ equipo, equipos, elegir }: { equipo: Equipo; equipos: 
   return (
     <>
       <button className="selector-equipo" type="button" onClick={() => varios && setAbierto(true)} aria-haspopup={varios ? "dialog" : undefined} disabled={!varios}>
-        <span className="escudo">{iniciales(equipo.nombre)}</span>
+        {equipo.escudo ? <Escudo imagen={equipo.escudo} nombre={equipo.club ?? equipo.nombre} /> : <span className="escudo">{iniciales(equipo.nombre)}</span>}
         <span className="selector-nombre">{equipo.nombre}</span>
         {varios && <IcoFlechaAbajo />}
       </button>
@@ -115,7 +115,7 @@ function SelectorEquipo({ equipo, equipos, elegir }: { equipo: Equipo; equipos: 
           <div className="lista">
             {equipos.map((e) => (
               <button key={e.id} type="button" className="fila fila-boton" onClick={() => { elegir(e.id); setAbierto(false); avisar(`Trabajando con ${e.nombre}`); }}>
-                <span className="escudo escudo-grande">{iniciales(e.nombre)}</span>
+                {e.escudo ? <Escudo imagen={e.escudo} nombre={e.club ?? e.nombre} tam="grande" /> : <span className="escudo escudo-grande">{iniciales(e.nombre)}</span>}
                 <span className="fila-texto"><b>{e.nombre}</b>{e.club && <span>{e.club}</span>}</span>
                 {e.id === equipo.id && <IcoCheck className="marca" />}
               </button>
