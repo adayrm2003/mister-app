@@ -59,7 +59,7 @@ export const tiempoDePartido = (a: AjustesEquipo) => {
 
 export const nombreModalidad = (m: Modalidad) => (MODALIDADES.find((x) => x.valor === m) ?? MODALIDADES[2]).texto;
 
-/** Coloca a los jugadores por líneas: [4,4,2] = 4 defensas, 4 medios, 2 delanteros (+ portero). */
+/** Coloca a los jugadores por líneas: [4,4,2] = 4 defensas, 4 medios, 2 atacantes (+ portero). */
 export function porLineas(lineas: number[]): Punto[] {
   const puntos: Punto[] = [{ x: 50, y: 92 }];
   const k = lineas.length;
@@ -109,7 +109,7 @@ export const PUESTOS: { valor: Puesto; texto: string; plural: string; corto: str
   { valor: "portero", texto: "Portero", plural: "Porteros", corto: "POR" },
   { valor: "defensa", texto: "Defensa", plural: "Defensas", corto: "DEF" },
   { valor: "medio", texto: "Mediocampista", plural: "Mediocampistas", corto: "MED" },
-  { valor: "delantero", texto: "Delantero", plural: "Delanteros", corto: "DEL" }
+  { valor: "delantero", texto: "Atacante", plural: "Atacantes", corto: "ATA" }
 ];
 
 export interface Jugador {
