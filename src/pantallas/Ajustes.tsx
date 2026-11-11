@@ -64,11 +64,7 @@ export default function Ajustes() {
           </label>
           <button className="btn btn-principal" type="submit" disabled={!nombreEquipo.trim() || nombreEquipo.trim() === equipo.nombre}>Guardar nombre</button>
         </form>
-        <button className="btn btn-texto btn-borrar-equipo" type="button" onClick={async () => {
-          const ok = await confirmar({ titulo: `¿Borrar ${equipo.nombre}?`, texto: "Se borrarán sus jugadores, partidos, alineaciones y calendario. Tus ejercicios y sesiones no se tocan. Esto no se puede deshacer." });
-          if (!ok) return;
-          try { await api.borrarEquipo(equipo.id); avisar("Equipo borrado"); await recargarEquipos(); } catch (err) { avisar(mensajeDe(err)); }
-        }}><IcoPapelera /> Borrar este equipo</button>
+        <p className="suave">Si necesitas borrar este equipo, pídeselo a la directiva de tu club.</p>
       </section>
 
       <section className="apartado">

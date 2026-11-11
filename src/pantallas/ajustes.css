@@ -23,4 +23,3 @@
 .pieza-arrastrable { background: none; border: 0; padding: 6px; touch-action: none; cursor: grab; }
 .pieza-arrastrable:active { cursor: grabbing; }
 .renombrar-equipo { display: flex; flex-direction: column; gap: 10px; }
-.btn.btn-borrar-equipo { align-self: flex-start; color: var(--derrota); }

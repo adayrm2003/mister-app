@@ -244,8 +244,7 @@ export const apiLocal: Api = {
     const u = usuarioActual(bd);
     const e = bd.equipos.find((x) => x.id === equipoId);
     const dueno = e && bd.clubes.some((c) => c.id === e.clubId && c.duenoId === u.id);
-    const suyo = bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === u.email);
-    if (!dueno && !suyo) throw new ErrorApp("No puedes borrar ese equipo.");
+    if (!dueno) throw new ErrorApp("Solo la directiva del club puede borrar equipos.");
     borrarEquipoDe(bd, equipoId);
     guardar(bd);
   },

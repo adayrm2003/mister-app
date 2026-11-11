@@ -350,13 +350,13 @@ grant select, insert on public.entrenadores_club to authenticated;
 drop policy if exists "ver club" on public.clubes;
 create policy "ver club" on public.clubes for select using (dueno_id = auth.uid() or public.soy_del_club(id));
 
--- Equipos: los crea el entrenador (con crear_mi_equipo); él lo renombra; él o la directiva lo borran
+-- Equipos: los crea el entrenador (con crear_mi_equipo); él lo renombra; solo la directiva los borra
 drop policy if exists "crear equipos" on public.equipos;
 drop policy if exists "editar equipos" on public.equipos;
 create policy "editar equipos" on public.equipos for update
   using (public.entreno_este_equipo(id)) with check (public.entreno_este_equipo(id) and public.soy_del_club(club_id));
 drop policy if exists "borrar equipos" on public.equipos;
-create policy "borrar equipos" on public.equipos for delete using (public.es_mi_club(club_id) or public.entreno_este_equipo(id));
+create policy "borrar equipos" on public.equipos for delete using (public.es_mi_club(club_id));
 revoke insert on public.equipos from authenticated;
 
 -- Quién entrena cada equipo: solo se cambia con las funciones de abajo

@@ -82,7 +82,7 @@ export interface Api {
   crearMiEquipo(clubId: string, nombre: string): Promise<Equipo>;
   renombrarEquipo(id: string, nombre: string): Promise<void>;
 
-  // Entrenador de ese equipo o directiva de su club
+  /** Solo la directiva del club. */
   borrarEquipo(id: string): Promise<void>;
 
   // Datos de un equipo (solo si puedes ver ese equipo)
