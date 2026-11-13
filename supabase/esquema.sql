@@ -430,3 +430,22 @@ revoke execute on function public.soy_del_club(uuid), public.crear_mi_equipo(uui
   public.quitar_entrenador(text), public.equipos_del_club(), public.entrenadores_del_club() from public, anon;
 grant execute on function public.soy_del_club(uuid), public.crear_mi_equipo(uuid, text), public.pasar_equipo(uuid, text),
   public.quitar_entrenador(text), public.equipos_del_club(), public.entrenadores_del_club() to authenticated;
+
+-- =====================================================================
+-- FASE 10: pizarras del entrenador (de partido y, más adelante, de balón parado)
+-- Son de cada equipo: solo las ve su entrenador (la misma regla que jugadores y partidos).
+-- =====================================================================
+create table if not exists public.pizarras (
+  id         uuid primary key,
+  equipo_id  uuid not null references public.equipos(id) on delete cascade,
+  tipo       text not null default 'partido' check (tipo in ('partido', 'abp')),
+  nombre     text not null default '' check (char_length(nombre) <= 60),
+  partido_id uuid references public.partidos(id) on delete set null,
+  pizarra    jsonb not null,
+  editado    timestamptz not null default now()
+);
+create index if not exists pizarras_equipo_idx on public.pizarras(equipo_id, tipo);
+alter table public.pizarras enable row level security;
+drop policy if exists "equipo: todo" on public.pizarras;
+create policy "equipo: todo" on public.pizarras for all using (public.puedo_ver_equipo(equipo_id)) with check (public.puedo_ver_equipo(equipo_id));
+grant select, insert, update, delete on public.pizarras to authenticated;

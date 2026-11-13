@@ -1,0 +1,15 @@
+.secciones-pizarra { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 720px) { .secciones-pizarra { grid-template-columns: 1fr 1fr; } }
+.seccion-pizarra { display: flex; align-items: center; gap: 14px; padding: 16px; min-height: 88px; color: inherit; text-decoration: none; min-width: 0; }
+.seccion-pizarra .fila-texto b { font-size: 18px; }
+.seccion-pizarra .fila-texto span { white-space: normal; }
+.seccion-icono { width: 52px; height: 52px; border-radius: 14px; background: var(--cesped-suave); color: var(--cesped); display: grid; place-items: center; font-size: 24px; font-weight: 800; flex: none; }
+.seccion-icono svg { width: 30px; height: 30px; }
+.seccion-pizarra.pronto { opacity: .6; }
+.seccion-pizarra.pronto .seccion-icono { background: var(--superficie-2); color: var(--tinta-2); }
+
+.pagina.editor-pizarra-partido { padding-bottom: 120px; }
+.datos-pizarra { align-items: end; }
+@media (max-width: 520px) { .datos-pizarra { grid-template-columns: 1fr; } }
+.acciones-pizarra { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+.acciones-pizarra .peligro { color: var(--derrota); }

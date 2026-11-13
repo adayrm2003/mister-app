@@ -3,7 +3,7 @@ import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "reac
 import { api } from "../datos/api";
 import type { Club, Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
-import { IcoAjustes, IcoAtras, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { IcoAjustes, IcoAtras, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPizarra, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
 import { ProveedorEquipo } from "../ContextoEquipo";
 import Ajustes from "./Ajustes";
 import Plantilla from "./Plantilla";
@@ -17,6 +17,7 @@ import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
 import Biblioteca, { FichaBiblioteca } from "./Biblioteca";
+import PizarraInicio, { EditorPizarraPartido, PizarrasPartido } from "./PizarraEntrenador";
 import CrearEquipo from "../componentes/CrearEquipo";
 import "./entrenador.css";
 
@@ -27,6 +28,7 @@ const PESTANAS = [
   { a: "/inicio", texto: "Inicio", Icono: IcoInicio },
   { a: "/plantilla", texto: "Plantilla", Icono: IcoPlantilla },
   { a: "/ejercicios", texto: "Ejercicios", Icono: IcoEjercicios },
+  { a: "/pizarra", texto: "Pizarra", Icono: IcoPizarra },
   { a: "/calendario", texto: "Calendario", Icono: IcoCalendario },
   { a: "/partidos", texto: "Partidos", Icono: IcoPartidos }
 ];
@@ -90,6 +92,10 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
             <Route path="/ajustes" element={<Ajustes />} />
             <Route path="/ejercicios" element={<Ejercicios />} />
             <Route path="/ejercicios/nuevo" element={<EditorEjercicio />} />
+            <Route path="/pizarra" element={<PizarraInicio />} />
+            <Route path="/pizarra/partido" element={<PizarrasPartido />} />
+            <Route path="/pizarra/partido/nueva" element={<EditorPizarraPartido />} />
+            <Route path="/pizarra/partido/:id" element={<EditorPizarraPartido key="editar" />} />
             <Route path="/ejercicios/biblioteca" element={<Biblioteca />} />
             <Route path="/ejercicios/biblioteca/:id" element={<FichaBiblioteca />} />
             <Route path="/ejercicios/:id" element={<EjercicioDetalle />} />

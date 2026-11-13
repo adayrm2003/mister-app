@@ -108,7 +108,7 @@ import type { EjercicioCatalogo } from "./catalogo";
 export type TablaUsuario = "ejercicios" | "sesiones";
 
 /** Tablas con datos de un equipo. */
-export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos";
+export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos" | "pizarras";
 export interface Fila { id: string; equipoId: string }
 
 /** Error con un mensaje ya preparado para enseñarlo al usuario. */

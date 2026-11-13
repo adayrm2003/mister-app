@@ -6,6 +6,7 @@ const base = (p: P) => ({ viewBox: "0 0 24 24", fill: "none", stroke: "currentCo
 
 export const IcoInicio = (p: P) => <svg {...base(p)}><path d="M3 11 12 4l9 7" /><path d="M5.5 9.5V20h13V9.5" /><circle cx="12" cy="15" r="2.4" /></svg>;
 export const IcoPlantilla = (p: P) => <svg {...base(p)}><path d="M8.5 3 4 5 2 9.5l3.2 1.4L6.5 9v12h11V9l1.3 1.9L22 9.5 20 5l-4.5-2c-.6 1.6-1.9 2.6-3.5 2.6S9.1 4.6 8.5 3Z" /></svg>;
+export const IcoPizarra = (p: P) => <svg {...base(p)}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 9l3 3M10 9l-3 3" /><circle cx="16" cy="15" r="2" /><path d="M9.5 15.5c2-3 4-4.5 6-4.5" strokeDasharray="2 2" /></svg>;
 export const IcoEjercicios = (p: P) => <svg {...base(p)}><path d="M12 3 5.5 19h13L12 3Z" /><path d="M8.6 11.5h6.8M3 21h18" /></svg>;
 export const IcoCalendario = (p: P) => <svg {...base(p)}><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /><rect x="7" y="13.5" width="4" height="4" rx="1" fill="currentColor" stroke="none" /></svg>;
 export const IcoPartidos = (p: P) => <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="m12 8.2 3.4 2.5-1.3 4h-4.2l-1.3-4L12 8.2Z" fill="currentColor" stroke="none" /><path d="M12 3v5.2M15.4 10.7l5-1.6M14.1 14.7l3 4.2M9.9 14.7l-3 4.2M8.6 10.7l-5-1.6" strokeWidth={1.6} /></svg>;

@@ -5,9 +5,33 @@ import type { Punto } from "./modelo";
 export type TipoPieza = "jugador" | "rival" | "balon" | "cono" | "porteria";
 export type TipoFlecha = "pase" | "conduccion" | "movimiento";
 
-export interface Pieza { id: string; tipo: TipoPieza; etiqueta?: string; giro?: number }
+export interface Pieza {
+  id: string; tipo: TipoPieza; etiqueta?: string; giro?: number;
+  /** Nombre o mote que se ve debajo de la ficha (fichas de la plantilla). */
+  nombre?: string;
+  /** Si la ficha es un jugador real de la plantilla, su id. */
+  jugadorId?: string;
+}
 export interface Flecha { id: string; tipo: TipoFlecha; desde: Punto; hasta: Punto }
-export interface Paso { posiciones: Record<string, Punto>; flechas: Flecha[] }
+
+/** Dibujo libre encima del campo: lápiz, líneas, flechas, círculos, zonas y texto. */
+export type TipoDibujo = "lapiz" | "linea" | "flecha" | "circulo" | "zona" | "texto";
+export type EstiloFlecha = "pase" | "conduccion" | "desmarque";
+export interface Dibujo {
+  id: string;
+  tipo: TipoDibujo;
+  /** Lápiz: todos los puntos. Línea y flecha: inicio y final. Círculo y zona: dos esquinas. Texto: su posición. */
+  puntos: Punto[];
+  /** Punto que dobla líneas y flechas (si no hay, van rectas). */
+  curva?: Punto;
+  color: string;
+  grosor: number;
+  estilo?: EstiloFlecha;
+  discontinua?: boolean;
+  texto?: string;
+}
+
+export interface Paso { posiciones: Record<string, Punto>; flechas: Flecha[]; dibujos?: Dibujo[] }
 export interface Pizarra { campo: "completo" | "medio"; piezas: Pieza[]; pasos: Paso[] }
 
 export interface Ejercicio {
@@ -31,6 +55,27 @@ export const FLECHAS: { valor: TipoFlecha; texto: string }[] = [
   { valor: "conduccion", texto: "Conducción" },
   { valor: "movimiento", texto: "Sin balón" }
 ];
+
+export const COLORES_DIBUJO = [
+  { valor: "#FFFFFF", texto: "Blanco" }, { valor: "#F5C518", texto: "Amarillo" }, { valor: "#FF6B1A", texto: "Naranja" },
+  { valor: "#D7263D", texto: "Rojo" }, { valor: "#3A63C9", texto: "Azul" }, { valor: "#111111", texto: "Negro" }
+];
+export const GROSORES = [{ valor: 4, texto: "Fino" }, { valor: 7, texto: "Medio" }, { valor: 11, texto: "Grueso" }];
+export const ESTILOS_FLECHA: { valor: EstiloFlecha; texto: string }[] = [
+  { valor: "pase", texto: "Pase" }, { valor: "conduccion", texto: "Conducción" }, { valor: "desmarque", texto: "Desmarque" }
+];
+
+/** Pizarra guardada de un equipo (de partido o, más adelante, de balón parado). */
+export interface PizarraGuardada {
+  id: string;
+  equipoId: string;
+  tipo: "partido" | "abp";
+  nombre: string;
+  /** Partido del calendario al que va unida (opcional). */
+  partidoId: string | null;
+  pizarra: Pizarra;
+  editado: string;
+}
 
 export const pizarraVacia = (): Pizarra => ({ campo: "medio", piezas: [], pasos: [{ posiciones: {}, flechas: [] }] });
 
@@ -63,6 +108,10 @@ export function posicionesAnimadas(p: Pizarra, i: number, t: number): Record<str
 }
 
 /** Copia profunda con ids nuevos (para duplicar ejercicios). */
+/** Copia profunda de una pizarra guardada (para duplicarla). */
+export const copiarPizarra = (p: PizarraGuardada, nombre: string): PizarraGuardada =>
+  ({ ...structuredClone(p), id: crypto.randomUUID(), nombre, editado: new Date().toISOString() });
+
 export function copiarEjercicio(e: Ejercicio, nombre: string): Ejercicio {
   return { ...structuredClone(e), id: crypto.randomUUID(), nombre, actualizado: new Date().toISOString() };
 }
