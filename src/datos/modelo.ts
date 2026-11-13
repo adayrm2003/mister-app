@@ -125,6 +125,8 @@ export interface Jugador {
 /* ---------------- Partidos y alineaciones ---------------- */
 export const MAX_SUPLENTES = 8;
 export const COMPETICIONES = ["Liga", "Copa", "Amistoso", "Torneo"];
+/** Color de cada competición en el calendario. La liga usa el color de «Partido» y el torneo el de «Torneo» (Ajustes). */
+export const COLOR_COMPETICION: Record<string, string> = { Copa: "#D7263D", Amistoso: "#0EA5E9", Otra: "#7D8B93" };
 
 export interface Alineacion {
   sistemaId: string;

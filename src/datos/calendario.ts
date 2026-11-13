@@ -1,6 +1,6 @@
 // Calendario del equipo: entrenamientos, torneos y los tipos que cree el entrenador.
 // Los partidos se guardan aparte (pestaña Partidos) y el calendario los muestra también.
-import type { Elemento, Partido } from "./modelo";
+import { COLOR_COMPETICION, type Elemento, type Partido } from "./modelo";
 
 export type Asistencia = "presente" | "ausente";
 
@@ -29,7 +29,15 @@ export interface Cita {
   tipoNombre: string;
   enlace: string;
   esPartido: boolean;
+  /** Lo que se escribe en la cuadrícula del mes: «vs Rival» o «Entrenamiento». */
+  texto: string;
+  /** Competición del partido (Liga, Copa…) o tipo de evento, si no es un entrenamiento. */
+  etiqueta: string | null;
+  /** Solo partidos: true en casa, false fuera. */
+  casa: boolean | null;
 }
+
+export const emojiCasa = (casa: boolean | null) => (casa === null ? "" : casa ? "🏠" : "✈️");
 
 const dos = (n: number) => String(n).padStart(2, "0");
 export const aISO = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
@@ -56,16 +64,22 @@ export const DIAS_CORTOS = ["L", "M", "X", "J", "V", "S", "D"];
 export function citasDe(eventos: Evento[], partidos: Partido[], tipos: Elemento[]): Cita[] {
   const tipo = (id: string) => tipos.find((t) => t.id === id);
   const colorPartido = tipo("partido")?.color ?? "#FF6B1A";
+  const colorDe = (competicion: string) =>
+    competicion === "Liga" ? colorPartido
+      : competicion === "Torneo" ? tipo("torneo")?.color ?? "#8E5BD6"
+        : COLOR_COMPETICION[competicion] ?? COLOR_COMPETICION.Otra;
   return [
     ...eventos.map((e): Cita => ({
       id: e.id, fecha: e.fecha, hora: e.hora, titulo: e.titulo || tipo(e.tipo)?.nombre || "Evento",
       detalle: [e.hora && e.horaFin ? `${e.hora}–${e.horaFin}` : e.hora, e.lugar].filter(Boolean).join(" · "),
-      color: tipo(e.tipo)?.color ?? "#7D8B93", tipoNombre: tipo(e.tipo)?.nombre ?? "Evento", enlace: `/calendario/${e.id}`, esPartido: false
+      color: tipo(e.tipo)?.color ?? "#7D8B93", tipoNombre: tipo(e.tipo)?.nombre ?? "Evento", enlace: `/calendario/${e.id}`, esPartido: false,
+      texto: e.titulo || tipo(e.tipo)?.nombre || "Evento", etiqueta: e.tipo === "entrenamiento" ? null : tipo(e.tipo)?.nombre ?? null, casa: null
     })),
     ...partidos.map((p): Cita => ({
-      id: p.id, fecha: p.fecha, hora: p.hora, titulo: `vs ${p.rival}`,
+      id: p.id, fecha: p.fecha, hora: p.hora, titulo: `${emojiCasa(p.casa)} vs ${p.rival}`,
       detalle: [p.hora, p.casa ? "En casa" : "Fuera", p.competicion].filter(Boolean).join(" · "),
-      color: colorPartido, tipoNombre: "Partido", enlace: `/partidos/${p.id}`, esPartido: true
+      color: colorDe(p.competicion || "Liga"), tipoNombre: p.competicion || "Partido", enlace: `/partidos/${p.id}`, esPartido: true,
+      texto: `vs ${p.rival}`, etiqueta: p.competicion || "Partido", casa: p.casa
     }))
   ].sort((a, b) => (a.fecha + (a.hora || "99")).localeCompare(b.fecha + (b.hora || "99")));
 }

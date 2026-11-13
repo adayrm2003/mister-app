@@ -5,8 +5,8 @@ import { Opciones } from "../componentes/Controles";
 import { colorTexto } from "../componentes/Campo";
 import { IcoAtras, IcoCalendario, IcoCheck, IcoLapiz, IcoMas, IcoPapelera, IcoSilbato } from "../componentes/Iconos";
 import { Hoja, useUi } from "../componentes/ui";
-import { DIAS_CORTOS, aISO, citasDe, deISO, diasDelMes, lunesDe, resumenAsistencia, sumarDias, type Cita, type Evento } from "../datos/calendario";
-import { PUESTOS, type Jugador, type Partido } from "../datos/modelo";
+import { DIAS_CORTOS, aISO, citasDe, emojiCasa, deISO, diasDelMes, lunesDe, resumenAsistencia, sumarDias, type Cita, type Evento } from "../datos/calendario";
+import { COLOR_COMPETICION, PUESTOS, type Jugador, type Partido } from "../datos/modelo";
 import type { Sesion } from "../datos/sesion";
 import "./calendario.css";
 
@@ -95,7 +95,12 @@ export default function Calendario() {
                   onClick={() => setDia(f)} aria-label={`${nombreDia(f)}${lista.length ? `, ${lista.length} ${lista.length === 1 ? "evento" : "eventos"}` : ""}`}>
                   {f === hoyDia && <span className="cal-hoy-marca">Hoy</span>}
                   <span className="cal-numero">{deISO(f).getDate()}</span>
-                  <span className="cal-puntos">{lista.slice(0, 3).map((c) => <i key={c.id} style={{ background: c.color }} />)}</span>
+                  {lista.length > 0 && (
+                    <span className="cal-citas">
+                      {lista.slice(0, 2).map((c) => <MiniCita key={c.id} c={c} />)}
+                      {lista.length > 2 && <span className="cal-mas">+{lista.length - 2}</span>}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -121,8 +126,8 @@ export default function Calendario() {
         </div>
       )}
 
-      <div className="cal-leyenda" aria-label="Tipos de evento">
-        {ajustes.tiposEvento.map((t) => <span key={t.id}><i style={{ background: t.color }} />{t.nombre}</span>)}
+      <div className="cal-leyenda" aria-label="Colores del calendario">
+        {leyenda(ajustes.tiposEvento).map(([nombre, color]) => <span key={nombre}><i style={{ background: color }} />{nombre}</span>)}
       </div>
 
       <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => setNuevo(eventoNuevo(equipo.id, dia))}><IcoMas /> Añadir evento</button>
@@ -137,6 +142,31 @@ export default function Calendario() {
           }} />
       )}
     </main>
+  );
+}
+
+/** Colores del calendario: los tipos de evento (sin «Partido») y cada competición. */
+function leyenda(tipos: { id: string; nombre: string; color?: string }[]): [string, string][] {
+  const color = (id: string, def: string) => tipos.find((t) => t.id === id)?.color ?? def;
+  const competiciones: [string, string][] = [
+    ["Liga", color("partido", "#FF6B1A")], ["Copa", COLOR_COMPETICION.Copa], ["Amistoso", COLOR_COMPETICION.Amistoso], ["Torneo", color("torneo", "#8E5BD6")]
+  ];
+  const otros = tipos.filter((t) => t.id !== "partido" && t.id !== "torneo").map((t): [string, string] => [t.nombre, t.color ?? "#7D8B93"]);
+  return [...otros, ...competiciones];
+}
+
+/** Evento dentro de la cuadrícula del mes: «🏠 vs Rival, 21:00» o «Entrenamiento, 20:00». */
+function MiniCita({ c }: { c: Cita }) {
+  return (
+    <span className="mini-cita" style={{ "--c": c.color } as React.CSSProperties}>
+      {c.etiqueta && <span className="mini-etiqueta">{c.etiqueta}</span>}
+      <span className="mini-linea">
+        <span className="mini-texto">
+          {c.esPartido ? <>{emojiCasa(c.casa)} <span className="mini-vs">vs </span>{c.texto.replace(/^vs /, "")}</> : c.texto}
+        </span>
+        {c.hora && <span className="mini-hora">{c.hora}</span>}
+      </span>
+    </span>
   );
 }
 

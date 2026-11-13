@@ -78,3 +78,40 @@
 .asistente.ausente .asistente-dorsal { background: var(--derrota); color: #fff; }
 .asistente.ausente .asistente-estado { color: var(--derrota); }
 @media (max-width: 480px) { .cal-semana .cita-tipo { display: none; } .cal-semana .cita { padding: 8px 10px; } }
+
+/* Eventos dentro de cada día del mes (en vez de puntos) */
+.cal-mes { grid-auto-rows: minmax(64px, auto); }
+.cal-dia { aspect-ratio: auto; justify-content: flex-start; padding: 6px 2px 3px; min-width: 0; }
+.cal-dia.hoy { padding-top: 4px; }
+.cal-citas { display: flex; flex-direction: column; gap: 2px; width: 100%; min-width: 0; }
+.mini-cita {
+  display: flex; flex-direction: column; min-width: 0; text-align: left; padding: 1px 3px 2px 4px; border-radius: 5px;
+  border-left: 3px solid var(--c); background: color-mix(in srgb, var(--c) 16%, var(--superficie)); color: var(--tinta);
+  font-family: var(--f-texto); line-height: 1.15;
+}
+.cal-dia.elegido .mini-cita { background: var(--superficie); }
+.mini-etiqueta { font-size: 8.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini-linea { display: flex; flex-direction: column; min-width: 0; }
+.mini-texto, .mini-hora { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.mini-hora { font-weight: 800; order: -1; }
+.mini-texto { font-weight: 600; }
+/* En el móvil: la hora arriba y el rival debajo, sin «vs» para que quepa más nombre */
+.mini-vs { display: none; }
+.cal-mas { font-size: 10px; font-weight: 800; color: var(--tinta-2); }
+.cal-dia.elegido .cal-mas { color: var(--sobre-cesped); }
+/* En pantallas anchas: «🏠 vs Verdellada, 21:00» seguido */
+@media (min-width: 640px) {
+  .cal-mes { grid-auto-rows: minmax(84px, auto); }
+  .mini-cita { padding: 2px 6px 3px; }
+  .mini-etiqueta { font-size: 10px; }
+  .mini-linea { display: block; }
+  .mini-texto, .mini-hora { display: inline; font-size: 12px; white-space: normal; overflow: visible; }
+  .mini-hora { font-weight: 700; }
+  .mini-hora::before { content: ", "; font-weight: 400; }
+  .mini-vs { display: inline; }
+}
+@media (max-width: 639px) {
+  .mini-cita { padding: 1px 2px 2px 3px; border-left-width: 2px; }
+  .cal-dia.hoy { padding-left: 0; padding-right: 0; }
+  .mini-hora { letter-spacing: -.02em; }
+}
