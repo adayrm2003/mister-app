@@ -230,6 +230,27 @@ export function crearApiNube(url: string, clave: string): Api {
       return fila;
     },
 
+    async subirVideo(ruta, archivo) {
+      const { error } = await sb.storage.from("videos").upload(ruta, archivo, { contentType: archivo.type || "video/mp4", upsert: false });
+      if (error) {
+        const m = error.message.toLowerCase();
+        if (m.includes("exceeded") || m.includes("too large") || m.includes("size")) throw new ErrorApp("El vídeo es demasiado grande para subirlo.");
+        if (m.includes("row-level") || m.includes("unauthorized") || m.includes("not found")) throw new ErrorApp("No tienes permiso para subir vídeos a este equipo (o falta preparar los vídeos en Supabase).");
+        throw new ErrorApp("No se ha podido subir el vídeo: " + error.message);
+      }
+    },
+
+    async urlVideo(ruta) {
+      const { data, error } = await sb.storage.from("videos").createSignedUrl(ruta, 3 * 3600);
+      if (error || !data) throw new ErrorApp("No se puede abrir este vídeo. Puede que ya se haya borrado.");
+      return data.signedUrl;
+    },
+
+    async borrarArchivoVideo(ruta) {
+      const { error } = await sb.storage.from("videos").remove([ruta]);
+      if (error) throw new ErrorApp("No se ha podido borrar el vídeo: " + error.message);
+    },
+
     async borrarMio(tabla, id) {
       const { error } = await sb.from(tabla).delete().eq("id", id);
       traducir(error);

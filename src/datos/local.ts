@@ -265,6 +265,8 @@ export const apiLocal: Api = {
     comprobarEquipo(bd, fila.equipoId);
     const lista = bd.filas[tabla] ?? [];
     const i = lista.findIndex((f) => f.id === fila.id);
+    // Igual que en el servidor: la fecha de subida de un vídeo la pone la app y no se puede cambiar.
+    if (tabla === "videos") (fila as unknown as { subido: string }).subido = i >= 0 ? (lista[i] as unknown as { subido: string }).subido : new Date().toISOString();
     if (i >= 0) {
       if (lista[i].equipoId !== fila.equipoId) throw new ErrorApp("No se puede mover a otro equipo.");
       lista[i] = fila;
@@ -329,5 +331,40 @@ export const apiLocal: Api = {
     const mias = bd.mios[usuarioActual(bd).id];
     if (mias?.[tabla]) mias[tabla] = mias[tabla]!.filter((f) => f.id !== id);
     guardar(bd);
+  },
+
+  async subirVideo(ruta, archivo) {
+    const bd = leer();
+    comprobarEquipo(bd, ruta.split("/")[0]);
+    await enAlmacen("readwrite", (a) => a.put(archivo, ruta));
+  },
+
+  async urlVideo(ruta) {
+    const bd = leer();
+    comprobarEquipo(bd, ruta.split("/")[0]);
+    const v = (bd.filas.videos ?? []).find((f) => (f as unknown as { ruta: string }).ruta === ruta) as unknown as { subido: string } | undefined;
+    if (v && Date.now() - new Date(v.subido).getTime() > 30 * 24 * 3600 * 1000) throw new ErrorApp("Este vídeo ya ha caducado.");
+    const blob = await enAlmacen<Blob | undefined>("readonly", (a) => a.get(ruta));
+    if (!blob) throw new ErrorApp("No se puede abrir este vídeo. Puede que ya se haya borrado.");
+    return URL.createObjectURL(blob);
+  },
+
+  async borrarArchivoVideo(ruta) {
+    await enAlmacen("readwrite", (a) => a.delete(ruta));
   }
 };
+
+/* Los vídeos del modo prueba se guardan en IndexedDB (localStorage no admite archivos grandes). */
+function enAlmacen<T = unknown>(modo: IDBTransactionMode, fn: (a: IDBObjectStore) => IDBRequest): Promise<T> {
+  return new Promise((ok, mal) => {
+    const abrir = indexedDB.open("mister-videos", 1);
+    abrir.onupgradeneeded = () => abrir.result.createObjectStore("videos");
+    abrir.onerror = () => mal(new ErrorApp("Este navegador no deja guardar vídeos."));
+    abrir.onsuccess = () => {
+      const db = abrir.result;
+      const peticion = fn(db.transaction("videos", modo).objectStore("videos"));
+      peticion.onsuccess = () => { ok(peticion.result as T); db.close(); };
+      peticion.onerror = () => { mal(new ErrorApp("No se ha podido guardar el vídeo en este navegador (puede que no quede espacio).")); db.close(); };
+    };
+  });
+}

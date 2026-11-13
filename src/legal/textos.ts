@@ -6,7 +6,7 @@ export const TITULAR = {
   correo: "adayrm.2003@gmail.com"
 };
 
-export const ACTUALIZADO = "8 de noviembre de 2026";
+export const ACTUALIZADO = "13 de noviembre de 2026";
 
 export interface Seccion { titulo: string; parrafos: string[] }
 export interface DocumentoLegal { id: string; titulo: string; resumen: string; secciones: Seccion[] }
@@ -35,6 +35,7 @@ export const DOCUMENTOS: DocumentoLegal[] = [
       { titulo: "4. Uso correcto", parrafos: [
         "Te comprometes a usar Míster solo para la gestión deportiva del club y a respetar la ley y los derechos de los demás.",
         "En la app solo se guardan los datos de los jugadores necesarios para entrenar: nombre o mote, pierna buena, posición, dorsal, asistencia, minutos, goles y tarjetas. No está permitido introducir datos de salud, fotos, documentos de identidad, teléfonos, direcciones ni ningún otro dato personal en los campos de notas.",
+        `Los entrenadores pueden subir vídeos de partidos o entrenamientos de su equipo para analizarlos. Solo pueden subirlos si el club tiene el permiso de las familias para grabar a los jugadores y usar esas imágenes dentro del equipo. Los vídeos se borran solos a los 30 días.`,
         "No está permitido intentar acceder a datos de otros clubes o equipos, alterar el funcionamiento de la app ni usarla para fines distintos a los previstos."
       ] },
       { titulo: "5. Contenido que introduces", parrafos: [
@@ -70,11 +71,13 @@ export const DOCUMENTOS: DocumentoLegal[] = [
         "De las cuentas: correo electrónico, contraseña (guardada cifrada, nadie puede leerla), tipo de cuenta, nombre del club y los equipos asignados.",
         "De los jugadores, y nada más: nombre o mote, pierna buena, posición, dorsal y unas notas deportivas opcionales. Además, lo que el entrenador apunta de la actividad: asistencia a entrenamientos, alineaciones, minutos, goles, asistencias y tarjetas.",
         "Míster no pide ni guarda fechas de nacimiento, fotos, documentos de identidad, teléfonos, direcciones ni datos de salud de los jugadores. Las notas no deben usarse para ese tipo de datos.",
+        "Vídeos de análisis: el entrenador puede subir vídeos de partidos o entrenamientos de su equipo, en los que pueden aparecer los jugadores, para dibujar encima y explicar jugadas. Se guardan sin sonido si la app tiene que reducirlos, en un almacén privado, y se borran automáticamente a los 30 días de subirlos. Los dibujos y los momentos marcados también se borran con el vídeo.",
         "Del rival solo se guarda el nombre del equipo y, en las tarjetas, el dorsal del jugador, sin nombres."
       ] },
       { titulo: "3. Menores de edad", parrafos: [
         "La mayoría de los jugadores son menores. Por eso la app está diseñada para guardar el mínimo de datos posible y no permite que los menores tengan cuenta.",
-        "El club es quien debe contar con la base legal para tratar los datos deportivos de sus jugadores, normalmente la ficha o inscripción en el club y, cuando sea necesario, el consentimiento de madres, padres o tutores, e informarles de este tratamiento."
+        "El club es quien debe contar con la base legal para tratar los datos deportivos de sus jugadores, normalmente la ficha o inscripción en el club y, cuando sea necesario, el consentimiento de madres, padres o tutores, e informarles de este tratamiento.",
+        "Para los vídeos, la imagen de un menor solo puede usarse con el consentimiento de sus madres, padres o tutores (y del propio menor si tiene 14 años o más). Antes de subir un vídeo, el entrenador confirma que el club tiene ese permiso. Si una familia retira el permiso, el entrenador debe borrar los vídeos en los que aparezca su hijo o hija."
       ] },
       { titulo: "4. Para qué y con qué base legal", parrafos: [
         "Cuentas: para darte acceso y prestarte el servicio (ejecución del contrato que aceptas al registrarte) y para escribirte sobre tu cuenta, por ejemplo para recuperar la contraseña.",
@@ -83,11 +86,13 @@ export const DOCUMENTOS: DocumentoLegal[] = [
       { titulo: "5. Dónde se guardan y quién los ve", parrafos: [
         "Los datos se guardan en Supabase, en servidores de la Unión Europea (Irlanda). La app se publica en Netlify.",
         "Dentro de la app, cada entrenador solo ve los equipos que le asigna su club y la directiva solo ve los equipos y entrenadores de su club. Esto lo controla el propio servidor, no solo la app.",
+        "Los vídeos solo los pueden ver los entrenadores del equipo al que pertenecen; ni la directiva ni otros equipos tienen acceso. Se abren con enlaces privados que caducan a las pocas horas.",
         "Supabase y Netlify actúan como proveedores (subencargados) con contratos que les obligan a proteger los datos. Si algún proveedor accede desde fuera del Espacio Económico Europeo, se hace con las garantías del RGPD (decisión de adecuación o cláusulas contractuales tipo). No se ceden datos a nadie más, salvo obligación legal."
       ] },
       { titulo: "6. Cuánto tiempo", parrafos: [
         "Los datos de tu cuenta se conservan mientras la tengas activa. Si pides la baja, se borran, salvo lo que la ley obligue a guardar durante un tiempo.",
-        "Los datos de los jugadores los decide el club: se borran cuando el entrenador o la directiva borran al jugador, el equipo o el club."
+        "Los datos de los jugadores los decide el club: se borran cuando el entrenador o la directiva borran al jugador, el equipo o el club.",
+        "Los vídeos de análisis se conservan como mucho 30 días desde que se suben: después la app los borra y el servidor deja de permitir abrirlos. El entrenador puede borrarlos antes cuando quiera."
       ] },
       { titulo: "7. Tus derechos", parrafos: [
         `Puedes pedir acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad de tus datos escribiendo a ${t.correo}. Te responderemos en el plazo de un mes.`,
@@ -135,6 +140,7 @@ export const DOCUMENTOS: DocumentoLegal[] = [
       ] },
       { titulo: "2. Privacidad desde el diseño", parrafos: [
         "Minimización: de los jugadores solo se guarda lo imprescindible para entrenar (nombre o mote, pierna, posición, dorsal y la actividad deportiva). La app no tiene campos para fecha de nacimiento, fotos, DNI, teléfono, dirección ni salud.",
+        "Limitación del plazo: los vídeos de análisis se borran solos a los 30 días, solo los ven los entrenadores de su equipo y para subirlos hay que confirmar el permiso de las familias.",
         "Sin cuentas para menores: solo tienen cuenta la directiva y los entrenadores.",
         "Sin publicidad, sin rastreo y sin venta de datos."
       ] },

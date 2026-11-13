@@ -277,8 +277,8 @@ export function PizarraFotograma({ pizarra, colorEquipo, colorRival, paso = 0, t
 }
 
 /* ---------- Iconos de las herramientas ---------- */
-type Herramienta = "mover" | TipoDibujo;
-const ICONOS: Record<Herramienta, ReactNode> = {
+export type Herramienta = "mover" | TipoDibujo;
+export const ICONOS: Record<Herramienta, ReactNode> = {
   mover: <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1V4.5a1.5 1.5 0 0 1 3 0V10m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4 15.5a1.5 1.5 0 0 1 2.3-1.9L9 16" />,
   lapiz: <path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16zM14 7l3 3" />,
   linea: <path d="M5 19L19 5" />,
@@ -287,8 +287,8 @@ const ICONOS: Record<Herramienta, ReactNode> = {
   zona: <rect x="4.5" y="6.5" width="15" height="11" rx="1.5" strokeDasharray="3 2.5" />,
   texto: <path d="M6 6h12M12 6v13M9 19h6" />
 };
-const NOMBRES: Record<Herramienta, string> = { mover: "Mover", lapiz: "Lápiz", linea: "Línea", flecha: "Flecha", circulo: "Círculo", zona: "Zona", texto: "Texto" };
-const Icono = ({ children }: { children: ReactNode }) => (
+export const NOMBRES: Record<Herramienta, string> = { mover: "Mover", lapiz: "Lápiz", linea: "Línea", flecha: "Flecha", circulo: "Círculo", zona: "Zona", texto: "Texto" };
+export const Icono = ({ children }: { children: ReactNode }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
 );
 
@@ -997,7 +997,7 @@ function SelectorPeto({ valor, base, textoBase, titulo = "Peto", cambiar }: { va
   );
 }
 
-function SelectorColorGrosor({ color, grosor, cambiarColor, cambiarGrosor }: { color: string; grosor: number; cambiarColor: (c: string) => void; cambiarGrosor: (g: number) => void }) {
+export function SelectorColorGrosor({ color, grosor, cambiarColor, cambiarGrosor }: { color: string; grosor: number; cambiarColor: (c: string) => void; cambiarGrosor: (g: number) => void }) {
   return (
     <div className="barra-colores">
       <div className="fila-colores" role="radiogroup" aria-label="Color">

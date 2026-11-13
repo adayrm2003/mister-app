@@ -101,6 +101,12 @@ export interface Api {
   listarMios<T extends { id: string }>(tabla: TablaUsuario): Promise<T[]>;
   guardarMio<T extends { id: string }>(tabla: TablaUsuario, fila: T): Promise<T>;
   borrarMio(tabla: TablaUsuario, id: string): Promise<void>;
+
+  // Archivos de los vídeos de análisis (los datos van en la tabla "videos"). Ruta: «equipo/id.ext».
+  subirVideo(ruta: string, archivo: Blob): Promise<void>;
+  /** Dirección temporal para ver el vídeo (solo si puedes ver ese equipo y no han pasado 30 días). */
+  urlVideo(ruta: string): Promise<string>;
+  borrarArchivoVideo(ruta: string): Promise<void>;
 }
 
 import type { EjercicioCatalogo } from "./catalogo";
@@ -108,7 +114,7 @@ import type { EjercicioCatalogo } from "./catalogo";
 export type TablaUsuario = "ejercicios" | "sesiones";
 
 /** Tablas con datos de un equipo. */
-export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos" | "pizarras";
+export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos" | "pizarras" | "videos";
 export interface Fila { id: string; equipoId: string }
 
 /** Error con un mensaje ya preparado para enseñarlo al usuario. */

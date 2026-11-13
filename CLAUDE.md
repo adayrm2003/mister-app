@@ -7,6 +7,7 @@ que **no sabe programar**: explícale todo en lenguaje sencillo, sin jerga, y di
 - Solo **fútbol 7, fútbol 8 y fútbol 11**. Nada de fútbol 5 ni modalidad "a mano".
 - **Ningún nombre de categoría por edad** (Benjamín, Alevín, Infantil, Cadete, Juvenil…), ni como ejemplo, ni en placeholders, ni en datos de prueba. Usa "Equipo A", "Equipo B".
 - Jugadores (son menores): solo nombre o mote, pierna buena, posición, dorsal y notas deportivas. Nunca edad, DNI, fotos, teléfono, dirección ni salud.
+- Única excepción (la decidió Aday): **vídeos de análisis** del equipo. Solo los ven los entrenadores del equipo, hay que confirmar el permiso de las familias al subirlos y **se borran a los 30 días** (`src/datos/video.ts`, tabla `videos` y almacén privado `videos` en Supabase).
 - Todo lo que se cuenta va **por jugador (id), nunca por dorsal**.
 - **Antes de borrar cualquier cosa, pedir confirmación** en la app (`useUi().confirmar`).
 - Regla de oro: si algo se puede hacer en 1 toque, que no lleve 3. Botones grandes, pensado para usar con una mano en el campo.

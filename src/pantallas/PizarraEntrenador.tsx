@@ -1,4 +1,4 @@
-// Pizarra del entrenador: pizarras de partido (y, en las próximas fases, balón parado y vídeos).
+// Pizarra del entrenador: pizarras de partido, balón parado y (en Videos.tsx) vídeos de análisis.
 // Todo es de cada equipo: un entrenador con varios equipos ve las pizarras de cada uno por separado.
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import { IcoAtras, IcoMas, IcoPapelera } from "../componentes/Iconos";
 import { useUi } from "../componentes/ui";
 import { jugadoresEnCampo, type Jugador, type Partido } from "../datos/modelo";
 import { JUGADAS_ABP, copiarPizarra, nombreJugada, pizarraABP, pizarraVacia, type LadoABP, type PizarraGuardada, type TipoABP } from "../datos/pizarra";
+import { caducado, type VideoAnalisis } from "../datos/video";
 import "./ejercicios.css";
 import "./partidos.css";
 import "./pizarra-entrenador.css";
@@ -19,6 +20,7 @@ const tienePizarra = (p: PizarraGuardada) => p.pizarra.piezas.length > 0 || (p.p
 /* ---------------- Portada de la pestaña ---------------- */
 export default function PizarraInicio() {
   const { filas } = useColeccion<PizarraGuardada>("pizarras");
+  const { filas: videos } = useColeccion<VideoAnalisis>("videos");
   const deTipo = (t: PizarraGuardada["tipo"]) => filas.filter((p) => p.tipo === t).length;
   return (
     <main className="pagina pagina-ancha pizarra-inicio">
@@ -35,11 +37,11 @@ export default function PizarraInicio() {
           <span className="fila-texto"><b>Balón parado</b><span>Córners, faltas y saques animados paso a paso</span></span>
           <span className="pastilla">{deTipo("abp")}</span>
         </Link>
-        <div className="seccion-pizarra tarjeta pronto" aria-disabled="true">
+        <Link to="/pizarra/videos" className="seccion-pizarra tarjeta">
           <span className="seccion-icono" aria-hidden="true">▶</span>
-          <span className="fila-texto"><b>Vídeos</b><span>Dibuja encima de tus vídeos y marca los momentos clave</span></span>
-          <span className="pastilla">Pronto</span>
-        </div>
+          <span className="fila-texto"><b>Vídeos</b><span>Para el vídeo, dibuja encima y marca los momentos clave</span></span>
+          <span className="pastilla">{videos.filter((v) => !caducado(v)).length}</span>
+        </Link>
         <Link to="/ejercicios" className="seccion-pizarra tarjeta">
           <span className="seccion-icono" aria-hidden="true">△</span>
           <span className="fila-texto"><b>Ejercicios</b><span>Tus ejercicios con pizarra animada y la Biblioteca Míster</span></span>

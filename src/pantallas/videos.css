@@ -1,0 +1,50 @@
+/* Vídeos de análisis */
+.aviso-videos { padding: 12px 14px; font-size: 15px; color: var(--tinta-2); margin: 0; }
+.aviso-videos b { color: var(--tinta); }
+.video-fila { text-decoration: none; color: inherit; }
+.video-icono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; background: color-mix(in srgb, var(--cesped) 14%, var(--superficie)); color: var(--cesped); }
+.video-icono svg { width: 26px; height: 26px; }
+.video-fila .fila-texto small { font-size: 13px; }
+
+.analisis-video { --alto-video: max(220px, calc(100dvh - 430px)); padding-bottom: 120px; }
+.pagina.analisis-video { padding-bottom: 120px; }
+.titulo-video { background: none; border: 0; padding: 0; text-align: left; flex: 1; min-width: 0; color: inherit; }
+.titulo-video h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.analisis-video .caduca { margin: -4px 0 0; font-size: 14px; }
+
+.escenario-video { position: relative; margin: 0 auto; max-width: 100%; background: #000; border-radius: 14px; overflow: hidden; touch-action: manipulation; }
+.escenario-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; display: block; }
+.capa-dibujo { position: absolute; inset: 0; width: 100%; height: 100%; }
+.capa-dibujo.activa { touch-action: none; cursor: crosshair; outline: 3px solid var(--amarilla); outline-offset: -3px; border-radius: 14px; }
+.video-cargando { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; margin: 0; padding: 16px; text-align: center; }
+.rotulo-momento { align-self: center; max-width: 100%; margin: -6px auto 0; background: var(--superficie-2); color: var(--tinta); font-weight: 700; font-size: 14px; padding: 5px 12px; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rotulo-momento.dibujando { background: var(--amarilla); color: #111; }
+
+.linea-video { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.linea-video .barra-tiempo { width: 100%; margin: 0; }
+.marcas-momentos { position: relative; height: 10px; margin: -4px 10px 0; }
+.marcas-momentos span { position: absolute; top: 0; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--amarilla); border: 2px solid var(--superficie); }
+.marcas-momentos span.activa { background: var(--peto); }
+.linea-video .tiempo-texto { align-self: flex-end; }
+
+.mandos-video { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.mandos-video .btn-icono { font-weight: 800; font-size: 16px; }
+.mandos-video .btn-icono svg { width: 20px; height: 20px; }
+.mandos-video .boton-reproducir { min-width: 72px; padding: 0 18px; }
+.opciones-video { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.opciones-video .velocidades { min-width: 180px; }
+.opciones-video .interruptor { min-height: 44px; }
+
+.barra-grupo.barra-grupo-video { grid-template-columns: repeat(6, 1fr); }
+.campo-momento { margin: 0; }
+
+.momentos-video { display: flex; flex-direction: column; gap: 10px; }
+.momento-fila { display: flex; align-items: center; gap: 6px; padding-right: 6px; }
+.momento-fila.activa { background: color-mix(in srgb, var(--amarilla) 16%, var(--superficie)); }
+.momento-ir { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 10px 12px; text-align: left; color: inherit; min-height: 56px; }
+.momento-ir .pastilla { font-variant-numeric: tabular-nums; flex: none; }
+.acciones-video { display: flex; flex-direction: column; gap: 8px; }
+
+.barra-progreso.indefinida span { width: 35%; animation: barra-indefinida 1.3s ease-in-out infinite; }
+@keyframes barra-indefinida { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+.enlace { background: none; border: 0; padding: 0; color: var(--cesped); font-weight: 700; text-decoration: underline; font: inherit; cursor: pointer; }
