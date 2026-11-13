@@ -3,7 +3,7 @@
 // círculos, zonas y texto) con color y grosor, y deshacer / rehacer / limpiar.
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as PE, type ReactNode } from "react";
 import {
-  COLORES_DIBUJO, ESTILOS_FLECHA, FLECHAS, GROSORES, posicionesAnimadas, siguienteEtiqueta,
+  ACCESORIOS, COLORES_ACCESORIO, COLORES_DIBUJO, ESTILOS_FLECHA, FLECHAS, GROSORES, esAccesorio, posicionesAnimadas, siguienteEtiqueta,
   type Dibujo, type EstiloFlecha, type Flecha, type Pieza, type Pizarra as TPizarra, type TipoDibujo, type TipoPieza
 } from "../datos/pizarra";
 import { PUESTOS, type Jugador, type Punto, type Sistema } from "../datos/modelo";
@@ -157,19 +157,52 @@ function DibujoFlecha({ f, h, marca, seleccionada, opacidad = 1 }: { f: Flecha; 
   );
 }
 
+/* ---------- Accesorios (vistos desde arriba) ---------- */
+const colorDe = (p: Pieza) => p.color ?? ACCESORIOS.find((a) => a.tipo === p.tipo)?.color ?? "#FF6B1A";
+function Maniqui({ c }: { c: string }) {
+  return <g><path d="M-14 30 -18 -8Q-18 -18 -8 -18H8Q18 -18 18 -8L14 30Z" fill={c} stroke="#111" strokeWidth="2.5" /><circle cy="-28" r="9" fill={c} stroke="#111" strokeWidth="2.5" /></g>;
+}
+function FormaAccesorio({ p }: { p: Pieza }) {
+  const c = colorDe(p);
+  switch (p.tipo) {
+    case "cono": return <g><path d="M0 -22 18 13H-18Z" fill="#FF9A3C" stroke="#7a3400" strokeWidth="2" strokeLinejoin="round" /><path d="M-9 -3H9" stroke="#fff" strokeWidth="4" /></g>;
+    case "chino": return <g><circle r="15" fill={c} stroke="rgba(0,0,0,.45)" strokeWidth="2.5" /><circle r="5" fill="rgba(0,0,0,.35)" /></g>;
+    case "pica": return (
+      <g><circle r="10" fill="rgba(0,0,0,.25)" /><rect x="-4.5" y="-38" width="9" height="76" rx="4" fill={c} stroke="rgba(0,0,0,.5)" strokeWidth="2" />
+        <path d="M-4.5 -18h9M-4.5 2h9M-4.5 22h9" stroke="#fff" strokeWidth="5" /></g>
+    );
+    case "valla": return <g><path d="M-36 10V-6M36 10V-6" stroke="#333" strokeWidth="5" strokeLinecap="round" /><rect x="-40" y="-10" width="80" height="9" rx="4" fill={c} stroke="rgba(0,0,0,.45)" strokeWidth="2" /></g>;
+    case "aro": return <circle r="24" fill="none" stroke={c} strokeWidth="7" />;
+    case "escalera": return (
+      <g fill="none" stroke={c} strokeWidth="5" strokeLinecap="round">
+        <path d="M-20 -84V84M20 -84V84" />
+        {Array.from({ length: 8 }, (_, i) => <path key={i} d={`M-20 ${-70 + i * 20}H20`} />)}
+      </g>
+    );
+    case "miniporteria": return (
+      <g><path d="M-26 -9H26" stroke="rgba(255,255,255,.35)" strokeWidth="7" /><path d="M-26 10V-9H26V10" fill="none" stroke="#fff" strokeWidth="5" strokeLinejoin="round" /></g>
+    );
+    case "porteria": return (
+      <g><path d="M-44 -14H44" stroke="rgba(255,255,255,.35)" strokeWidth="10" /><path d="M-44 16V-14H44V16" fill="none" stroke="#fff" strokeWidth="6" strokeLinejoin="round" /></g>
+    );
+    case "maniqui": return <Maniqui c={c} />;
+    case "barrera": return <g>{[-54, -18, 18, 54].map((x) => <g key={x} transform={`translate(${x} 0) scale(.85)`}><Maniqui c={c} /></g>)}</g>;
+    case "peto": return <path d="M-15 -24-7-27Q0-19 7-27L15-24 23-6 14-2V25H-14V-2L-23-6Z" fill={c} stroke="rgba(0,0,0,.55)" strokeWidth="2.5" strokeLinejoin="round" />;
+    default: return null;
+  }
+}
+/** Lo que mide un accesorio, para poder tocarlo bien con el dedo y marcarlo. */
+const radioToque = (p: Pieza) => {
+  const e = p.escala ?? 1;
+  const base = p.tipo === "escalera" ? 86 : p.tipo === "barrera" ? 74 : p.tipo === "porteria" ? 50 : p.tipo === "valla" ? 44 : 40;
+  return Math.max(36, base * e);
+};
+
 /* ---------- Fichas ---------- */
 function DibujoPieza({ p, color }: { p: Pieza; color: string }) {
+  if (esAccesorio(p.tipo)) return <g transform={`rotate(${p.giro ?? 0}) scale(${p.escala ?? 1})`}><FormaAccesorio p={p} /></g>;
   if (p.tipo === "balon") return (
     <g><circle r="14" fill="#fff" stroke="#111" strokeWidth="2.5" /><path d="m0 -6 5.7 4.1-2.2 6.7h-7l-2.2-6.7z" fill="#111" /></g>
-  );
-  if (p.tipo === "cono") return (
-    <g><path d="M0 -22 18 13H-18Z" fill="#FF9A3C" stroke="#7a3400" strokeWidth="2" strokeLinejoin="round" /><path d="M-9 -3H9" stroke="#fff" strokeWidth="4" /></g>
-  );
-  if (p.tipo === "porteria") return (
-    <g transform={`rotate(${p.giro ?? 0})`}>
-      <path d="M-44 -14H44" stroke="rgba(255,255,255,.35)" strokeWidth="10" />
-      <path d="M-44 16V-14H44V16" fill="none" stroke="#fff" strokeWidth="6" strokeLinejoin="round" />
-    </g>
   );
   const et = p.etiqueta ?? "";
   // Con nombre (ficha de la plantilla): dorsal dentro y nombre debajo. Sin nombre: etiqueta corta dentro o inicial + etiqueta debajo.
@@ -189,8 +222,7 @@ function DibujoPieza({ p, color }: { p: Pieza; color: string }) {
   );
 }
 
-const ordenPiezas = (piezas: Pieza[]) =>
-  [...piezas.filter((p) => p.tipo === "porteria" || p.tipo === "cono"), ...piezas.filter((p) => p.tipo !== "porteria" && p.tipo !== "cono")];
+const ordenPiezas = (piezas: Pieza[]) => [...piezas.filter((p) => esAccesorio(p.tipo)), ...piezas.filter((p) => !esAccesorio(p.tipo))];
 
 /** Vista fija (sin controles) del primer paso: para las tarjetas y los PDF. */
 export function PizarraMini({ pizarra, colorEquipo, colorRival }: { pizarra: TPizarra; colorEquipo: string; colorRival: string }) {
@@ -469,10 +501,15 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   }
   function agregar(tipo: TipoPieza) {
     const id = crypto.randomUUID();
-    const pieza: Pieza = { id, tipo, etiqueta: tipo === "jugador" || tipo === "rival" ? siguienteEtiqueta(pizarra, tipo) : undefined };
+    const acc = ACCESORIOS.find((a) => a.tipo === tipo);
+    const pieza: Pieza = { id, tipo, etiqueta: tipo === "jugador" || tipo === "rival" ? siguienteEtiqueta(pizarra, tipo) : undefined, ...(acc?.color ? { color: acc.color } : {}) };
     const n = pizarra.piezas.filter((x) => x.tipo === tipo).length;
-    const base = { jugador: { x: 30, y: 62 }, rival: { x: 70, y: 38 }, balon: { x: 50, y: 52 }, cono: { x: 20, y: 20 }, porteria: { x: 50, y: 12 } }[tipo];
-    const pos = { x: Math.min(92, base.x + (n % 5) * 8), y: Math.min(92, base.y + Math.floor(n / 5) * 9) };
+    const sitios: Partial<Record<TipoPieza, Punto>> = { jugador: { x: 30, y: 62 }, rival: { x: 70, y: 38 }, balon: { x: 50, y: 52 }, porteria: { x: 50, y: 12 }, miniporteria: { x: 50, y: 20 }, escalera: { x: 15, y: 45 }, barrera: { x: 50, y: 30 } };
+    // Los accesorios pequeños salen en fila, uno al lado del otro, para que no queden amontonados
+    const nAcc = pizarra.piezas.filter((x) => esAccesorio(x.tipo) && !sitios[x.tipo]).length;
+    const pos = sitios[tipo]
+      ? { x: Math.min(92, sitios[tipo]!.x + (n % 5) * 8), y: Math.min(92, sitios[tipo]!.y + Math.floor(n / 5) * 9) }
+      : { x: 14 + (nAcc % 7) * 12, y: Math.min(90, 14 + Math.floor(nAcc / 7) * 12) };
     agregarPiezas([{ pieza, pos }]);
     setSeleccion({ tipo: "pieza", id });
     setHerramienta("mover");
@@ -576,8 +613,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
           if (!q) return null;
           return (
             <g key={p.id} transform={`translate(${(q.x / 100) * VW} ${(q.y / 100) * h})`} onPointerDown={(e) => abajoPieza(e, p.id)} className={quieto && moviendo ? "tocable" : ""}>
-              <circle r="46" fill="transparent" />
-              {seleccion?.id === p.id && <circle r="44" fill="none" stroke="var(--amarilla)" strokeWidth="5" strokeDasharray="10 7" />}
+              <circle r={esAccesorio(p.tipo) ? radioToque(p) + 6 : 46} fill="transparent" />
+              {seleccion?.id === p.id && <circle r={esAccesorio(p.tipo) ? radioToque(p) + 4 : 44} fill="none" stroke="var(--amarilla)" strokeWidth="5" strokeDasharray="10 7" />}
               <DibujoPieza p={p} color={p.tipo === "rival" ? colorRival : colorEquipo} />
             </g>
           );
@@ -681,7 +718,33 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
                   )}
                 </>
               )}
-              {piezaSel?.tipo === "porteria" && <button className="btn btn-gris" type="button" onClick={() => { marcar(); cambiarPieza({ giro: ((piezaSel.giro ?? 0) + 90) % 360 }); }}>Girar portería</button>}
+              {piezaSel && esAccesorio(piezaSel.tipo) && (
+                <div className="seleccion-accesorio">
+                  <b>{ACCESORIOS.find((a) => a.tipo === piezaSel.tipo)?.texto}</b>
+                  <div className="accesorio-controles">
+                    {ACCESORIOS.find((a) => a.tipo === piezaSel.tipo)?.gira && (
+                      <div className="control-par" role="group" aria-label="Girar">
+                        <button type="button" aria-label="Girar a la izquierda" onClick={() => { marcar(); cambiarPieza({ giro: ((piezaSel.giro ?? 0) + 315) % 360 }); }}>↺</button>
+                        <span>Girar</span>
+                        <button type="button" aria-label="Girar a la derecha" onClick={() => { marcar(); cambiarPieza({ giro: ((piezaSel.giro ?? 0) + 45) % 360 }); }}>↻</button>
+                      </div>
+                    )}
+                    <div className="control-par" role="group" aria-label="Tamaño">
+                      <button type="button" aria-label="Más pequeño" disabled={(piezaSel.escala ?? 1) <= 0.6} onClick={() => { marcar(); cambiarPieza({ escala: redondo(Math.max(0.6, (piezaSel.escala ?? 1) - 0.2)) }); }}>−</button>
+                      <span>Tamaño</span>
+                      <button type="button" aria-label="Más grande" disabled={(piezaSel.escala ?? 1) >= 2} onClick={() => { marcar(); cambiarPieza({ escala: redondo(Math.min(2, (piezaSel.escala ?? 1) + 0.2)) }); }}>+</button>
+                    </div>
+                  </div>
+                  {ACCESORIOS.find((a) => a.tipo === piezaSel.tipo)?.color && (
+                    <div className="fila-colores" role="radiogroup" aria-label="Color">
+                      {COLORES_ACCESORIO.map((c) => (
+                        <button key={c} type="button" role="radio" aria-checked={colorDe(piezaSel) === c} aria-label={`Color ${c}`} className="color-dibujo" style={{ background: c }}
+                          onClick={() => { marcar(); cambiarPieza({ color: c }); }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {flechaSel && (
                 <div className="opciones" style={{ gridTemplateColumns: "repeat(3, 1fr)", flex: 1 }}>
                   {FLECHAS.map((f) => (
@@ -729,8 +792,20 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
                 <button type="button" onClick={() => agregar("jugador")}><span className="muestra-pieza" style={{ background: colorEquipo }} />Jugador</button>
                 <button type="button" onClick={() => agregar("rival")}><span className="muestra-pieza" style={{ background: colorRival }} />Rival</button>
                 <button type="button" onClick={() => agregar("balon")}><span className="muestra-pieza muestra-balon" />Balón</button>
-                <button type="button" onClick={() => agregar("cono")}><span className="muestra-cono" />Cono</button>
-                <button type="button" onClick={() => agregar("porteria")}><span className="muestra-porteria" />Portería</button>
+              </div>
+              <span className="etiqueta">Accesorios</span>
+              <div className="herramientas-fila fila-accesorios">
+                {ACCESORIOS.map((a) => (
+                  <button key={a.tipo} type="button" onClick={() => agregar(a.tipo)}>
+                    <svg viewBox="-50 -50 100 100" className="muestra-accesorio" aria-hidden="true">
+                      <rect x="-50" y="-50" width="100" height="100" rx="18" fill="var(--campo-a)" />
+                      <g transform={`scale(${a.tipo === "escalera" ? 0.5 : a.tipo === "barrera" ? 0.62 : a.tipo === "porteria" ? 0.9 : 1})`}>
+                        <FormaAccesorio p={{ id: a.tipo, tipo: a.tipo, color: a.color }} />
+                      </g>
+                    </svg>
+                    {a.texto}
+                  </button>
+                ))}
               </div>
             </div>
           )}

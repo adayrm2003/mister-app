@@ -2,7 +2,9 @@
 // Las posiciones van en % del campo visible: x de izquierda a derecha, y de arriba (portería rival) a abajo.
 import type { Punto } from "./modelo";
 
-export type TipoPieza = "jugador" | "rival" | "balon" | "cono" | "porteria";
+export type TipoPieza =
+  | "jugador" | "rival" | "balon" | "cono" | "porteria"
+  | "chino" | "pica" | "valla" | "aro" | "escalera" | "miniporteria" | "maniqui" | "barrera" | "peto";
 export type TipoFlecha = "pase" | "conduccion" | "movimiento";
 
 export interface Pieza {
@@ -11,7 +13,28 @@ export interface Pieza {
   nombre?: string;
   /** Si la ficha es un jugador real de la plantilla, su id. */
   jugadorId?: string;
+  /** Tamaño de los accesorios (1 = normal). */
+  escala?: number;
+  /** Color de los accesorios que lo tienen (chinos, aros, petos…). */
+  color?: string;
 }
+
+/** Accesorios de entrenamiento que se pueden poner en la pizarra. */
+export const ACCESORIOS: { tipo: TipoPieza; texto: string; color?: string; gira: boolean }[] = [
+  { tipo: "cono", texto: "Cono", gira: false },
+  { tipo: "chino", texto: "Chino", color: "#FF6B1A", gira: false },
+  { tipo: "pica", texto: "Pica", color: "#F5C518", gira: false },
+  { tipo: "valla", texto: "Valla", color: "#D7263D", gira: true },
+  { tipo: "aro", texto: "Aro", color: "#3A63C9", gira: false },
+  { tipo: "escalera", texto: "Escalera", color: "#F5C518", gira: true },
+  { tipo: "miniporteria", texto: "Miniportería", gira: true },
+  { tipo: "porteria", texto: "Portería", gira: true },
+  { tipo: "maniqui", texto: "Maniquí", color: "#3A63C9", gira: true },
+  { tipo: "barrera", texto: "Barrera", color: "#3A63C9", gira: true },
+  { tipo: "peto", texto: "Peto", color: "#B5E61D", gira: true }
+];
+export const COLORES_ACCESORIO = ["#FF6B1A", "#F5C518", "#D7263D", "#3A63C9", "#B5E61D", "#FFFFFF"];
+export const esAccesorio = (t: TipoPieza) => ACCESORIOS.some((a) => a.tipo === t);
 export interface Flecha { id: string; tipo: TipoFlecha; desde: Punto; hasta: Punto }
 
 /** Dibujo libre encima del campo: lápiz, líneas, flechas, círculos, zonas y texto. */

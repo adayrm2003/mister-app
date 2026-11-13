@@ -80,3 +80,15 @@
 .lista-plantilla-pizarra button small { color: var(--tinta-2); font-weight: 700; font-size: 12px; }
 .lista-plantilla-pizarra button[aria-pressed="true"] { border-color: var(--cesped); background: var(--cesped-suave); }
 .dorsal-ficha { width: 36px; height: 36px; border-radius: 50%; background: var(--equipo); color: var(--sobre-peto); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 18px; flex: none; }
+
+/* Accesorios */
+.fila-accesorios { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.fila-accesorios button { flex-direction: column; gap: 4px; min-height: 76px; font-size: 13px; }
+.muestra-accesorio { width: 36px; height: 36px; flex: none; }
+.seleccion-accesorio { display: flex; flex-direction: column; gap: 10px; flex: 1 1 100%; }
+.seleccion-accesorio > b { font-size: 17px; }
+.accesorio-controles { display: flex; flex-wrap: wrap; gap: 10px; }
+.control-par { display: flex; align-items: center; gap: 6px; background: var(--superficie-2); border-radius: 14px; padding: 4px; }
+.control-par span { font-weight: 700; font-size: 14px; color: var(--tinta-2); min-width: 56px; text-align: center; }
+.control-par button { width: 48px; height: 44px; border: 0; border-radius: 10px; background: var(--superficie); font-size: 22px; font-weight: 800; color: var(--tinta); }
+.control-par button:disabled { opacity: .35; }
