@@ -7,7 +7,7 @@ import Pizarra, { PizarraMini } from "../componentes/Pizarra";
 import { IcoAtras, IcoMas, IcoPapelera } from "../componentes/Iconos";
 import { useUi } from "../componentes/ui";
 import { jugadoresEnCampo, type Jugador, type Partido } from "../datos/modelo";
-import { copiarPizarra, pizarraVacia, type PizarraGuardada } from "../datos/pizarra";
+import { JUGADAS_ABP, copiarPizarra, nombreJugada, pizarraABP, pizarraVacia, type LadoABP, type PizarraGuardada, type TipoABP } from "../datos/pizarra";
 import "./ejercicios.css";
 import "./partidos.css";
 import "./pizarra-entrenador.css";
@@ -30,11 +30,11 @@ export default function PizarraInicio() {
           <span className="fila-texto"><b>Pizarras de partido</b><span>Formación, fichas de tu plantilla y dibujos encima</span></span>
           <span className="pastilla">{deTipo("partido")}</span>
         </Link>
-        <div className="seccion-pizarra tarjeta pronto" aria-disabled="true">
+        <Link to="/pizarra/abp" className="seccion-pizarra tarjeta">
           <span className="seccion-icono" aria-hidden="true">⚑</span>
           <span className="fila-texto"><b>Balón parado</b><span>Córners, faltas y saques animados paso a paso</span></span>
-          <span className="pastilla">Pronto</span>
-        </div>
+          <span className="pastilla">{deTipo("abp")}</span>
+        </Link>
         <div className="seccion-pizarra tarjeta pronto" aria-disabled="true">
           <span className="seccion-icono" aria-hidden="true">▶</span>
           <span className="fila-texto"><b>Vídeos</b><span>Dibuja encima de tus vídeos y marca los momentos clave</span></span>
@@ -101,8 +101,105 @@ export function PizarrasPartido() {
   );
 }
 
+/* ---------------- Biblioteca de balón parado ---------------- */
+const LADOS: { valor: LadoABP; texto: string }[] = [{ valor: "ataque", texto: "A favor" }, { valor: "defensa", texto: "En contra" }];
+const textoLado = (l: LadoABP) => (l === "ataque" ? "A favor" : "En contra");
+
+export function PizarrasABP() {
+  const { ajustes } = useEquipo();
+  const { filas, cargando } = useColeccion<PizarraGuardada>("pizarras");
+  const [tipo, setTipo] = useState<TipoABP | null>(null);
+  const [lado, setLado] = useState<LadoABP | null>(null);
+  const ir = useNavigate();
+  const todas = filas.filter((p) => p.tipo === "abp");
+  const lista = todas
+    .filter((p) => (!tipo || p.pizarra.jugada?.tipo === tipo) && (!lado || p.pizarra.jugada?.lado === lado))
+    .sort((a, b) => b.editado.localeCompare(a.editado));
+
+  return (
+    <main className="pagina pagina-ancha">
+      <div className="partido-cabeza">
+        <Link to="/pizarra" className="btn btn-icono" aria-label="Volver a la pizarra"><IcoAtras /></Link>
+        <h1 style={{ flex: 1 }}>Balón parado</h1>
+      </div>
+      <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => ir("/pizarra/abp/nueva")}><IcoMas /> Nueva jugada</button>
+      {todas.length > 0 && (
+        <>
+          <div className="filtro-tipos" role="radiogroup" aria-label="Filtrar por jugada">
+            {[{ valor: null, texto: "Todas" }, ...JUGADAS_ABP].map((j) => (
+              <button key={j.valor ?? "todas"} type="button" role="radio" aria-checked={tipo === j.valor} onClick={() => setTipo(j.valor)}>{j.texto}</button>
+            ))}
+          </div>
+          <div className="filtro-tipos" role="radiogroup" aria-label="Filtrar a favor o en contra">
+            {[{ valor: null, texto: "Ambas" }, ...LADOS].map((l) => (
+              <button key={l.valor ?? "ambos"} type="button" role="radio" aria-checked={lado === l.valor} onClick={() => setLado(l.valor)}>{l.texto}</button>
+            ))}
+          </div>
+        </>
+      )}
+      {!cargando && lista.length === 0 && (
+        <div className="vacio tarjeta">
+          <MiniCampo />
+          <h3>{todas.length ? "Ninguna jugada con ese filtro" : "Aún no tienes jugadas"}</h3>
+          <p>{todas.length ? "Prueba con otro tipo de jugada." : "Crea un córner, una falta o un saque y anima el movimiento de tus jugadores paso a paso."}</p>
+        </div>
+      )}
+      <div className="tarjetas-ejercicio">
+        {lista.map((p) => (
+          <Link key={p.id} to={`/pizarra/abp/${p.id}`} className="tarjeta-ejercicio tarjeta">
+            <div className="tarjeta-ejercicio-texto">
+              <div className="tarjeta-ejercicio-cabeza">
+                {p.pizarra.jugada && <span className="pastilla pastilla-ok">{nombreJugada(p.pizarra.jugada.tipo)}</span>}
+                {p.pizarra.jugada && <span className="pastilla">{textoLado(p.pizarra.jugada.lado)}</span>}
+                <small>{p.pizarra.pasos.length} {p.pizarra.pasos.length === 1 ? "paso" : "pasos"}</small>
+              </div>
+              <b>{p.nombre || "Jugada sin nombre"}</b>
+              <p>Editada el {fechaCorta(p.editado.slice(0, 10))}</p>
+            </div>
+            <div className="tarjeta-ejercicio-mini"><PizarraMini pizarra={p.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} /></div>
+          </Link>
+        ))}
+      </div>
+    </main>
+  );
+}
+
+/** Al crear una jugada: elegir cuál es y si la sacamos nosotros o el rival. */
+function ElegirJugada({ alElegir, alVolver }: { alElegir: (t: TipoABP, l: LadoABP) => void; alVolver: () => void }) {
+  const { ajustes } = useEquipo();
+  const [lado, setLado] = useState<LadoABP>("ataque");
+  return (
+    <main className="pagina pagina-ancha">
+      <div className="partido-cabeza">
+        <button className="btn btn-icono" type="button" onClick={alVolver} aria-label="Volver"><IcoAtras /></button>
+        <h1 style={{ flex: 1 }}>Nueva jugada</h1>
+      </div>
+      <div className="campo"><span>¿Quién saca?</span>
+        <div className="opciones" role="radiogroup" aria-label="Quién saca" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          <button type="button" role="radio" aria-checked={lado === "ataque"} onClick={() => setLado("ataque")}>A favor<small>la sacamos nosotros</small></button>
+          <button type="button" role="radio" aria-checked={lado === "defensa"} onClick={() => setLado("defensa")}>En contra<small>la saca el rival</small></button>
+        </div>
+      </div>
+      <div className="campo"><span>Jugada</span>
+        <div className="elegir-jugada">
+          {JUGADAS_ABP.map((j) => (
+            <button key={j.valor} type="button" className="tarjeta" onClick={() => alElegir(j.valor, lado)}>
+              <PizarraMini pizarra={pizarraABP(j.valor, lado)} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+              <b>{j.texto}</b>
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="suave">Las fichas salen colocadas en una posición típica. Luego las mueves a tu gusto y añades los pasos del movimiento.</p>
+    </main>
+  );
+}
+
 /* ---------------- Crear y editar ---------------- */
-export function EditorPizarraPartido() {
+export const EditorPizarraPartido = () => <EditorPizarra tipo="partido" />;
+export const EditorPizarraABP = () => <EditorPizarra tipo="abp" />;
+
+function EditorPizarra({ tipo }: { tipo: PizarraGuardada["tipo"] }) {
   const { id } = useParams();
   const { equipo, ajustes } = useEquipo();
   const coleccion = useColeccion<PizarraGuardada>("pizarras");
@@ -114,13 +211,16 @@ export function EditorPizarraPartido() {
   const [original, setOriginal] = useState("");
   const [guardando, setGuardando] = useState(false);
 
+  const raiz = tipo === "abp" ? "/pizarra/abp" : "/pizarra/partido";
+  const nueva = (pz: PizarraGuardada["pizarra"]): PizarraGuardada =>
+    ({ id: crypto.randomUUID(), equipoId: equipo.id, tipo, nombre: "", partidoId: null, pizarra: pz, editado: new Date().toISOString() });
   useEffect(() => {
     if (p || coleccion.cargando) return;
-    const base = id
-      ? coleccion.filas.find((x) => x.id === id)
-      : { id: crypto.randomUUID(), equipoId: equipo.id, tipo: "partido" as const, nombre: "", partidoId: null, pizarra: { ...pizarraVacia(), campo: "completo" as const }, editado: new Date().toISOString() };
+    // Una jugada nueva de balón parado empieza eligiendo cuál es (ElegirJugada)
+    if (!id && tipo === "abp") return;
+    const base = id ? coleccion.filas.find((x) => x.id === id) : nueva({ ...pizarraVacia(), campo: "completo" });
     if (base) { setP(structuredClone(base)); setOriginal(JSON.stringify(base)); }
-  }, [coleccion.cargando, coleccion.filas, id, p, equipo.id]);
+  }, [coleccion.cargando, coleccion.filas, id, p, equipo.id, tipo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Primero los sistemas de la modalidad de este equipo
   const sistemas = useMemo(() => {
@@ -129,9 +229,16 @@ export function EditorPizarraPartido() {
   }, [ajustes]);
   const ordenPartidos = useMemo(() => [...partidos].sort((a, b) => b.fecha.localeCompare(a.fecha)), [partidos]);
 
+  if (!id && tipo === "abp" && !p && !coleccion.cargando) {
+    return <ElegirJugada alVolver={() => ir(raiz)} alElegir={(t, l) => {
+      const n = nueva(pizarraABP(t, l));
+      n.nombre = `${nombreJugada(t)} ${l === "ataque" ? "a favor" : "en contra"}`;
+      setP(n); setOriginal("");
+    }} />;
+  }
   if (coleccion.cargando || !p) {
     if (!coleccion.cargando && id && !coleccion.filas.some((x) => x.id === id)) {
-      return <main className="pagina"><div className="vacio tarjeta"><h3>No se encuentra esta pizarra</h3><Link className="btn btn-principal" to="/pizarra/partido">Ver pizarras</Link></div></main>;
+      return <main className="pagina"><div className="vacio tarjeta"><h3>No se encuentra esta pizarra</h3><Link className="btn btn-principal" to={raiz}>Ver pizarras</Link></div></main>;
     }
     return <main className="pagina" />;
   }
@@ -144,30 +251,30 @@ export function EditorPizarraPartido() {
       await coleccion.guardar(final);
       setP(final); setOriginal(JSON.stringify(final));
       avisar("Pizarra guardada");
-      if (!id) ir(`/pizarra/partido/${final.id}`, { replace: true });
+      if (!id) ir(`${raiz}/${final.id}`, { replace: true });
     } catch { /* ya avisado */ }
     finally { setGuardando(false); }
   }
   async function salir() {
     if (sinGuardar && !(await confirmar({ titulo: "¿Salir sin guardar?", texto: "Perderás los cambios de esta pizarra.", boton: "Salir sin guardar" }))) return;
-    ir("/pizarra/partido");
+    ir(raiz);
   }
   async function duplicar() {
     const copia = copiarPizarra(p!, `${p!.nombre || "Pizarra"} (copia)`);
-    try { await coleccion.guardar(copia); avisar("Pizarra duplicada"); setP(null); ir(`/pizarra/partido/${copia.id}`); } catch { /* ya avisado */ }
+    try { await coleccion.guardar(copia); avisar("Pizarra duplicada"); setP(null); ir(`${raiz}/${copia.id}`); } catch { /* ya avisado */ }
   }
   async function borrar() {
     if (!(await confirmar({ titulo: `¿Borrar «${p!.nombre || "esta pizarra"}»?`, texto: "Esto no se puede deshacer." }))) return;
     await coleccion.borrar(p!.id);
     avisar("Pizarra borrada");
-    ir("/pizarra/partido", { replace: true });
+    ir(raiz, { replace: true });
   }
 
   return (
     <div className="pagina pagina-ancha editor-pizarra-partido">
       <div className="partido-cabeza">
         <button className="btn btn-icono" type="button" onClick={salir} aria-label="Volver a las pizarras"><IcoAtras /></button>
-        <h1 style={{ flex: 1 }}>{id ? "Pizarra de partido" : "Nueva pizarra"}</h1>
+        <h1 style={{ flex: 1 }}>{tipo === "abp" ? (p.pizarra.jugada ? nombreJugada(p.pizarra.jugada.tipo) : "Balón parado") : id ? "Pizarra de partido" : "Nueva pizarra"}</h1>
       </div>
 
       <div className="dos-columnas datos-pizarra">
@@ -182,7 +289,23 @@ export function EditorPizarraPartido() {
         </label>
       </div>
 
-      <Pizarra pizarra={p.pizarra} cambiar={(pz) => setP((x) => (x ? { ...x, pizarra: pz } : x))} animada={false} altoMax="max(420px, calc(100dvh - 330px))"
+      {tipo === "abp" && p.pizarra.jugada && (
+        <div className="dos-columnas datos-pizarra">
+          <label className="campo"><span>Jugada</span>
+            <select id="pizarra-jugada" className="entrada" value={p.pizarra.jugada.tipo} onChange={(e) => setP({ ...p, pizarra: { ...p.pizarra, jugada: { ...p.pizarra.jugada!, tipo: e.target.value as TipoABP } } })}>
+              {JUGADAS_ABP.map((j) => <option key={j.valor} value={j.valor}>{j.texto}</option>)}
+            </select>
+          </label>
+          <div className="campo"><span>¿Quién saca?</span>
+            <div className="barra-opciones" role="radiogroup" aria-label="Quién saca">
+              {LADOS.map((l) => <button key={l.valor} type="button" role="radio" aria-checked={p.pizarra.jugada!.lado === l.valor} onClick={() => setP({ ...p, pizarra: { ...p.pizarra, jugada: { ...p.pizarra.jugada!, lado: l.valor } } })}>{l.texto}</button>)}
+            </div>
+          </div>
+        </div>
+      )}
+      {tipo === "abp" && <p className="suave ayuda-pasos">Coloca las fichas, pulsa <b>+ Paso</b> y muévelas a donde van después. Repite para cada movimiento y pulsa <b>Reproducir</b>.</p>}
+
+      <Pizarra pizarra={p.pizarra} cambiar={(pz) => setP((x) => (x ? { ...x, pizarra: pz } : x))} animada={tipo === "abp"} altoMax="max(420px, calc(100dvh - 330px))"
         jugadores={jugadores} sistemas={sistemas} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
 
       {id && (

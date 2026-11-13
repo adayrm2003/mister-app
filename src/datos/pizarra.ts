@@ -54,8 +54,27 @@ export interface Dibujo {
   texto?: string;
 }
 
-export interface Paso { posiciones: Record<string, Punto>; flechas: Flecha[]; dibujos?: Dibujo[] }
-export interface Pizarra { campo: "completo" | "medio"; piezas: Pieza[]; pasos: Paso[] }
+export interface Paso {
+  posiciones: Record<string, Punto>; flechas: Flecha[]; dibujos?: Dibujo[];
+  /** Segundos que tardan las fichas en llegar a este paso desde el anterior (si no hay, DURACION_PASO). */
+  duracion?: number;
+}
+export const DURACION_PASO = 1.3;
+export const duracionPaso = (p: Pizarra, i: number) => p.pasos[i]?.duracion ?? DURACION_PASO;
+
+/* ---------- Balón parado ---------- */
+export type TipoABP = "corner" | "falta-directa" | "falta-indirecta" | "banda" | "penalti" | "puerta";
+export type LadoABP = "ataque" | "defensa";
+export const JUGADAS_ABP: { valor: TipoABP; texto: string }[] = [
+  { valor: "corner", texto: "Córner" }, { valor: "falta-directa", texto: "Falta directa" }, { valor: "falta-indirecta", texto: "Falta indirecta" },
+  { valor: "banda", texto: "Saque de banda" }, { valor: "penalti", texto: "Penalti" }, { valor: "puerta", texto: "Saque de puerta" }
+];
+export const nombreJugada = (t: TipoABP) => JUGADAS_ABP.find((j) => j.valor === t)?.texto ?? "Balón parado";
+export interface Pizarra {
+  campo: "completo" | "medio"; piezas: Pieza[]; pasos: Paso[];
+  /** Solo en las jugadas de balón parado: qué jugada es y si la sacamos nosotros (ataque) o el rival (defensa). */
+  jugada?: { tipo: TipoABP; lado: LadoABP };
+}
 
 export interface Ejercicio {
   id: string;
@@ -144,3 +163,47 @@ export const siguienteEtiqueta = (p: Pizarra, tipo: TipoPieza) => {
   for (let n = 1; n < 100; n++) if (!usados.has(String(n))) return String(n);
   return "";
 };
+
+/**
+ * Colocación inicial de cada jugada a balón parado (en % del campo visible; la portería atacada está arriba).
+ * «a» = equipo que saca, «d» = equipo que defiende (el último «d» es el portero), «b» = balón.
+ */
+const COLOCACION: Record<TipoABP, { campo: "medio" | "completo"; fichas: [rol: "a" | "d" | "b", x: number, y: number][] }> = {
+  corner: { campo: "medio", fichas: [["b", 5, 7], ["a", 9, 12], ["a", 44, 23], ["a", 57, 23], ["a", 70, 19], ["a", 40, 34], ["a", 58, 35], ["a", 24, 20],
+    ["d", 38, 15.5], ["d", 50, 15.5], ["d", 62, 15.5], ["d", 30, 28], ["d", 51, 28], ["d", 64, 30], ["d", 50, 6]] },
+  "falta-directa": { campo: "medio", fichas: [["b", 50, 41], ["a", 45, 46], ["a", 56, 46], ["a", 36, 30], ["a", 70, 33],
+    ["d", 42, 24], ["d", 49.5, 24], ["d", 57, 24], ["d", 64.5, 24], ["d", 32, 20], ["d", 50, 6]] },
+  "falta-indirecta": { campo: "medio", fichas: [["b", 28, 37], ["a", 24, 42], ["a", 40, 24], ["a", 52, 21], ["a", 64, 24], ["a", 46, 32], ["a", 60, 32],
+    ["d", 46, 15], ["d", 58, 14], ["d", 70, 17], ["d", 34, 31], ["d", 70, 30], ["d", 50, 6]] },
+  banda: { campo: "medio", fichas: [["b", 6, 55.5], ["a", 4, 61], ["a", 16, 46], ["a", 20, 64], ["a", 30, 54], ["d", 24, 47], ["d", 28, 65], ["d", 38, 47], ["d", 50, 6]] },
+  penalti: { campo: "medio", fichas: [["b", 50, 25.7], ["a", 50, 33], ["a", 36, 36], ["a", 64, 36], ["d", 43, 38], ["d", 57, 38], ["d", 50, 6]] },
+  puerta: { campo: "completo", fichas: [["b", 50, 93.5], ["a", 50, 97], ["a", 33, 88], ["a", 67, 88], ["a", 12, 78], ["a", 88, 78], ["a", 50, 76],
+    ["d", 38, 67], ["d", 62, 67], ["d", 50, 60]] }
+};
+
+/** Pizarra de partida para una jugada: si defendemos, las fichas de «mi equipo» son las que defienden. */
+export function pizarraABP(tipo: TipoABP, lado: LadoABP): Pizarra {
+  const c = COLOCACION[tipo];
+  const piezas: Pieza[] = [];
+  const posiciones: Record<string, Punto> = {};
+  const n = { jugador: 0, rival: 0 };
+  for (const [rol, x, y] of c.fichas) {
+    const id = crypto.randomUUID();
+    const t: TipoPieza = rol === "b" ? "balon" : (rol === "a") === (lado === "ataque") ? "jugador" : "rival";
+    piezas.push({ id, tipo: t, ...(t !== "balon" ? { etiqueta: String(++n[t as "jugador" | "rival"]) } : {}) });
+    posiciones[id] = { x, y };
+  }
+  return { campo: c.campo, piezas, pasos: [{ posiciones, flechas: [], dibujos: [] }], jugada: { tipo, lado } };
+}
+
+/** Cada paso con la posición de todas las fichas que ya existen (para poder reordenar pasos sin perder nada). */
+export function completarPasos(p: Pizarra): Pizarra {
+  return {
+    ...p,
+    pasos: p.pasos.map((ps, i) => {
+      const posiciones: Record<string, Punto> = {};
+      for (const pieza of p.piezas) { const q = posicionEn(p, pieza.id, i); if (q) posiciones[pieza.id] = q; }
+      return { ...ps, posiciones };
+    })
+  };
+}

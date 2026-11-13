@@ -3,7 +3,7 @@
 // círculos, zonas y texto) con color y grosor, y deshacer / rehacer / limpiar.
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as PE, type ReactNode } from "react";
 import {
-  ACCESORIOS, COLORES_ACCESORIO, COLORES_DIBUJO, ESTILOS_FLECHA, FLECHAS, GROSORES, esAccesorio, posicionesAnimadas, siguienteEtiqueta,
+  ACCESORIOS, COLORES_ACCESORIO, COLORES_DIBUJO, ESTILOS_FLECHA, FLECHAS, GROSORES, completarPasos, duracionPaso, esAccesorio, posicionEn, posicionesAnimadas, siguienteEtiqueta,
   type Dibujo, type EstiloFlecha, type Flecha, type Pieza, type Pizarra as TPizarra, type TipoDibujo, type TipoPieza
 } from "../datos/pizarra";
 import { PUESTOS, type Jugador, type Punto, type Sistema } from "../datos/modelo";
@@ -14,7 +14,6 @@ import "./pizarra.css";
 
 const VW = 680;
 const alto = (p: TPizarra) => (p.campo === "completo" ? 1050 : 545);
-const DURACION = 1300; // milisegundos entre un paso y el siguiente
 
 /* ---------- Campo ---------- */
 export function DibujoCampo({ campo }: { campo: "completo" | "medio" }) {
@@ -210,12 +209,12 @@ function DibujoPieza({ p, color }: { p: Pieza; color: string }) {
   const debajo = p.nombre ?? (et.length > 2 ? et : "");
   return (
     <g>
-      <circle r="30" fill={color} stroke="#fff" strokeWidth="4" />
-      <text y="12" textAnchor="middle" fontFamily="Big Shoulders Display, Arial Narrow, sans-serif" fontWeight="800" fontSize="34" fill={colorTexto(color)}>{dentro}</text>
+      <circle r="24" fill={color} stroke="#fff" strokeWidth="3.5" />
+      <text y="10" textAnchor="middle" fontFamily="Big Shoulders Display, Arial Narrow, sans-serif" fontWeight="800" fontSize="28" fill={colorTexto(color)}>{dentro}</text>
       {debajo && (
-        <g transform="translate(0 50)">
-          <rect x={-Math.max(30, debajo.length * 7)} y="-14" width={Math.max(60, debajo.length * 14)} height="26" rx="13" fill="rgba(0,0,0,.6)" />
-          <text y="6" textAnchor="middle" fontFamily="Barlow, sans-serif" fontWeight="700" fontSize="20" fill="#fff">{debajo}</text>
+        <g transform="translate(0 40)">
+          <rect x={-Math.max(24, debajo.length * 6)} y="-12" width={Math.max(48, debajo.length * 12)} height="22" rx="11" fill="rgba(0,0,0,.6)" />
+          <text y="5" textAnchor="middle" fontFamily="Barlow, sans-serif" fontWeight="700" fontSize="17" fill="#fff">{debajo}</text>
         </g>
       )}
     </g>
@@ -296,6 +295,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   const [estiloFlecha, setEstiloFlecha] = useState<EstiloFlecha>("pase");
   const [discontinua, setDiscontinua] = useState(false);
   const [hoja, setHoja] = useState<"plantilla" | "formacion" | null>(null);
+  const [velocidad, setVelocidad] = useState(1);
+  const [estelas, setEstelas] = useState(false);
   const svg = useRef<SVGSVGElement>(null);
   const marca = "m" + useId().replace(/:/g, "");
   const h = alto(pizarra);
@@ -352,7 +353,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
     let ultimo = performance.now();
     let id = 0;
     const tic = (ahora: number) => {
-      const nt = tRef.current + (ahora - ultimo) / DURACION;
+      const dur = (duracionPaso(actual.current, pasoRef.current + 1) * 1000) / velocidad;
+      const nt = tRef.current + (ahora - ultimo) / dur;
       ultimo = ahora;
       if (nt >= 1) {
         const sig = Math.min(pasoRef.current + 1, total - 1);
@@ -364,7 +366,21 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
     };
     id = requestAnimationFrame(tic);
     return () => cancelAnimationFrame(id);
-  }, [reproduciendo, total]);
+  }, [reproduciendo, total, velocidad]);
+
+  /* Barra de tiempo: toda la jugada, de principio a fin */
+  const duraciones = pizarra.pasos.map((_, i) => (i === 0 ? 0 : duracionPaso(pizarra, i)));
+  const tiempoTotal = Math.round(duraciones.reduce((a, b) => a + b, 0) * 100) / 100;
+  const tiempoActual = duraciones.slice(0, pasoActual + 1).reduce((a, b) => a + b, 0) + (pasoActual + 1 < total ? t * duraciones[pasoActual + 1] : 0);
+  function irATiempo(seg: number) {
+    setReproduciendo(null); setSeleccion(null);
+    let acum = 0;
+    for (let i = 1; i < total; i++) {
+      if (seg <= acum + duraciones[i]) { setPaso(i - 1); setT(Math.max(0, Math.min(1, (seg - acum) / duraciones[i]))); return; }
+      acum += duraciones[i];
+    }
+    setPaso(total - 1); setT(0);
+  }
 
   function reproducir() {
     if (reproduciendo) return setReproduciendo(null);
@@ -550,6 +566,22 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
     aplicar({ ...pizarra, pasos });
     setPaso(Math.max(0, pasoActual - 1)); setT(0); setSeleccion(null);
   }
+  function cambiarDuracion(d: number) {
+    marcar();
+    const v = Math.min(5, Math.max(0.5, Math.round((duracionPaso(pizarra, pasoActual) + d) * 4) / 4));
+    aplicar(conPaso((ps) => ({ ...ps, duracion: v })));
+  }
+  function moverPaso(dir: -1 | 1) {
+    const j = pasoActual + dir;
+    if (j < 0 || j >= total) return;
+    marcar();
+    // Primero cada paso con todas sus posiciones, para que al cambiar el orden no se pierda nada
+    const completa = completarPasos(actual.current);
+    const pasos = [...completa.pasos];
+    [pasos[pasoActual], pasos[j]] = [pasos[j], pasos[pasoActual]];
+    aplicar({ ...completa, pasos });
+    setPaso(j); setT(0); setSeleccion(null);
+  }
   function cambiarCampo(c: "completo" | "medio") {
     if (c === pizarra.campo) return;
     marcar();
@@ -559,6 +591,7 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
     aplicar({
       ...pizarra, campo: c,
       pasos: pizarra.pasos.map((ps) => ({
+        ...ps,
         posiciones: Object.fromEntries(Object.entries(ps.posiciones).map(([k, v]) => [k, conv(v)])),
         flechas: ps.flechas.map((fl) => ({ ...fl, desde: conv(fl.desde), hasta: conv(fl.hasta) })),
         dibujos: (ps.dibujos ?? []).map((d) => ({ ...d, puntos: d.puntos.map(conv), ...(d.curva ? { curva: conv(d.curva) } : {}) }))
@@ -608,13 +641,25 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
           </g>
         ))}
 
+        {animada && estelas && total > 1 && pizarra.piezas.filter((p) => p.tipo === "jugador" || p.tipo === "rival" || p.tipo === "balon").map((p) => {
+          const pts = pizarra.pasos.map((_, i) => posicionEn(pizarra, p.id, i)).filter((q): q is Punto => !!q).map((q) => aPx(q, h));
+          if (pts.length < 2 || pts.every((q) => Math.hypot(q.x - pts[0].x, q.y - pts[0].y) < 2)) return null;
+          const c = p.tipo === "balon" ? "#FFFFFF" : p.tipo === "rival" ? colorRival : colorEquipo;
+          return (
+            <g key={"estela" + p.id} pointerEvents="none" opacity=".7">
+              <path d={camino(pts)} fill="none" stroke={c} strokeWidth="5" strokeDasharray="4 9" strokeLinecap="round" strokeLinejoin="round" />
+              {pts.map((q, i) => <circle key={i} cx={q.x} cy={q.y} r="6" fill={c} stroke="rgba(0,0,0,.4)" strokeWidth="2" />)}
+            </g>
+          );
+        })}
+
         {ordenPiezas(pizarra.piezas).map((p) => {
           const q = posiciones[p.id];
           if (!q) return null;
           return (
             <g key={p.id} transform={`translate(${(q.x / 100) * VW} ${(q.y / 100) * h})`} onPointerDown={(e) => abajoPieza(e, p.id)} className={quieto && moviendo ? "tocable" : ""}>
               <circle r={esAccesorio(p.tipo) ? radioToque(p) + 6 : 46} fill="transparent" />
-              {seleccion?.id === p.id && <circle r={esAccesorio(p.tipo) ? radioToque(p) + 4 : 44} fill="none" stroke="var(--amarilla)" strokeWidth="5" strokeDasharray="10 7" />}
+              {seleccion?.id === p.id && <circle r={esAccesorio(p.tipo) ? radioToque(p) + 4 : 34} fill="none" stroke="var(--amarilla)" strokeWidth="5" strokeDasharray="10 7" />}
               <DibujoPieza p={p} color={p.tipo === "rival" ? colorRival : colorEquipo} />
             </g>
           );
@@ -687,6 +732,20 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z" /></svg>
           </button>
           <span className="paso-texto" aria-live="polite">Paso {pasoActual + 1} de {total}</span>
+          {total > 1 && (
+            <div className="reproductor-extra">
+              <input className="barra-tiempo" type="range" min={0} max={tiempoTotal} step={0.01} value={tiempoActual} aria-label="Momento de la jugada"
+                onChange={(e) => irATiempo(Number(e.target.value))} />
+              <span className="tiempo-texto">{tiempoActual.toFixed(1).replace(".", ",")} / {tiempoTotal.toFixed(1).replace(".", ",")} s</span>
+              <div className="barra-opciones velocidades" role="radiogroup" aria-label="Velocidad">
+                {[0.5, 1, 2].map((v) => <button key={v} type="button" role="radio" aria-checked={velocidad === v} onClick={() => setVelocidad(v)}>{String(v).replace(".", ",")}x</button>)}
+              </div>
+              <label className="interruptor interruptor-estelas">
+                <input type="checkbox" checked={estelas} onChange={(e) => setEstelas(e.target.checked)} />
+                <span><b>Estelas</b></span>
+              </label>
+            </div>
+          )}
         </div>
       )}
 
@@ -699,6 +758,23 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
               ))}
               <button type="button" className="anadir-paso" onClick={anadirPaso}>+ Paso {total + 1}</button>
               {total > 1 && <button type="button" className="borrar-paso" onClick={borrarPaso} aria-label={`Borrar el paso ${pasoActual + 1}`}><IcoPapelera /></button>}
+            </div>
+          )}
+          {animada && total > 1 && (
+            <div className="paso-controles">
+              <b>Paso {pasoActual + 1}</b>
+              {pasoActual > 0 ? (
+                <div className="control-par" role="group" aria-label="Duración del paso">
+                  <button type="button" aria-label="Más rápido" disabled={duracionPaso(pizarra, pasoActual) <= 0.5} onClick={() => cambiarDuracion(-0.25)}>−</button>
+                  <span>{String(duracionPaso(pizarra, pasoActual)).replace(".", ",")} s</span>
+                  <button type="button" aria-label="Más lento" disabled={duracionPaso(pizarra, pasoActual) >= 5} onClick={() => cambiarDuracion(0.25)}>+</button>
+                </div>
+              ) : <small className="suave">Posición de salida</small>}
+              <div className="control-par" role="group" aria-label="Mover el paso">
+                <button type="button" aria-label="Mover el paso a la izquierda" disabled={pasoActual === 0} onClick={() => moverPaso(-1)}>◀</button>
+                <span>Mover</span>
+                <button type="button" aria-label="Mover el paso a la derecha" disabled={pasoActual >= total - 1} onClick={() => moverPaso(1)}>▶</button>
+              </div>
             </div>
           )}
 

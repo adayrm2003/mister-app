@@ -17,7 +17,7 @@ import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
 import Biblioteca, { FichaBiblioteca } from "./Biblioteca";
-import PizarraInicio, { EditorPizarraPartido, PizarrasPartido } from "./PizarraEntrenador";
+import PizarraInicio, { EditorPizarraABP, EditorPizarraPartido, PizarrasABP, PizarrasPartido } from "./PizarraEntrenador";
 import CrearEquipo from "../componentes/CrearEquipo";
 import "./entrenador.css";
 
@@ -96,6 +96,9 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
             <Route path="/pizarra/partido" element={<PizarrasPartido />} />
             <Route path="/pizarra/partido/nueva" element={<EditorPizarraPartido />} />
             <Route path="/pizarra/partido/:id" element={<EditorPizarraPartido key="editar" />} />
+            <Route path="/pizarra/abp" element={<PizarrasABP />} />
+            <Route path="/pizarra/abp/nueva" element={<EditorPizarraABP />} />
+            <Route path="/pizarra/abp/:id" element={<EditorPizarraABP key="editar" />} />
             <Route path="/ejercicios/biblioteca" element={<Biblioteca />} />
             <Route path="/ejercicios/biblioteca/:id" element={<FichaBiblioteca />} />
             <Route path="/ejercicios/:id" element={<EjercicioDetalle />} />

@@ -92,3 +92,13 @@
 .control-par span { font-weight: 700; font-size: 14px; color: var(--tinta-2); min-width: 56px; text-align: center; }
 .control-par button { width: 48px; height: 44px; border: 0; border-radius: 10px; background: var(--superficie); font-size: 22px; font-weight: 800; color: var(--tinta); }
 .control-par button:disabled { opacity: .35; }
+
+/* Reproductor: barra de tiempo, velocidad y estelas */
+.reproductor-extra { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; width: 100%; }
+.barra-tiempo { flex: 1 1 100%; accent-color: var(--peto); height: 28px; }
+.tiempo-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; color: var(--tinta-2); }
+.velocidades { flex: none; }
+.velocidades button { min-width: 52px; }
+.interruptor-estelas { min-height: 44px; }
+.paso-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.paso-controles > b { font-size: 16px; min-width: 64px; }

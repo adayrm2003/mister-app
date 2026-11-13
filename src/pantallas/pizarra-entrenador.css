@@ -13,3 +13,7 @@
 @media (max-width: 520px) { .datos-pizarra { grid-template-columns: 1fr; } }
 .acciones-pizarra { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
 .acciones-pizarra .peligro { color: var(--derrota); }
+.elegir-jugada { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.elegir-jugada button { display: flex; flex-direction: column; gap: 8px; padding: 8px; text-align: center; font-size: 16px; cursor: pointer; }
+.elegir-jugada button .pizarra-mini { max-height: 170px; object-fit: contain; }
+.ayuda-pasos { font-size: 15px; }
