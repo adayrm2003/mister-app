@@ -305,7 +305,7 @@ function EditorPizarra({ tipo }: { tipo: PizarraGuardada["tipo"] }) {
       )}
       {tipo === "abp" && <p className="suave ayuda-pasos">Coloca las fichas, pulsa <b>+ Paso</b> y muévelas a donde van después. Repite para cada movimiento y pulsa <b>Reproducir</b>.</p>}
 
-      <Pizarra pizarra={p.pizarra} cambiar={(pz) => setP((x) => (x ? { ...x, pizarra: pz } : x))} animada={tipo === "abp"} altoMax="max(420px, calc(100dvh - 330px))"
+      <Pizarra pizarra={p.pizarra} cambiar={(pz) => setP((x) => (x ? { ...x, pizarra: pz } : x))} animada={tipo === "abp"} titulo={p.nombre || (p.pizarra.jugada ? nombreJugada(p.pizarra.jugada.tipo) : "Pizarra")} altoMax="max(420px, calc(100dvh - 330px))"
         jugadores={jugadores} sistemas={sistemas} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
 
       {id && (

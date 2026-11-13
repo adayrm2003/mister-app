@@ -10,6 +10,7 @@ import { PUESTOS, type Jugador, type Punto, type Sistema } from "../datos/modelo
 import { colorTexto } from "./Campo";
 import { IcoPapelera } from "./Iconos";
 import { Hoja, useUi } from "./ui";
+import HojaExportar from "./HojaExportar";
 import "./pizarra.css";
 
 const VW = 680;
@@ -225,18 +226,49 @@ const ordenPiezas = (piezas: Pieza[]) => [...piezas.filter((p) => esAccesorio(p.
 
 /** Vista fija (sin controles) del primer paso: para las tarjetas y los PDF. */
 export function PizarraMini({ pizarra, colorEquipo, colorRival }: { pizarra: TPizarra; colorEquipo: string; colorRival: string }) {
+  return <PizarraFotograma pizarra={pizarra} colorEquipo={colorEquipo} colorRival={colorRival} />;
+}
+
+/** Estelas: el recorrido de cada jugador y del balón por todos los pasos. */
+function Estelas({ pizarra, h, colorEquipo, colorRival }: { pizarra: TPizarra; h: number; colorEquipo: string; colorRival: string }) {
+  return (
+    <>
+      {pizarra.piezas.filter((p) => p.tipo === "jugador" || p.tipo === "rival" || p.tipo === "balon").map((p) => {
+        const pts = pizarra.pasos.map((_, i) => posicionEn(pizarra, p.id, i)).filter((q): q is Punto => !!q).map((q) => aPx(q, h));
+        if (pts.length < 2 || pts.every((q) => Math.hypot(q.x - pts[0].x, q.y - pts[0].y) < 2)) return null;
+        const c = p.tipo === "balon" ? "#FFFFFF" : p.tipo === "rival" ? colorRival : colorEquipo;
+        return (
+          <g key={"estela" + p.id} pointerEvents="none" opacity=".7">
+            <path d={camino(pts)} fill="none" stroke={c} strokeWidth="5" strokeDasharray="4 9" strokeLinecap="round" strokeLinejoin="round" />
+            {pts.map((q, i) => <circle key={i} cx={q.x} cy={q.y} r="6" fill={c} stroke="rgba(0,0,0,.4)" strokeWidth="2" />)}
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+/**
+ * La pizarra en un momento concreto (paso y avance hacia el siguiente, de 0 a 1), sin controles.
+ * Sirve para las miniaturas, los PDF, la imagen para compartir y cada fotograma del vídeo.
+ */
+export function PizarraFotograma({ pizarra, colorEquipo, colorRival, paso = 0, t = 0, estelas = false, sinNombres = false }: {
+  pizarra: TPizarra; colorEquipo: string; colorRival: string; paso?: number; t?: number; estelas?: boolean; sinNombres?: boolean;
+}) {
   const marca = "m" + useId().replace(/:/g, "");
   const h = alto(pizarra);
-  const pos = posicionesAnimadas(pizarra, 0, 0);
+  const pos = posicionesAnimadas(pizarra, paso, t);
+  const opacidad = t < 0.65 ? 1 : Math.max(0, (1 - t) / 0.35);
   return (
-    <svg className="pizarra-mini" viewBox={`0 0 ${VW} ${h}`} aria-hidden="true">
+    <svg className="pizarra-mini" viewBox={`0 0 ${VW} ${h}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
       <defs><marker id={marca} viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#fff" /></marker></defs>
       <DibujoCampo campo={pizarra.campo} />
-      {(pizarra.pasos[0]?.dibujos ?? []).map((d) => <DibujoLibre key={d.id} d={d} h={h} />)}
-      {pizarra.pasos[0]?.flechas.map((f) => <DibujoFlecha key={f.id} f={f} h={h} marca={marca} />)}
+      {(pizarra.pasos[paso]?.dibujos ?? []).map((d) => <DibujoLibre key={d.id} d={d} h={h} opacidad={opacidad} />)}
+      {pizarra.pasos[paso]?.flechas.map((f) => <DibujoFlecha key={f.id} f={f} h={h} marca={marca} opacidad={opacidad} />)}
+      {estelas && pizarra.pasos.length > 1 && <Estelas pizarra={pizarra} h={h} colorEquipo={colorEquipo} colorRival={colorRival} />}
       {ordenPiezas(pizarra.piezas).map((p) => pos[p.id] && (
         <g key={p.id} transform={`translate(${(pos[p.id].x / 100) * VW} ${(pos[p.id].y / 100) * h})`}>
-          <DibujoPieza p={p} color={p.tipo === "rival" ? colorRival : colorEquipo} />
+          <DibujoPieza p={sinNombres && (p.tipo === "jugador" || p.tipo === "rival") ? { ...p, etiqueta: "", nombre: undefined } : p} color={p.tipo === "rival" ? colorRival : colorEquipo} />
         </g>
       ))}
     </svg>
@@ -273,7 +305,7 @@ type Arrastre =
 
 const redondo = (n: number) => Math.round(n * 10) / 10;
 
-export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, animada = true, jugadores, sistemas, altoMax = "60vh" }: {
+export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, animada = true, jugadores, sistemas, altoMax = "60vh", titulo = "" }: {
   pizarra: TPizarra; cambiar?: (p: TPizarra) => void; colorEquipo: string; colorRival: string;
   /** Con pasos y reproductor (ejercicios, balón parado). Sin animar: pizarra de partido. */
   animada?: boolean;
@@ -282,6 +314,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   /** Sistemas de juego, para colocar una formación. */
   sistemas?: Sistema[];
   altoMax?: string;
+  /** Nombre que sale en el vídeo o la imagen al exportar. */
+  titulo?: string;
 }) {
   const editable = !!cambiar;
   const { confirmar } = useUi();
@@ -297,6 +331,7 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   const [hoja, setHoja] = useState<"plantilla" | "formacion" | null>(null);
   const [velocidad, setVelocidad] = useState(1);
   const [estelas, setEstelas] = useState(false);
+  const [exportar, setExportar] = useState<"video" | "imagen" | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const marca = "m" + useId().replace(/:/g, "");
   const h = alto(pizarra);
@@ -641,17 +676,7 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
           </g>
         ))}
 
-        {animada && estelas && total > 1 && pizarra.piezas.filter((p) => p.tipo === "jugador" || p.tipo === "rival" || p.tipo === "balon").map((p) => {
-          const pts = pizarra.pasos.map((_, i) => posicionEn(pizarra, p.id, i)).filter((q): q is Punto => !!q).map((q) => aPx(q, h));
-          if (pts.length < 2 || pts.every((q) => Math.hypot(q.x - pts[0].x, q.y - pts[0].y) < 2)) return null;
-          const c = p.tipo === "balon" ? "#FFFFFF" : p.tipo === "rival" ? colorRival : colorEquipo;
-          return (
-            <g key={"estela" + p.id} pointerEvents="none" opacity=".7">
-              <path d={camino(pts)} fill="none" stroke={c} strokeWidth="5" strokeDasharray="4 9" strokeLinecap="round" strokeLinejoin="round" />
-              {pts.map((q, i) => <circle key={i} cx={q.x} cy={q.y} r="6" fill={c} stroke="rgba(0,0,0,.4)" strokeWidth="2" />)}
-            </g>
-          );
-        })}
+        {animada && estelas && total > 1 && <Estelas pizarra={pizarra} h={h} colorEquipo={colorEquipo} colorRival={colorRival} />}
 
         {ordenPiezas(pizarra.piezas).map((p) => {
           const q = posiciones[p.id];
@@ -717,6 +742,13 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
       )}
 
 
+      {!animada && (pizarra.piezas.length > 0 || dibujos.length > 0) && (
+        <button className="btn btn-borde boton-exportar boton-imagen" type="button" onClick={() => setExportar("imagen")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
+          Compartir imagen
+        </button>
+      )}
+
       {animada && (
         <div className="pizarra-reproductor">
           <button className="btn btn-icono" type="button" onClick={anterior} disabled={pasoActual === 0 && t === 0} aria-label="Paso anterior">
@@ -744,6 +776,10 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
                 <input type="checkbox" checked={estelas} onChange={(e) => setEstelas(e.target.checked)} />
                 <span><b>Estelas</b></span>
               </label>
+              <button className="btn btn-borde boton-exportar" type="button" onClick={() => { setReproduciendo(null); setExportar("video"); }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2" /><path d="M16 10l5-3v10l-5-3" /></svg>
+                Exportar vídeo
+              </button>
             </div>
           )}
         </div>
@@ -888,6 +924,10 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
         </>
       )}
 
+      {exportar && (
+        <HojaExportar pizarra={pizarra} titulo={titulo || "Pizarra"} colorEquipo={colorEquipo} colorRival={colorRival}
+          video={exportar === "video"} alCerrar={() => setExportar(null)} />
+      )}
       {hoja === "plantilla" && jugadores && (
         <HojaPlantilla jugadores={jugadores} enCampo={enCampo} alCerrar={() => setHoja(null)}
           alElegir={(js) => {

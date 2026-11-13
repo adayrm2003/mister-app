@@ -11,7 +11,7 @@ async function imagenPizarra(e: Ejercicio, ajustes: Ajustes): Promise<{ datos: s
   if (!e.pizarra.piezas.length) return null;
   const [{ renderToStaticMarkup }, { PizarraMini }] = await Promise.all([import("react-dom/server"), import("../componentes/Pizarra")]);
   let svg = renderToStaticMarkup(createElement(PizarraMini, { pizarra: e.pizarra, colorEquipo: ajustes.colorEquipo, colorRival: ajustes.colorRival }));
-  svg = svg.replace(/var\(--campo-a\)/g, "#2E7D4F").replace(/var\(--campo-b\)/g, "#29714A").replace(/var\(--amarilla\)/g, "#F5C518");
+  svg = svg.replace(/var\(--campo-a\)/g, "#3A8C5C").replace(/var\(--campo-b\)/g, "#348053").replace(/var\(--amarilla\)/g, "#F5C518");
   if (!svg.includes("xmlns=")) svg = svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
   const alto = e.pizarra.campo === "completo" ? 1050 : 545;
   const img = new Image();

@@ -134,7 +134,7 @@ export function EjercicioDetalle() {
       </div>
       <div className="ejercicio-cuerpo">
         {tieneDibujo(e) ? (
-          <Pizarra pizarra={e.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+          <Pizarra pizarra={e.pizarra} titulo={e.nombre} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
         ) : (
           <div className="sin-dibujo tarjeta">
             <p>Este ejercicio no tiene dibujo.</p>
@@ -219,7 +219,7 @@ export function EditorEjercicio() {
 
       <div className="ejercicio-cuerpo">
         <div className="editor-pizarra">
-          <Pizarra pizarra={e.pizarra} cambiar={(p) => set({ pizarra: p })} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+          <Pizarra pizarra={e.pizarra} cambiar={(p) => set({ pizarra: p })} titulo={e.nombre} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
         </div>
         <div className="ejercicio-lateral formulario">
           <div className="campo"><span>Tipo</span>

@@ -119,7 +119,7 @@ export default function ModoCampo() {
           </div>
         </section>
 
-        {tieneDibujo && <Pizarra pizarra={e!.pizarra} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />}
+        {tieneDibujo && <Pizarra pizarra={e!.pizarra} titulo={e!.nombre} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />}
         {e && (
           <div className="mc-texto">
             {e.objetivo && <p><b>Objetivo:</b> {e.objetivo}</p>}
