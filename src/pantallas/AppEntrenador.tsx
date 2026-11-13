@@ -12,7 +12,7 @@ import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
 import Sesiones, { EditorSesion, SesionDetalle } from "./Sesiones";
 import ModoCampo from "./ModoCampo";
 import Calendario, { EventoDetalle } from "./Calendario";
-import Estadisticas from "./Estadisticas";
+import Estadisticas, { FichaJugador } from "./Estadisticas";
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
@@ -89,6 +89,8 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
           <Routes>
             <Route path="/inicio" element={<Inicio />} />
             <Route path="/plantilla" element={<Plantilla />} />
+            <Route path="/plantilla/estadisticas" element={<Estadisticas desde="plantilla" />} />
+            <Route path="/plantilla/jugador/:id" element={<FichaJugador />} />
             <Route path="/ajustes" element={<Ajustes />} />
             <Route path="/ejercicios" element={<Ejercicios />} />
             <Route path="/ejercicios/nuevo" element={<EditorEjercicio />} />

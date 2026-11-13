@@ -5,6 +5,8 @@ import { IcoMas, IcoPapelera, IcoPlantilla } from "../componentes/Iconos";
 import { Escudo, Hoja, useUi } from "../componentes/ui";
 import { colorTexto } from "../componentes/Campo";
 import { PIERNAS, PUESTOS, nuevoId, type Jugador, type Pierna, type Puesto } from "../datos/modelo";
+import { SelectorPlantilla } from "./Estadisticas";
+import { Link } from "react-router-dom";
 import "./plantilla.css";
 
 export default function Plantilla() {
@@ -18,6 +20,7 @@ export default function Plantilla() {
 
   return (
     <main className="pagina plantilla">
+      <SelectorPlantilla />
       {equipo.club && (
         <div className="club-tarjeta tarjeta">
           <Escudo imagen={equipo.escudo} nombre={equipo.club} tam="enorme" />
@@ -123,6 +126,7 @@ function FichaJugador({ jugador, esNuevo, fijos, dorsalesUsados, alCerrar, alGua
         <label className="campo"><span>Notas <small className="suave">(opcional)</small></span>
           <textarea className="entrada area" value={j.notas} onChange={(e) => set({ notas: e.target.value })} rows={2} maxLength={300} />
         </label>
+        {!esNuevo && <Link className="btn btn-borde btn-ancho" to={`/plantilla/jugador/${jugador.id}`} onClick={alCerrar}>Ver sus estadísticas</Link>}
         {error && <p className="mensaje mensaje-error" role="alert">{error}</p>}
         <div className="hoja-acciones">
           {esNuevo
