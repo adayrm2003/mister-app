@@ -33,6 +33,11 @@ export const ACCESORIOS: { tipo: TipoPieza; texto: string; color?: string; gira:
   { tipo: "barrera", texto: "Barrera", color: "#3A63C9", gira: true },
   { tipo: "peto", texto: "Peto", color: "#B5E61D", gira: true }
 ];
+/** Colores de peto para separar grupos de jugadores en los ejercicios. */
+export const COLORES_PETO = [
+  { valor: "#FF6B1A", texto: "Naranja" }, { valor: "#F5C518", texto: "Amarillo" }, { valor: "#B5E61D", texto: "Verde flúor" },
+  { valor: "#D7263D", texto: "Rojo" }, { valor: "#3A63C9", texto: "Azul" }, { valor: "#FFFFFF", texto: "Blanco" }, { valor: "#111111", texto: "Negro" }
+];
 export const COLORES_ACCESORIO = ["#FF6B1A", "#F5C518", "#D7263D", "#3A63C9", "#B5E61D", "#FFFFFF"];
 export const esAccesorio = (t: TipoPieza) => ACCESORIOS.some((a) => a.tipo === t);
 export interface Flecha { id: string; tipo: TipoFlecha; desde: Punto; hasta: Punto }
@@ -84,6 +89,8 @@ export interface Ejercicio {
   duracion: number | null;
   jugadores: number | null;
   material: string;
+  /** Tamaño del espacio de trabajo, por ejemplo «20x20 m». */
+  espacio?: string;
   explicacion: string;
   notas: string;
   pizarra: Pizarra;

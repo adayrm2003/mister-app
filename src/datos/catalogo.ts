@@ -114,7 +114,7 @@ function tipoPropio(tipo: string, tipos: Elemento[]) {
 export function aEjercicioPropio(c: EjercicioCatalogo, tipos: Elemento[], nombre = c.nombre): Ejercicio {
   const jug = textoJugadores(c);
   const lineas = [
-    ["Organización", [c.espacio, jug && `${jug} jugadores`].filter(Boolean).join(" · ")],
+    ["Organización", jug ? `${jug} jugadores` : ""],
     ["Desarrollo", c.descripcion],
     ["Reglas", c.reglas.join(" · ")],
     ["Consignas", c.puntosClave.join(" · ")],
@@ -124,7 +124,7 @@ export function aEjercicioPropio(c: EjercicioCatalogo, tipos: Elemento[], nombre
     c.niveles.length ? `Nivel: ${c.niveles.map(nombreNivel).join(", ")}` : ""].filter(Boolean).join(" · ");
   return {
     id: crypto.randomUUID(), nombre, tipo: tipoPropio(c.tipo, tipos), objetivo: c.objetivo, duracion: c.duracion,
-    jugadores: c.jugadoresMax ?? c.jugadoresMin, material: c.material, explicacion: lineas.join("\n"), notas,
+    jugadores: c.jugadoresMax ?? c.jugadoresMin, material: c.material, espacio: c.espacio, explicacion: lineas.join("\n"), notas,
     pizarra: pizarraVacia(), actualizado: new Date().toISOString(), origen: c.id
   };
 }

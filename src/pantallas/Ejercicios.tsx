@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useEquipo, useMios } from "../ContextoEquipo";
+import { useColeccion, useEquipo, useMios } from "../ContextoEquipo";
 import Pizarra, { PizarraMini } from "../componentes/Pizarra";
 import { Opciones } from "../componentes/Controles";
 import { IcoAtras, IcoEjercicios, IcoLapiz, IcoMas, IcoPapelera } from "../componentes/Iconos";
 import { useUi } from "../componentes/ui";
 import { ejerciciosDeEjemplo } from "../datos/ejemplos";
 import { copiarEjercicio, ejercicioVacio, type Ejercicio } from "../datos/pizarra";
+import type { Jugador } from "../datos/modelo";
 import { SelectorBiblioteca } from "./Sesiones";
 import { SelectorEjercicios } from "./Biblioteca";
 import "./ejercicios.css";
@@ -121,7 +122,7 @@ export function EjercicioDetalle() {
 
   const datos: [string, string][] = [
     ["Objetivo", e.objetivo], ["Duración", e.duracion ? `${e.duracion} minutos` : ""], ["Jugadores", e.jugadores ? String(e.jugadores) : ""],
-    ["Material", e.material], ["Explicación", e.explicacion], ["Notas", e.notas]
+    ["Espacio", e.espacio ?? ""], ["Material", e.material], ["Explicación", e.explicacion], ["Notas", e.notas]
   ];
   return (
     <main className="pagina pagina-ancha ejercicio-detalle">
@@ -176,6 +177,7 @@ export function EditorEjercicio() {
   const { id } = useParams();
   const { ajustes } = useEquipo();
   const { filas, cargando, guardar } = useMios<Ejercicio>("ejercicios");
+  const { filas: jugadores } = useColeccion<Jugador>("jugadores");
   const { confirmar, avisar } = useUi();
   const ir = useNavigate();
   const [e, setE] = useState<Ejercicio | null>(null);
@@ -219,7 +221,7 @@ export function EditorEjercicio() {
 
       <div className="ejercicio-cuerpo">
         <div className="editor-pizarra">
-          <Pizarra pizarra={e.pizarra} cambiar={(p) => set({ pizarra: p })} titulo={e.nombre} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
+          <Pizarra pizarra={e.pizarra} cambiar={(p) => set({ pizarra: p })} titulo={e.nombre} jugadores={jugadores} sistemas={ajustes.sistemas} colorEquipo={ajustes.colorEquipo} colorRival={ajustes.colorRival} />
         </div>
         <div className="ejercicio-lateral formulario">
           <div className="campo"><span>Tipo</span>
@@ -236,6 +238,9 @@ export function EditorEjercicio() {
               <input className="entrada" inputMode="numeric" value={e.jugadores ?? ""} onChange={(x) => set({ jugadores: numero(x.target.value) })} placeholder="—" />
             </label>
           </div>
+          <label className="campo"><span>Espacio</span>
+            <input className="entrada" value={e.espacio ?? ""} onChange={(x) => set({ espacio: x.target.value })} maxLength={60} placeholder="Por ejemplo: 20 x 20 m o medio campo" />
+          </label>
           <label className="campo"><span>Material</span>
             <input className="entrada" value={e.material} onChange={(x) => set({ material: x.target.value })} maxLength={140} placeholder="Conos, petos, balones…" />
           </label>

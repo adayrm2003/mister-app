@@ -3,7 +3,7 @@
 // círculos, zonas y texto) con color y grosor, y deshacer / rehacer / limpiar.
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as PE, type ReactNode } from "react";
 import {
-  ACCESORIOS, COLORES_ACCESORIO, COLORES_DIBUJO, ESTILOS_FLECHA, FLECHAS, GROSORES, completarPasos, duracionPaso, esAccesorio, posicionEn, posicionesAnimadas, siguienteEtiqueta,
+  ACCESORIOS, COLORES_ACCESORIO, COLORES_DIBUJO, COLORES_PETO, ESTILOS_FLECHA, FLECHAS, GROSORES, completarPasos, duracionPaso, esAccesorio, posicionEn, posicionesAnimadas, siguienteEtiqueta,
   type Dibujo, type EstiloFlecha, type Flecha, type Pieza, type Pizarra as TPizarra, type TipoDibujo, type TipoPieza
 } from "../datos/pizarra";
 import { PUESTOS, type Jugador, type Punto, type Sistema } from "../datos/modelo";
@@ -205,6 +205,7 @@ function DibujoPieza({ p, color }: { p: Pieza; color: string }) {
     <g><circle r="14" fill="#fff" stroke="#111" strokeWidth="2.5" /><path d="m0 -6 5.7 4.1-2.2 6.7h-7l-2.2-6.7z" fill="#111" /></g>
   );
   const et = p.etiqueta ?? "";
+  if (p.color) color = p.color; // peto de su grupo
   // Con nombre (ficha de la plantilla): dorsal dentro y nombre debajo. Sin nombre: etiqueta corta dentro o inicial + etiqueta debajo.
   const dentro = p.nombre ? et || p.nombre.slice(0, 1).toUpperCase() : et.length <= 2 ? et : et.slice(0, 1).toUpperCase();
   const debajo = p.nombre ?? (et.length > 2 ? et : "");
@@ -236,7 +237,7 @@ function Estelas({ pizarra, h, colorEquipo, colorRival }: { pizarra: TPizarra; h
       {pizarra.piezas.filter((p) => p.tipo === "jugador" || p.tipo === "rival" || p.tipo === "balon").map((p) => {
         const pts = pizarra.pasos.map((_, i) => posicionEn(pizarra, p.id, i)).filter((q): q is Punto => !!q).map((q) => aPx(q, h));
         if (pts.length < 2 || pts.every((q) => Math.hypot(q.x - pts[0].x, q.y - pts[0].y) < 2)) return null;
-        const c = p.tipo === "balon" ? "#FFFFFF" : p.tipo === "rival" ? colorRival : colorEquipo;
+        const c = p.tipo === "balon" ? "#FFFFFF" : p.color ?? (p.tipo === "rival" ? colorRival : colorEquipo);
         return (
           <g key={"estela" + p.id} pointerEvents="none" opacity=".7">
             <path d={camino(pts)} fill="none" stroke={c} strokeWidth="5" strokeDasharray="4 9" strokeLinecap="round" strokeLinejoin="round" />
@@ -332,6 +333,7 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   const [velocidad, setVelocidad] = useState(1);
   const [estelas, setEstelas] = useState(false);
   const [exportar, setExportar] = useState<"video" | "imagen" | null>(null);
+  const [petoNuevo, setPetoNuevo] = useState<string | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const marca = "m" + useId().replace(/:/g, "");
   const h = alto(pizarra);
@@ -553,7 +555,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
   function agregar(tipo: TipoPieza) {
     const id = crypto.randomUUID();
     const acc = ACCESORIOS.find((a) => a.tipo === tipo);
-    const pieza: Pieza = { id, tipo, etiqueta: tipo === "jugador" || tipo === "rival" ? siguienteEtiqueta(pizarra, tipo) : undefined, ...(acc?.color ? { color: acc.color } : {}) };
+    const peto = tipo === "jugador" && petoNuevo ? petoNuevo : acc?.color;
+    const pieza: Pieza = { id, tipo, etiqueta: tipo === "jugador" || tipo === "rival" ? siguienteEtiqueta(pizarra, tipo) : undefined, ...(peto ? { color: peto } : {}) };
     const n = pizarra.piezas.filter((x) => x.tipo === tipo).length;
     const sitios: Partial<Record<TipoPieza, Punto>> = { jugador: { x: 30, y: 62 }, rival: { x: 70, y: 38 }, balon: { x: 50, y: 52 }, porteria: { x: 50, y: 12 }, miniporteria: { x: 50, y: 20 }, escalera: { x: 15, y: 45 }, barrera: { x: 50, y: 30 } };
     // Los accesorios pequeños salen en fila, uno al lado del otro, para que no queden amontonados
@@ -828,6 +831,8 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
                       <input id="pieza-nombre" className="entrada" value={piezaSel.nombre} maxLength={14} onFocus={marcar} onChange={(e) => cambiarPieza({ nombre: e.target.value })} />
                     </label>
                   )}
+                  <SelectorPeto valor={piezaSel.color ?? null} base={piezaSel.tipo === "rival" ? colorRival : colorEquipo} textoBase={piezaSel.tipo === "rival" ? "Rival" : "Equipo"}
+                    cambiar={(c) => { marcar(); cambiarPieza({ color: c ?? undefined }); }} />
                 </>
               )}
               {piezaSel && esAccesorio(piezaSel.tipo) && (
@@ -901,10 +906,11 @@ export default function Pizarra({ pizarra, cambiar, colorEquipo, colorRival, ani
               <div className="herramientas-fila">
                 {jugadores && jugadores.length > 0 && <button type="button" onClick={() => setHoja("plantilla")}><span className="muestra-pieza" style={{ background: colorEquipo }} />Mi plantilla</button>}
                 {sistemas && sistemas.length > 0 && <button type="button" onClick={() => setHoja("formacion")}><span className="muestra-formacion" aria-hidden="true">⋮⋮⋮</span>Formación</button>}
-                <button type="button" onClick={() => agregar("jugador")}><span className="muestra-pieza" style={{ background: colorEquipo }} />Jugador</button>
+                <button type="button" onClick={() => agregar("jugador")}><span className="muestra-pieza" style={{ background: petoNuevo ?? colorEquipo }} />Jugador</button>
                 <button type="button" onClick={() => agregar("rival")}><span className="muestra-pieza" style={{ background: colorRival }} />Rival</button>
                 <button type="button" onClick={() => agregar("balon")}><span className="muestra-pieza muestra-balon" />Balón</button>
               </div>
+              <SelectorPeto valor={petoNuevo} base={colorEquipo} textoBase="Equipo" titulo="Peto de los jugadores nuevos" cambiar={setPetoNuevo} />
               <span className="etiqueta">Accesorios</span>
               <div className="herramientas-fila fila-accesorios">
                 {ACCESORIOS.map((a) => (
@@ -972,6 +978,23 @@ function asasDe(d: Dibujo, h: number): { x: number; y: number; indice: number | 
     pts.push({ ...c, indice: "curva" });
   }
   return pts;
+}
+
+/** Color de peto de una ficha (o de las que se añadan): el del equipo o el de un grupo. */
+function SelectorPeto({ valor, base, textoBase, titulo = "Peto", cambiar }: { valor: string | null; base: string; textoBase: string; titulo?: string; cambiar: (c: string | null) => void }) {
+  return (
+    <div className="selector-peto">
+      <span className="etiqueta">{titulo}</span>
+      <div className="fila-colores" role="radiogroup" aria-label={titulo}>
+        <button type="button" role="radio" aria-checked={valor === null} title={textoBase} aria-label={`Color de ${textoBase.toLowerCase()}`}
+          className="color-dibujo color-base" style={{ background: base }} onClick={() => cambiar(null)}>{textoBase.slice(0, 1)}</button>
+        {COLORES_PETO.filter((c) => c.valor.toLowerCase() !== base.toLowerCase()).map((c) => (
+          <button key={c.valor} type="button" role="radio" aria-checked={valor === c.valor} title={c.texto} aria-label={`Peto ${c.texto.toLowerCase()}`}
+            className="color-dibujo" style={{ background: c.valor }} onClick={() => cambiar(c.valor)} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function SelectorColorGrosor({ color, grosor, cambiarColor, cambiarGrosor }: { color: string; grosor: number; cambiarColor: (c: string) => void; cambiarGrosor: (g: number) => void }) {
