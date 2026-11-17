@@ -20,3 +20,4 @@
 .aviso-minutos .mensaje { margin: 0; }
 .cambio-previsto { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .cambio-previsto > span { font-size: 17px; }
+.contador-cambios.agotados { color: var(--error-tinta); }

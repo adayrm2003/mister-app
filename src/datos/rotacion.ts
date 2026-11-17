@@ -3,9 +3,14 @@
 import type { Puesto } from "./modelo";
 
 export interface CambioPrevisto { minuto: number; sale: string; entra: string }
+/** Máximo de cambios por partido que permite la ley (sin volver a entrar). */
+export const MAX_CAMBIOS = 5;
+
 export interface PlanCambios {
   /** Tramos en que se divide cada parte (1 = solo cambios en el descanso). */
   tramos: number;
+  /** null = cambios ilimitados (se puede volver a entrar); 5 = máximo 5 cambios y quien sale no vuelve. */
+  limite?: number | null;
   porteroId: string | null;
   cambios: CambioPrevisto[];
   /** Minutos previstos para cada jugador. */
@@ -20,6 +25,7 @@ interface Entrada {
   partes: number;
   minutosParte: number;
   tramos: number;
+  limite?: number | null;
   puesto: (id: string) => Puesto | undefined;
 }
 
@@ -32,10 +38,12 @@ export function planificar(e: Entrada): PlanCambios {
   if (portero) minutos[portero] = dur;
   const tramosTotal = Math.max(1, e.partes * Math.max(1, e.tramos));
   const largo = e.minutosParte / Math.max(1, e.tramos);
+  const limite = e.limite ?? null;
   if (resto.length <= huecos) {
     resto.forEach((id) => (minutos[id] = dur));
-    return { tramos: e.tramos, porteroId: portero, cambios: [], minutos };
+    return { tramos: e.tramos, limite, porteroId: portero, cambios: [], minutos };
   }
+  if (limite != null) return conLimite(e, resto, huecos, portero, minutos, dur, limite);
   const veces = new Map(resto.map((id) => [id, 0]));
   const orden = new Map(resto.map((id, i) => [id, i]));
   let anterior: string[] = [];
@@ -70,7 +78,30 @@ export function planificar(e: Entrada): PlanCambios {
     }
   }
   for (const [id, n] of veces) minutos[id] = Math.round(n * largo);
-  return { tramos: e.tramos, porteroId: portero, cambios, minutos };
+  return { tramos: e.tramos, limite, porteroId: portero, cambios, minutos };
+}
+
+/**
+ * Con un máximo de cambios (y sin volver a entrar), lo más justo es hacerlos todos a mitad de partido:
+ * el que sale y el que entra juegan lo mismo. Si hay más suplentes que cambios, alguno se queda sin jugar.
+ */
+function conLimite(e: Entrada, resto: string[], huecos: number, portero: string | null, minutos: Record<string, number>, dur: number, limite: number): PlanCambios {
+  const tit = e.titulares.filter((id) => resto.includes(id)).slice(0, huecos);
+  const inicio = [...tit, ...resto.filter((id) => !tit.includes(id))].slice(0, huecos);
+  const banquillo = resto.filter((id) => !inicio.includes(id));
+  const entran = banquillo.slice(0, Math.min(limite, banquillo.length));
+  const mitad = Math.round(dur / 2);
+  const libres = [...inicio].reverse(); // salen primero los últimos de la alineación
+  const cambios: CambioPrevisto[] = [];
+  for (const en of entran) {
+    const i = Math.max(0, libres.findIndex((x) => e.puesto(x) === e.puesto(en)));
+    const sale = libres.splice(i, 1)[0];
+    if (sale) cambios.push({ minuto: mitad, sale, entra: en });
+  }
+  for (const id of resto) minutos[id] = 0;
+  for (const id of inicio) minutos[id] = dur;
+  for (const c of cambios) { minutos[c.sale] = mitad; minutos[c.entra] = dur - mitad; }
+  return { tramos: e.tramos, limite, porteroId: portero, cambios, minutos };
 }
 
 /** Cambios previstos que aún no se han hecho, a partir del minuto que se le pase. */

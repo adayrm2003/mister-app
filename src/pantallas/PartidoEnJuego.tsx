@@ -33,6 +33,10 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const [minutosJugador, setMinutosJugador] = useState<Jugador | null>(null);
   const [, tic] = useState(0);
   const [plan, setPlan] = useState(false);
+  // Si el plan de cambios tiene máximo (5), no se dejan hacer más
+  const limiteCambios = partido.planCambios?.limite ?? null;
+  const cambiosHechos = (partido.acciones ?? []).filter((a) => a.tipo === "cambio").length;
+  const cambiosAgotados = limiteCambios != null && cambiosHechos >= limiteCambios;
 
   const { partes, minutos: minutosParte } = tiempoDePartido(ajustes);
   const duracion = partes * minutosParte;
@@ -122,7 +126,9 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       <section className="botones-accion" aria-label="Apuntar">
         <span className="etiqueta grupo-accion">{equipo.nombre}</span>
         <button className="btn btn-peto accion-gol" type="button" onClick={() => setHoja({ tipo: "gol" })}><IconoAccion tipo="gol" /> Gol nuestro</button>
-        <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "cambio" })}><IconoAccion tipo="cambio" /> Cambio</button>
+        <button className="btn btn-gris" type="button" disabled={cambiosAgotados} onClick={() => setHoja({ tipo: "cambio" })}>
+          <IconoAccion tipo="cambio" /> Cambio{limiteCambios != null ? ` ${Math.min(cambiosHechos, limiteCambios)}/${limiteCambios}` : ""}
+        </button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarilla" })}><IconoAccion tipo="amarilla" /> Amarilla</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "roja" })}><IconoAccion tipo="roja" /> Roja</button>
         <span className="etiqueta grupo-accion">{ellos}</span>

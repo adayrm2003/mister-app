@@ -5,7 +5,7 @@ import { useEquipo } from "../ContextoEquipo";
 import { Hoja, useUi } from "../componentes/ui";
 import { jugadoresEnCampo, nuevoId, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
 import { minutosCalculados, type Accion } from "../datos/partido";
-import { pendientes, planificar, type CambioPrevisto, type PlanCambios } from "../datos/rotacion";
+import { MAX_CAMBIOS, pendientes, planificar, type CambioPrevisto, type PlanCambios } from "../datos/rotacion";
 import "./plan-minutos.css";
 
 /** Convocados del partido: los de la alineación y, si no hay, los de la convocatoria. */
@@ -28,12 +28,15 @@ export function HojaPlanMinutos({ partido, jugadores, guardarPartido, alCerrar }
     ?? (partido.alineacion?.titulares[0] && porId.get(partido.alineacion.titulares[0])?.posicion === "portero" ? partido.alineacion.titulares[0] : null)
     ?? convocados.find((id) => porId.get(id)?.posicion === "portero") ?? null;
   const [tramos, setTramos] = useState(partido.planCambios?.tramos ?? 2);
+  // Activado si ya hay plan o si se abre por primera vez; desactivado si se quitó a propósito
+  const [activo, setActivo] = useState(partido.planCambios !== null);
+  const [limite, setLimite] = useState<number | null>(partido.planCambios?.limite ?? null);
   const [portero, setPortero] = useState<string | null>(porteroInicial);
   const n = jugadoresEnCampo(ajustes);
 
   const plan = useMemo(() => planificar({
-    convocados, titulares, porteroId: portero, enCampo: n, partes, minutosParte, tramos, puesto: (id) => porId.get(id)?.posicion
-  }), [convocados.join(), titulares.join(), portero, n, partes, minutosParte, tramos, porId]); // eslint-disable-line react-hooks/exhaustive-deps
+    convocados, titulares, porteroId: portero, enCampo: n, partes, minutosParte, tramos, limite, puesto: (id) => porId.get(id)?.posicion
+  }), [convocados.join(), titulares.join(), portero, n, partes, minutosParte, tramos, limite, porId]); // eslint-disable-line react-hooks/exhaustive-deps
   const nombre = (id: string) => porId.get(id)?.nombre ?? "—";
   const porMinuto = agrupar(plan.cambios);
   const max = partes * minutosParte;
@@ -42,9 +45,11 @@ export function HojaPlanMinutos({ partido, jugadores, guardarPartido, alCerrar }
   const porteros = convocados.filter((id) => porId.get(id)?.posicion === "portero");
   const otrosPorteros = portero && !porteros.includes(portero) ? [portero] : [];
 
+  const sinJugar = limite != null ? convocados.filter((id) => (plan.minutos[id] ?? 0) === 0) : [];
+
   async function guardar() {
-    await guardarPartido({ ...partido, planCambios: plan });
-    avisar("Plan de cambios guardado");
+    await guardarPartido({ ...partido, planCambios: activo ? plan : null });
+    avisar(activo ? "Plan de cambios guardado" : "Plan de cambios desactivado");
     alCerrar();
   }
 
@@ -54,6 +59,25 @@ export function HojaPlanMinutos({ partido, jugadores, guardarPartido, alCerrar }
         <p className="suave">Primero haz la convocatoria o la alineación: el reparto se hace entre los convocados.</p>
       ) : (
         <div className="plan-minutos">
+          <div className="campo"><span>Plan de cambios</span>
+            <div className="barra-opciones" role="radiogroup" aria-label="Plan de cambios">
+              <button type="button" role="radio" aria-checked={activo} onClick={() => setActivo(true)}>Activado</button>
+              <button type="button" role="radio" aria-checked={!activo} onClick={() => setActivo(false)}>Desactivado</button>
+            </div>
+          </div>
+          {!activo ? (
+            <p className="suave">Sin plan: no te propondremos cambios ni te avisaremos de quién no ha jugado. Haces los cambios tú cuando quieras.</p>
+          ) : (<>
+          <div className="campo"><span>Número de cambios</span>
+            <div className="barra-opciones" role="radiogroup" aria-label="Número de cambios">
+              <button type="button" role="radio" aria-checked={limite == null} onClick={() => setLimite(null)}>Ilimitados</button>
+              <button type="button" role="radio" aria-checked={limite != null} onClick={() => setLimite(MAX_CAMBIOS)}>Máximo {MAX_CAMBIOS}</button>
+            </div>
+            <small className="suave">{limite == null
+              ? "Se puede cambiar las veces que haga falta y volver a entrar."
+              : `Como mucho ${MAX_CAMBIOS} cambios y quien sale ya no vuelve. Para que el reparto sea lo más justo posible, los cambios se hacen a mitad de partido.`}</small>
+          </div>
+          {limite == null && (
           <div className="campo"><span>¿Cada cuánto quieres hacer cambios?</span>
             <div className="barra-opciones" role="radiogroup" aria-label="Cada cuánto cambiar">
               {opcionesTramo.map((t) => (
@@ -63,6 +87,7 @@ export function HojaPlanMinutos({ partido, jugadores, guardarPartido, alCerrar }
               ))}
             </div>
           </div>
+          )}
           <div className="campo"><span>Portero (juega todo el partido)</span>
             <div className="chips-eleccion" role="radiogroup" aria-label="Portero">
               {[...porteros, ...otrosPorteros].map((id) => (
@@ -97,12 +122,14 @@ export function HojaPlanMinutos({ partido, jugadores, guardarPartido, alCerrar }
               ))}
             </ol>
           )}
+          {sinJugar.length > 0 && (
+            <p className="mensaje mensaje-aviso">Con {MAX_CAMBIOS} cambios no les da tiempo a jugar a todos: {sinJugar.map(nombre).join(", ")} no entrarían. Puedes convocar a menos jugadores o elegir cambios ilimitados.</p>
+          )}
           <p className="suave">Es una propuesta: durante el partido verás el próximo cambio y podrás hacerlo con un toque, o cambiar a quien quieras.</p>
+          </>)}
           <div className="hoja-acciones">
-            {partido.planCambios
-              ? <button className="btn btn-gris" type="button" onClick={async () => { await guardarPartido({ ...partido, planCambios: null }); avisar("Plan quitado"); alCerrar(); }}>Quitar plan</button>
-              : <button className="btn btn-gris" type="button" onClick={alCerrar}>Cancelar</button>}
-            <button className="btn btn-principal" type="button" onClick={guardar}>Guardar plan</button>
+            <button className="btn btn-gris" type="button" onClick={alCerrar}>Cancelar</button>
+            <button className="btn btn-principal" type="button" onClick={guardar}>Guardar</button>
           </div>
         </div>
       )}
@@ -132,7 +159,16 @@ export function AvisoMinutos({ partido, jugadores, minuto, duracion, guardarAcci
   const ahora = minuto ?? 0;
   const jugados = minutosCalculados(partido.alineacion, partido.acciones ?? [], Math.max(0, Math.min(ahora, duracion)));
   const sinJugar = convocadosDe(partido).filter((id) => porId.has(id) && !(jugados[id] > 0));
-  const avisarSinJugar = minuto != null && ahora >= duracion / 2 && sinJugar.length > 0 && !partido.reloj?.terminado;
+  const desactivado = plan === null;
+  const limite = plan?.limite ?? null;
+  const agotados = limite != null && hechos.length >= limite;
+  const visibles = limite != null ? siguientes.slice(0, Math.max(0, limite - hechos.length)) : siguientes;
+  const avisarSinJugar = !desactivado && !agotados && minuto != null && ahora >= duracion / 2 && sinJugar.length > 0 && !partido.reloj?.terminado;
+  if (desactivado) {
+    return !partido.reloj?.terminado
+      ? <button className="btn btn-texto" type="button" onClick={abrirPlan}>⏱ Plan de cambios desactivado · activarlo</button>
+      : null;
+  }
   if (!plan && !avisarSinJugar) {
     return convocadosDe(partido).length > 0 && !partido.reloj?.terminado
       ? <button className="btn btn-borde btn-ancho" type="button" onClick={abrirPlan}>⏱ Repartir minutos (plan de cambios)</button>
@@ -143,15 +179,18 @@ export function AvisoMinutos({ partido, jugadores, minuto, duracion, guardarAcci
       {avisarSinJugar && (
         <p className="mensaje mensaje-aviso"><b>Aún no han jugado:</b> {sinJugar.map(nombre).join(", ")}</p>
       )}
-      {plan && siguientes.length > 0 && !partido.reloj?.terminado && (
+      {limite != null && (
+        <span className={"etiqueta contador-cambios" + (agotados ? " agotados" : "")}>Cambios: {Math.min(hechos.length, limite)} de {limite}{agotados ? " · ya no quedan" : ""}</span>
+      )}
+      {plan && !agotados && visibles.length > 0 && !partido.reloj?.terminado && (
         <>
           <span className="etiqueta">Próximo cambio previsto · min {siguienteMin}{minuto != null && minuto >= siguienteMin! ? " · ¡ya toca!" : ""}</span>
-          {siguientes.length > 1 && (
+          {visibles.length > 1 && (
             <button className="btn btn-peto btn-ancho" type="button" onClick={async () => {
-              await guardarAcciones(siguientes.map((c) => ({ id: nuevoId(), tipo: "cambio" as const, minuto: minuto ?? c.minuto, jugadorId: c.sale, entraId: c.entra })));
-            }}>Hacer los {siguientes.length} cambios</button>
+              await guardarAcciones(visibles.map((c) => ({ id: nuevoId(), tipo: "cambio" as const, minuto: minuto ?? c.minuto, jugadorId: c.sale, entraId: c.entra })));
+            }}>Hacer los {visibles.length} cambios</button>
           )}
-          {siguientes.map((c, i) => (
+          {visibles.map((c, i) => (
             <div key={i} className="cambio-previsto">
               <span><span className="sale">↓ {nombre(c.sale)}</span> <span className="entra">↑ {nombre(c.entra)}</span></span>
               <button className="btn btn-principal" type="button"
