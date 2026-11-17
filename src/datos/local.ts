@@ -351,7 +351,13 @@ export const apiLocal: Api = {
 
   async borrarArchivoVideo(ruta) {
     await enAlmacen("readwrite", (a) => a.delete(ruta));
-  }
+  },
+
+  // En el modo prueba no hay servidor que mande avisos
+  async clavePublicaAvisos() { return null; },
+  async registrarAvisos() { throw new ErrorApp("Los avisos solo funcionan en la app publicada, no en el modo prueba."); },
+  async quitarAvisos() { /* nada */ },
+  async avisosDe() { return null; }
 };
 
 /* Los vídeos del modo prueba se guardan en IndexedDB (localStorage no admite archivos grandes). */

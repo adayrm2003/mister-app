@@ -1,3 +1,4 @@
+import AvisosMovil from "../componentes/Avisos";
 import { useMemo, useState } from "react";
 import { useEquipo } from "../ContextoEquipo";
 import { Campo, Ficha } from "../componentes/Campo";
@@ -49,6 +50,8 @@ export default function Ajustes() {
   return (
     <main className="pagina ajustes">
       <h1>Ajustes</h1>
+
+      <AvisosMovil />
 
       <section className="apartado">
         <header><h2>Tu equipo</h2>{equipo.club && <p className="suave">De {equipo.club}</p>}</header>

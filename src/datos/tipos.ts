@@ -107,7 +107,18 @@ export interface Api {
   /** Dirección temporal para ver el vídeo (solo si puedes ver ese equipo y no han pasado 30 días). */
   urlVideo(ruta: string): Promise<string>;
   borrarArchivoVideo(ruta: string): Promise<void>;
+
+  // Avisos al móvil (solo en la nube)
+  /** Clave pública para activar los avisos (null si el servidor aún no la tiene). */
+  clavePublicaAvisos(): Promise<string | null>;
+  /** Activa o actualiza los avisos de este móvil. */
+  registrarAvisos(sub: { endpoint: string; p256dh: string; auth: string }, zona: string, preferencias: PreferenciasAvisos): Promise<void>;
+  quitarAvisos(endpoint: string): Promise<void>;
+  /** Preferencias guardadas de este móvil (null si no tiene los avisos activados). */
+  avisosDe(endpoint: string): Promise<PreferenciasAvisos | null>;
 }
+
+export interface PreferenciasAvisos { partidos: boolean; entrenamientos: boolean; lista: boolean }
 
 import type { EjercicioCatalogo } from "./catalogo";
 

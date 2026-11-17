@@ -27,6 +27,8 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "/index.html",
+        // Avisos al móvil (push): public/push-sw.js
+        importScripts: ["/push-sw.js"],
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
         runtimeCaching: [
           {

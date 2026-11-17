@@ -6,7 +6,7 @@ export const TITULAR = {
   correo: "adayrm.2003@gmail.com"
 };
 
-export const ACTUALIZADO = "13 de noviembre de 2026";
+export const ACTUALIZADO = "17 de noviembre de 2026";
 
 export interface Seccion { titulo: string; parrafos: string[] }
 export interface DocumentoLegal { id: string; titulo: string; resumen: string; secciones: Seccion[] }
@@ -69,6 +69,7 @@ export const DOCUMENTOS: DocumentoLegal[] = [
       ] },
       { titulo: "2. Qué datos se guardan", parrafos: [
         "De las cuentas: correo electrónico, contraseña (guardada cifrada, nadie puede leerla), tipo de cuenta, nombre del club y los equipos asignados.",
+        "Si un entrenador activa los avisos en su móvil, se guardan los datos técnicos que da el navegador para poder enviárselos y su zona horaria. Se borran al desactivar los avisos.",
         "De los jugadores, y nada más: nombre o mote, pierna buena, posición, dorsal y unas notas deportivas opcionales. Además, lo que el entrenador apunta de la actividad: asistencia a entrenamientos, alineaciones, minutos, goles, asistencias y tarjetas.",
         "Míster no pide ni guarda fechas de nacimiento, fotos, documentos de identidad, teléfonos, direcciones ni datos de salud de los jugadores. Las notas no deben usarse para ese tipo de datos.",
         "Vídeos de análisis: el entrenador puede subir vídeos de partidos o entrenamientos de su equipo, en los que pueden aparecer los jugadores, para dibujar encima y explicar jugadas. Se guardan sin sonido si la app tiene que reducirlos, en un almacén privado, y se borran automáticamente a los 30 días de subirlos. Los dibujos y los momentos marcados también se borran con el vídeo.",

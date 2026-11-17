@@ -1,7 +1,7 @@
 // MODO NUBE: cuentas y datos en Supabase. La seguridad por filas (supabase/esquema.sql)
 // garantiza en el servidor que cada usuario solo ve lo que le toca.
 import { createClient, type AuthError, type PostgrestError } from "@supabase/supabase-js";
-import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, type PreferenciasAvisos, ErrorApp, normalizarCorreo } from "./tipos";
 import { cargarCatalogoLocal, type EjercicioCatalogo } from "./catalogo";
 
 // Solo se convierten los nombres de primer nivel (equipoId <-> equipo_id); lo de dentro (jsonb) se guarda tal cual.
@@ -249,6 +249,28 @@ export function crearApiNube(url: string, clave: string): Api {
     async borrarArchivoVideo(ruta) {
       const { error } = await sb.storage.from("videos").remove([ruta]);
       if (error) throw new ErrorApp("No se ha podido borrar el vídeo: " + error.message);
+    },
+
+    async clavePublicaAvisos() {
+      const { data, error } = await sb.rpc("clave_publica_avisos");
+      traducir(error);
+      return (data as string | null) ?? null;
+    },
+
+    async registrarAvisos(sub, zona, preferencias) {
+      const { error } = await sb.rpc("registrar_avisos", { p_endpoint: sub.endpoint, p_p256dh: sub.p256dh, p_auth: sub.auth, p_zona: zona, p_preferencias: preferencias });
+      traducir(error);
+    },
+
+    async quitarAvisos(endpoint) {
+      const { error } = await sb.rpc("quitar_avisos", { p_endpoint: endpoint });
+      traducir(error);
+    },
+
+    async avisosDe(endpoint) {
+      const { data, error } = await sb.from("avisos_suscripciones").select("preferencias").eq("endpoint", endpoint).maybeSingle();
+      traducir(error);
+      return (data?.preferencias as PreferenciasAvisos | undefined) ?? null;
     },
 
     async borrarMio(tabla, id) {
