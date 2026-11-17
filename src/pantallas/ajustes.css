@@ -30,3 +30,15 @@
 .anadir-ayudante { display: flex; flex-direction: column; gap: 8px; }
 .anadir-ayudante .btn { align-self: flex-start; }
 .anadir-ayudante .suave { margin: 0; }
+.grupo-ajustes { padding: 0; overflow: hidden; scroll-margin-top: 80px; }
+.grupo-cabeza { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 14px 16px; background: none; border: 0; text-align: left; color: var(--tinta); }
+.grupo-cabeza .fila-texto { flex: 1; min-width: 0; }
+.grupo-cabeza .fila-texto b { font-size: 19px; }
+.grupo-cabeza .fila-texto span { white-space: normal; }
+.grupo-flecha { width: 24px; height: 24px; flex: none; transition: transform .2s; color: var(--tinta-2); }
+.grupo-ajustes.abierto .grupo-flecha { transform: rotate(180deg); }
+.grupo-cuerpo { display: flex; flex-direction: column; gap: 22px; padding: 4px 16px 18px; border-top: 1px solid var(--linea); }
+.grupo-cuerpo > .apartado { padding-top: 14px; }
+.ajustes > .suave { margin-top: -8px; }
+.grupo-cuerpo > .apartado:first-child { border-top: 0; }
+.grupo-cuerpo .apartado h2 { font-size: 22px; }

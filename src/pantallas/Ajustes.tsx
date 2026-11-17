@@ -1,9 +1,9 @@
 import AvisosMovil from "../componentes/Avisos";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useEquipo } from "../ContextoEquipo";
 import { Campo, Ficha } from "../componentes/Campo";
 import { Contador, ListaEditable, Opciones, SelectorColor } from "../componentes/Controles";
-import { IcoLapiz, IcoMas, IcoPapelera, IcoRecargar } from "../componentes/Iconos";
+import { IcoFlechaAbajo, IcoLapiz, IcoMas, IcoPapelera, IcoRecargar } from "../componentes/Iconos";
 import { mensajeDe, useUi } from "../componentes/ui";
 import { api } from "../datos/api";
 import { DURACIONES, MODALIDADES, jugadoresEnCampo, type Duracion, type Modalidad, type Sistema } from "../datos/modelo";
@@ -49,12 +49,20 @@ export default function Ajustes() {
     try { await restaurarAjustes(); avisar("Ajustes restaurados"); } catch (e) { avisar(mensajeDe(e)); }
   }
 
+  // Apartado abierto (si se llega con #cambios o #avisos, se abre ese)
+  const [abierto, setAbierto] = useState<string | null>(() => {
+    const h = location.hash.replace("#", "");
+    if (h === "cambios" || h === "avisos") return h;
+    try { return sessionStorage.getItem("mister-ajustes-abierto"); } catch { return null; }
+  });
+  useEffect(() => { try { if (abierto) sessionStorage.setItem("mister-ajustes-abierto", abierto); else sessionStorage.removeItem("mister-ajustes-abierto"); } catch { /* nada */ } }, [abierto]);
+
   return (
     <main className="pagina ajustes">
       <h1>Ajustes</h1>
+      <p className="suave">Toca un apartado para abrirlo.</p>
 
-      <AvisosMovil />
-
+      <Grupo id="equipo" titulo="Mi equipo" subtitulo="Nombre y entrenadores" abierto={abierto} cambiar={setAbierto}>
       <section className="apartado">
         <header><h2>Tu equipo</h2>{equipo.club && <p className="suave">De {equipo.club}</p>}</header>
         {(equipo.rol ?? "principal") === "principal" && <form className="renombrar-equipo" onSubmit={async (e) => {
@@ -72,18 +80,9 @@ export default function Ajustes() {
         <EntrenadoresEquipo />
         <p className="suave">Si necesitas borrar este equipo, pídeselo a la directiva de tu club.</p>
       </section>
+      </Grupo>
 
-      <section className="apartado">
-        <header><h2>Qué entreno</h2><p className="suave">Solo verás los sistemas de juego de estas modalidades. Puedes elegir varias.</p></header>
-        <div className="opciones" role="group" aria-label="Modalidades que entreno" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-          {MODALIDADES.map((m) => (
-            <button key={m.valor} type="button" role="checkbox" aria-checked={a.modalidades.includes(m.valor)} onClick={() => alternarModalidad(m.valor)}>
-              {a.modalidades.includes(m.valor) ? "✓ " : ""}{m.texto}
-            </button>
-          ))}
-        </div>
-      </section>
-
+      <Grupo id="cambios" titulo="Partidos y cambios" subtitulo="Modalidad, duración, dorsales, cambios y colores" abierto={abierto} cambiar={setAbierto}>
       <section className="apartado">
         <header><h2>Partidos</h2><p className="suave">Para {equipo.nombre}</p></header>
         <div className="campo">
@@ -93,7 +92,7 @@ export default function Ajustes() {
         </div>
         <div className="campo">
           <span>Duración del partido</span>
-          <Opciones<Duracion> etiqueta="Duración" valor={a.duracion} cambiar={(v) => equipoSet({ duracion: v })} columnas={5}
+          <Opciones<Duracion> etiqueta="Duración" valor={a.duracion} cambiar={(v) => equipoSet({ duracion: v })} columnas={3}
             opciones={[...DURACIONES.map((d) => ({ valor: d.valor, texto: <>{d.partes}×{d.minutos}<small>minutos</small></> })), { valor: "otra" as Duracion, texto: <>Otra<small>a mano</small></> }]} />
           {a.duracion === "otra" && (
             <div className="duracion-mano">
@@ -123,6 +122,23 @@ export default function Ajustes() {
         <div className="vista-colores" aria-hidden="true">
           <Ficha dorsal={10} nombre="Mi equipo" color={a.colorEquipo} />
           <Ficha dorsal={4} nombre="Rival" color={a.colorRival} />
+        </div>
+      </section>
+      </Grupo>
+
+      <Grupo id="avisos" titulo="Avisos en este móvil" subtitulo="Partidos, entrenamientos y pasar lista" abierto={abierto} cambiar={setAbierto}>
+      <AvisosMovil />
+      </Grupo>
+
+      <Grupo id="preferencias" titulo="Mis preferencias" subtitulo="Valen para todos tus equipos" abierto={abierto} cambiar={setAbierto}>
+      <section className="apartado">
+        <header><h2>Qué entreno</h2><p className="suave">Solo verás los sistemas de juego de estas modalidades. Puedes elegir varias.</p></header>
+        <div className="opciones" role="group" aria-label="Modalidades que entreno" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+          {MODALIDADES.map((m) => (
+            <button key={m.valor} type="button" role="checkbox" aria-checked={a.modalidades.includes(m.valor)} onClick={() => alternarModalidad(m.valor)}>
+              {a.modalidades.includes(m.valor) ? "✓ " : ""}{m.texto}
+            </button>
+          ))}
         </div>
       </section>
 
@@ -166,6 +182,7 @@ export default function Ajustes() {
       </section>
 
       <button className="btn btn-gris btn-ancho" type="button" onClick={restaurar}><IcoRecargar /> Restaurar valores por defecto</button>
+      </Grupo>
 
       {sistemaEditando && (
         <EditorSistema
@@ -181,5 +198,24 @@ export default function Ajustes() {
         />
       )}
     </main>
+  );
+}
+
+/** Apartado de Ajustes que se abre y se cierra con un toque (solo uno abierto a la vez). */
+function Grupo({ id, titulo, subtitulo, abierto, cambiar, children }: {
+  id: string; titulo: string; subtitulo: string; abierto: string | null; cambiar: (v: string | null) => void; children: ReactNode;
+}) {
+  const esta = abierto === id;
+  return (
+    <section className={"grupo-ajustes tarjeta" + (esta ? " abierto" : "")} id={`grupo-${id}`}>
+      <button type="button" className="grupo-cabeza" aria-expanded={esta} onClick={() => {
+        cambiar(esta ? null : id);
+        if (!esta) setTimeout(() => document.getElementById(`grupo-${id}`)?.scrollIntoView({ block: "start", behavior: "smooth" }), 50);
+      }}>
+        <span className="fila-texto"><b>{titulo}</b><span>{subtitulo}</span></span>
+        <IcoFlechaAbajo className="grupo-flecha" />
+      </button>
+      {esta && <div className="grupo-cuerpo">{children}</div>}
+    </section>
   );
 }

@@ -9,7 +9,9 @@ import { nuevoId, type Partido } from "../datos/modelo";
 import { aISO, sumarDias, type Evento } from "../datos/calendario";
 import { periodoTemporada, temporadaDe } from "../datos/estadisticas";
 import { COLORES_ETAPA, etapaDeSemana, etapasTipicas, hoyLunes, semanasDe, textoSemana, type Etapa, type PlanTemporada, type SemanaPlan } from "../datos/temporada";
+import { usePlanTemporada } from "./usePlanTemporada";
 import "./temporada.css";
+export { usePlanTemporada };
 
 export function SelectorCalendario() {
   return (
@@ -22,11 +24,6 @@ export function SelectorCalendario() {
 
 const fechaCorta = (f: string) => new Date(f + "T12:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" }).replace(".", "");
 
-/** Plan de la temporada actual del equipo (para enseñar el objetivo de la semana en Inicio). */
-export function usePlanTemporada(temporada = temporadaDe(aISO(new Date()))) {
-  const { filas, cargando, guardar } = useColeccion<PlanTemporada>("temporadas");
-  return { plan: filas.find((p) => p.temporada === temporada), cargando, guardar };
-}
 
 export default function Temporada() {
   const { equipo } = useEquipo();

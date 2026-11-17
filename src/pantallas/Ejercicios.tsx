@@ -8,7 +8,7 @@ import { useUi } from "../componentes/ui";
 import { ejerciciosDeEjemplo } from "../datos/ejemplos";
 import { copiarEjercicio, ejercicioVacio, type Ejercicio } from "../datos/pizarra";
 import type { Jugador } from "../datos/modelo";
-import { SelectorBiblioteca } from "./Sesiones";
+import SelectorBiblioteca from "../componentes/SelectorEntrenar";
 import { SelectorEjercicios } from "./Biblioteca";
 import "./ejercicios.css";
 

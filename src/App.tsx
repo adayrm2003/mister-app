@@ -1,11 +1,12 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useSesion } from "./Sesion";
 import { LogoMister } from "./componentes/Iconos";
 import Acceso from "./pantallas/Acceso";
 import NuevaContrasena from "./pantallas/NuevaContrasena";
-import PanelDirectiva from "./pantallas/PanelDirectiva";
+const PanelDirectiva = lazy(() => import("./pantallas/PanelDirectiva"));
 import AppEntrenador from "./pantallas/AppEntrenador";
-import Legal from "./pantallas/Legal";
+const Legal = lazy(() => import("./pantallas/Legal"));
 
 export default function App() {
   const { cargando, perfil, recuperando } = useSesion();

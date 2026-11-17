@@ -15,9 +15,8 @@ import { SelectorPartidos } from "./Estadisticas";
 import { resultado } from "../datos/partido";
 import "./partidos.css";
 
-const dos = (n: number) => String(n).padStart(2, "0");
-export const hoyISO = () => { const d = new Date(); return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`; };
-export const fechaLarga = (f: string) => new Date(f + "T12:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
+import { fechaLarga, hoyISO } from "../datos/fechas";
+export { fechaLarga, hoyISO };
 const diaMes = (f: string) => { const d = new Date(f + "T12:00"); return { dia: d.getDate(), mes: d.toLocaleDateString("es-ES", { month: "short" }).replace(".", "").toUpperCase() }; };
 
 export default function Partidos() {
@@ -218,13 +217,16 @@ export function PartidoDetalle() {
           </dl>
           <div className="datos-acciones">
             <button className="btn btn-borde" type="button" onClick={() => setEditando(true)}>Editar datos</button>
-            <button className="btn btn-principal" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`, { replace: true })}>
-              {partido.alineacion ? "Ver alineación" : "Hacer alineación"}
-            </button>
           </div>
-          <button className="btn btn-peto btn-grande" type="button" onClick={() => ir(`/partidos/${partido.id}/partido`, { replace: true })}>
-            {(partido.acciones ?? []).length || partido.reloj ? `Resultado ${resultado(partido).nuestros} – ${resultado(partido).suyos} · ver partido` : "Apuntar goles, cambios y tarjetas"}
-          </button>
+          {partido.reloj?.terminado ? (
+            <button className="btn btn-peto btn-grande" type="button" onClick={() => ir(`/partidos/${partido.id}/valoracion`, { replace: true })}>
+              Resultado {resultado(partido).nuestros} – {resultado(partido).suyos} · valorar el partido
+            </button>
+          ) : partido.fecha <= hoyISO() ? (
+            <button className="btn btn-peto btn-grande" type="button" onClick={() => ir(`/partidos/${partido.id}/partido`, { replace: true })}>
+              {partido.reloj ? "Volver al partido en juego" : "Empezar el partido"}
+            </button>
+          ) : null}
         </section>
         <TarjetaRival nombre={partido.rival} />
         </>

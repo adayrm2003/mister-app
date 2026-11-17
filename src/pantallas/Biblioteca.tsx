@@ -12,7 +12,7 @@ import {
 } from "../datos/catalogo";
 import type { Ejercicio } from "../datos/pizarra";
 import { sesionVacia, type Sesion } from "../datos/sesion";
-import { SelectorBiblioteca } from "./Sesiones";
+import SelectorBiblioteca from "../componentes/SelectorEntrenar";
 import "./ejercicios.css";
 
 /* ---------- Datos: se leen una vez y se guardan mientras la app está abierta ---------- */

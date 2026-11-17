@@ -1,0 +1,4 @@
+/* Pestañas de sección (Entrenar, Partidos, Plantilla, Calendario) */
+.selector-biblioteca a { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 12px; font-weight: 700; color: var(--tinta-2); text-decoration: none; }
+.selector-biblioteca a.activo { background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra); }
+.segmentos-dir.selector-entrenar, .segmentos-dir.selector-biblioteca:has(> :nth-child(3)) { grid-template-columns: repeat(3, 1fr); }

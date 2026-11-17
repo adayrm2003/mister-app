@@ -241,3 +241,8 @@ body:has(.directiva) .aviso-flotante, body:has(.acceso) .aviso-flotante { bottom
 .interruptor input { width: 24px; height: 24px; accent-color: var(--cesped); flex: none; }
 .interruptor span { display: flex; flex-direction: column; min-width: 0; }
 .interruptor small { font-size: 14px; }
+
+/* Aviso de cobertura (sin conexión / subiendo cambios) */
+.estado-conexion { position: sticky; top: 0; z-index: 30; margin: 0 0 8px; padding: 8px 16px; background: var(--aviso-fondo); color: var(--aviso-tinta); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.estado-conexion.subiendo { background: var(--cesped-suave, var(--superficie-2)); color: var(--tinta); }
+.estado-conexion .btn-texto { min-height: 32px; padding: 0 6px; font-size: 14px; }

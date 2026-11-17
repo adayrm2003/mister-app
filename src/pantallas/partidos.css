@@ -34,3 +34,4 @@
 .minutos-torneo h2 { margin: 0; }
 .minutos-torneo .suave { margin: 0; }
 .torneo .grupo-partidos { display: flex; flex-direction: column; gap: 8px; }
+.datos-partido .datos-acciones { grid-template-columns: 1fr; }

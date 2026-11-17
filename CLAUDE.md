@@ -26,6 +26,9 @@ que **no sabe programar**: explícale todo en lenguaje sencillo, sin jerga, y di
 - `src/ContextoEquipo.tsx`: equipo activo, ajustes, `useColeccion` (datos del equipo) y `useMios` (biblioteca del entrenador).
 - `src/pantallas/`, `src/componentes/`, `src/pdf/`, `src/legal/`.
 - Comprobar tipos: `npx tsc -p tsconfig.json`. Compilar: `npm run build`. Probar: `npm run dev` (http://localhost:5173).
+- **Pruebas automáticas** (pásalas tras cada cambio): `npm run probar:datos` (sin navegador) y, con `npm run dev` en marcha, `npm run probar` (recorre la app en modo prueba en tamaño móvil). Ver `pruebas/LEEME.md`. Si cambias una pantalla que usan, actualiza la prueba.
+- Pestañas de abajo: Inicio · Plantilla · Entrenar (Ejercicios, Sesiones y Pizarra) · Calendario · Partidos. Las pantallas se cargan por partes (`lazy` en `AppEntrenador.tsx`); los estilos se cargan todos al principio (`src/estilos-todos.ts`): si creas un `.css` nuevo, añádelo ahí.
+- **Sin cobertura**: en la nube, `src/datos/sinConexion.ts` guarda copia en el móvil y una lista de cambios pendientes que se suben solos. Lo nuevo que lea o guarde datos debe pasar por `api` (no llamar a Supabase directamente) para que funcione sin señal.
 
 ## Supabase
 - Proyecto "adayrm2003's Project", id `fnijrktglgfjokvyyoiv` (UE, Irlanda). Esquema completo en `supabase/esquema.sql`.

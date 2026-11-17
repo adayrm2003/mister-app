@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
-import { usePlanTemporada } from "./Temporada";
+import { usePlanTemporada } from "./usePlanTemporada";
+import "./temporada.css";
 import { etapaDe, hoyLunes } from "../datos/temporada";
 import { IcoCalendario, IcoMas, IcoPartidos } from "../componentes/Iconos";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import type { Partido } from "../datos/modelo";
-import { citasDe, type Evento } from "../datos/calendario";
+import { citasDe, sumarDias, type Evento } from "../datos/calendario";
 import { colorTexto } from "../componentes/Campo";
-import { fechaLarga, hoyISO } from "./Partidos";
+import { fechaLarga, hoyISO } from "../datos/fechas";
 
 const saludo = () => {
   const h = new Date().getHours();
@@ -38,6 +39,7 @@ export default function Inicio() {
   const semana = plan?.semanas[hoyLunes()];
   const etapaActual = etapaDe(plan, hoyISO());
   const hoy = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
+  const tareas = tareasDelDia(partidos, eventos, ahora);
 
   return (
     <main className="pagina inicio">
@@ -45,6 +47,14 @@ export default function Inicio() {
         <span className="saludo-fecha">{hoy[0].toUpperCase() + hoy.slice(1)}</span>
         <h1>{saludo()}, míster</h1>
       </div>
+
+      {tareas.map((t) => (
+        <button key={t.clave} type="button" className={"tarea-dia " + t.tono} onClick={() => ir(t.ir)}>
+          <span className="tarea-icono" aria-hidden="true">{t.icono}</span>
+          <span className="fila-texto"><b>{t.titulo}</b><span>{t.texto}</span></span>
+          <span className="tarea-accion">{t.boton}</span>
+        </button>
+      ))}
 
       {cita ? (
         <section className="proximo" aria-label="Próximo evento">
@@ -105,4 +115,25 @@ export default function Inicio() {
       )}
     </main>
   );
+}
+
+interface Tarea { clave: string; icono: string; titulo: string; texto: string; boton: string; ir: string; tono: "peto" | "cesped" | "suave" }
+
+/** Lo que toca hacer ahora mismo, según el día y la hora (un toque y vas directo). */
+function tareasDelDia(partidos: Partido[], eventos: Evento[], ahora: string): Tarea[] {
+  const hoy = hoyISO();
+  const ayer = sumarDias(hoy, -1);
+  const r: Tarea[] = [];
+  for (const p of partidos) {
+    const enJuego = !!p.reloj && !p.reloj.terminado;
+    if (enJuego) r.push({ clave: "j" + p.id, icono: "⏱", titulo: `Partido en juego vs ${p.rival}`, texto: "Vuelve al marcador, los cambios y las tarjetas", boton: "Volver", ir: `/partidos/${p.id}/partido`, tono: "peto" });
+    else if (p.fecha === hoy && !p.reloj) r.push({ clave: "h" + p.id, icono: "⚽", titulo: `Hoy juegas vs ${p.rival}${p.hora ? ` a las ${p.hora}` : ""}`, texto: p.alineacion ? "La alineación está lista" : "Aún no tienes la alineación", boton: "Empezar partido", ir: `/partidos/${p.id}/partido`, tono: "peto" });
+    else if (p.reloj?.terminado && (p.fecha === hoy || p.fecha === ayer) && !p.conclusiones && !Object.keys(p.valoraciones ?? {}).length)
+      r.push({ clave: "t" + p.id, icono: "📝", titulo: `Partido terminado vs ${p.rival}`, texto: "Apunta tus conclusiones y comparte el resumen", boton: "Valorar", ir: `/partidos/${p.id}/valoracion`, tono: "cesped" });
+  }
+  for (const e of eventos) {
+    if (e.tipo !== "entrenamiento" || e.fecha !== hoy || Object.keys(e.asistencia ?? {}).length) continue;
+    if (e.hora && e.hora <= ahora) r.push({ clave: "e" + e.id, icono: "✅", titulo: "Pasa lista del entrenamiento de hoy", texto: "Dos toques y queda apuntada la asistencia", boton: "Pasar lista", ir: `/calendario/${e.id}`, tono: "cesped" });
+  }
+  return r.slice(0, 3);
 }

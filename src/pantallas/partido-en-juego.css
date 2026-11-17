@@ -67,3 +67,19 @@
 .anotacion-texto { flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; text-align: left; background: none; border: 0; padding: 6px 4px; font-size: 16px; line-height: 1.4; white-space: pre-line; overflow-wrap: anywhere; }
 .anotacion-minuto { font-family: var(--f-display); font-weight: 800; font-size: 20px; flex: none; min-width: 34px; }
 .botones-accion .boton-anotar { grid-column: 1 / -1; min-height: 52px; flex-direction: row; }
+/* Partido en directo, compacto: lo de arriba ocupa poco y los botones quedan a mano */
+.en-juego.compacto { gap: 12px; }
+.compacto .marcador { padding: 10px 14px; border-radius: 18px; }
+.compacto .marcador-equipo b { font-size: 48px; }
+.compacto .marcador-guion { font-size: 30px; }
+.compacto .reloj { padding: 8px 12px; gap: 10px; }
+.compacto .reloj-minuto { font-size: 36px; }
+.compacto .reloj .btn { min-height: 46px; }
+.cabeza-plegable { width: 100%; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 4px 0; color: var(--tinta); text-align: left; }
+.cabeza-plegable h2 { flex: 1; margin: 0; }
+.flecha-plegable { width: 24px; height: 24px; transition: transform .2s; color: var(--tinta-2); }
+.cabeza-plegable[aria-expanded="true"] .flecha-plegable { transform: rotate(180deg); }
+.compacto .reloj { flex-wrap: nowrap; }
+.compacto .reloj-estado { min-width: 0; font-size: 15px; }
+.compacto .reloj .btn { flex: none; padding: 0 12px; font-size: 15px; }
+@media (max-width: 350px) { .compacto .reloj { flex-wrap: wrap; } }

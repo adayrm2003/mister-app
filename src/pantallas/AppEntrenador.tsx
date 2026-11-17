@@ -1,29 +1,47 @@
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState, type ComponentType } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../datos/api";
 import type { Club, Equipo } from "../datos/tipos";
 import { useSesion } from "../Sesion";
-import { IcoAjustes, IcoAtras, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPizarra, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
+import { IcoAjustes, IcoAtras, IcoCalendario, IcoCheck, IcoEjercicios, IcoFlechaAbajo, IcoInicio, IcoMas, IcoPartidos, IcoPlantilla, IcoRecargar, IcoSalir, LogoMister } from "../componentes/Iconos";
 import { ProveedorEquipo } from "../ContextoEquipo";
-import Ajustes from "./Ajustes";
-import Plantilla from "./Plantilla";
-import Partidos, { PartidoDetalle } from "./Partidos";
-import Ejercicios, { EditorEjercicio, EjercicioDetalle } from "./Ejercicios";
-import Sesiones, { EditorSesion, SesionDetalle } from "./Sesiones";
-import ModoCampo from "./ModoCampo";
-import Calendario, { EventoDetalle } from "./Calendario";
-import Estadisticas, { FichaJugador } from "./Estadisticas";
+
 import MenuCuenta from "../componentes/MenuCuenta";
 import { Escudo, Hoja, iniciales, mensajeDe, useUi } from "../componentes/ui";
 import Inicio from "./Inicio";
-import Biblioteca, { FichaBiblioteca } from "./Biblioteca";
-import PizarraInicio, { EditorPizarraABP, EditorPizarraPartido, PizarrasABP, PizarrasPartido } from "./PizarraEntrenador";
-import { AnalisisVideo, VideosLista } from "./Videos";
-import Rivales from "./Rivales";
-import PaginaTorneo from "./Torneo";
-import PropuestaSesion from "./PropuestaSesion";
-import Temporada from "./Temporada";
+// Cada pantalla se descarga solo cuando se abre (así la app arranca antes con poca cobertura)
+const de = <M extends Record<string, unknown>>(cargar: () => Promise<M>, nombre: keyof M) =>
+  lazy(() => cargar().then((m) => ({ default: m[nombre] as ComponentType<Record<string, unknown>> })));
+const Ajustes = lazy(() => import("./Ajustes"));
+const Plantilla = lazy(() => import("./Plantilla"));
+const Partidos = lazy(() => import("./Partidos"));
+const PartidoDetalle = de(() => import("./Partidos"), "PartidoDetalle");
+const Ejercicios = lazy(() => import("./Ejercicios"));
+const EditorEjercicio = de(() => import("./Ejercicios"), "EditorEjercicio");
+const EjercicioDetalle = de(() => import("./Ejercicios"), "EjercicioDetalle");
+const Sesiones = lazy(() => import("./Sesiones"));
+const EditorSesion = de(() => import("./Sesiones"), "EditorSesion");
+const SesionDetalle = de(() => import("./Sesiones"), "SesionDetalle");
+const ModoCampo = lazy(() => import("./ModoCampo"));
+const Calendario = lazy(() => import("./Calendario"));
+const EventoDetalle = de(() => import("./Calendario"), "EventoDetalle");
+const Estadisticas = lazy(() => import("./Estadisticas"));
+const FichaJugador = de(() => import("./Estadisticas"), "FichaJugador");
+const Biblioteca = lazy(() => import("./Biblioteca"));
+const FichaBiblioteca = de(() => import("./Biblioteca"), "FichaBiblioteca");
+const PizarraInicio = lazy(() => import("./PizarraEntrenador"));
+const EditorPizarraABP = de(() => import("./PizarraEntrenador"), "EditorPizarraABP");
+const EditorPizarraPartido = de(() => import("./PizarraEntrenador"), "EditorPizarraPartido");
+const PizarrasABP = de(() => import("./PizarraEntrenador"), "PizarrasABP");
+const PizarrasPartido = de(() => import("./PizarraEntrenador"), "PizarrasPartido");
+const AnalisisVideo = de(() => import("./Videos"), "AnalisisVideo");
+const VideosLista = de(() => import("./Videos"), "VideosLista");
+const Rivales = lazy(() => import("./Rivales"));
+const PaginaTorneo = lazy(() => import("./Torneo"));
+const PropuestaSesion = lazy(() => import("./PropuestaSesion"));
+const Temporada = lazy(() => import("./Temporada"));
 import CrearEquipo from "../componentes/CrearEquipo";
+import EstadoConexion from "../componentes/EstadoConexion";
 import "./entrenador.css";
 
 
@@ -32,8 +50,7 @@ const CLAVE_EQUIPO = "mister-equipo-activo";
 const PESTANAS = [
   { a: "/inicio", texto: "Inicio", Icono: IcoInicio },
   { a: "/plantilla", texto: "Plantilla", Icono: IcoPlantilla },
-  { a: "/ejercicios", texto: "Ejercicios", Icono: IcoEjercicios },
-  { a: "/pizarra", texto: "Pizarra", Icono: IcoPizarra },
+  { a: "/ejercicios", texto: "Entrenar", Icono: IcoEjercicios },
   { a: "/calendario", texto: "Calendario", Icono: IcoCalendario },
   { a: "/partidos", texto: "Partidos", Icono: IcoPartidos }
 ];
@@ -76,7 +93,7 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
           {PESTANAS.map(({ a, texto, Icono }) => (
-            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) || (a === "/partidos" && (ruta.startsWith("/estadisticas") || ruta.startsWith("/rivales") || ruta.startsWith("/torneos"))) || (a === "/calendario" && ruta.startsWith("/temporada")) ? " active" : "")}>
+            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && (ruta.startsWith("/sesiones") || ruta.startsWith("/pizarra"))) || (a === "/partidos" && (ruta.startsWith("/estadisticas") || ruta.startsWith("/rivales") || ruta.startsWith("/torneos"))) || (a === "/calendario" && ruta.startsWith("/temporada")) ? " active" : "")}>
               <span className="pestana-icono"><Icono /></span>
               {texto}
             </NavLink>
@@ -91,6 +108,8 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
             <BotonAjustes />
             <MenuCuenta extra={esDirectiva && <IrAlPanel />} />
           </header>
+          <EstadoConexion />
+          <Suspense fallback={<main className="pagina cargando-pantalla" aria-busy="true"><span className="suave">Cargando…</span></main>}>
           <Routes>
             <Route path="/inicio" element={<Inicio />} />
             <Route path="/plantilla" element={<Plantilla />} />
@@ -129,6 +148,7 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
             <Route path="/partidos/:id/:seccion" element={<PartidoDetalle />} />
             <Route path="*" element={<Navigate to="/inicio" replace />} />
           </Routes>
+          </Suspense>
         </div>
       </div>
     </ProveedorEquipo>

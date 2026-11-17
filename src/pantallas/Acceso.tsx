@@ -1,3 +1,4 @@
+import { TEXTO_FILTRADA, contrasenaFiltrada } from "../datos/contrasenaFiltrada";
 import { useState, type FormEvent } from "react";
 import { api } from "../datos/api";
 import { correoValido, type Rol } from "../datos/tipos";
@@ -43,6 +44,7 @@ export default function Acceso() {
     if (vista === "registro" && rol === "directiva" && !nombreClub.trim()) return setError("Escribe el nombre del club.");
     if (vista === "registro" && !acepto) return setError("Para crear la cuenta tienes que aceptar los términos de uso y la política de privacidad.");
     setEnviando(true);
+    if (vista === "registro" && api.modo === "nube" && await contrasenaFiltrada(contrasena)) { setEnviando(false); return setError(TEXTO_FILTRADA); }
     try {
       if (vista === "entrar") await api.entrar(email, contrasena);
       else if (vista === "registro") {

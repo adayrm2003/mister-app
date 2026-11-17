@@ -1,3 +1,4 @@
+import { TEXTO_FILTRADA, contrasenaFiltrada } from "../datos/contrasenaFiltrada";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../datos/api";
@@ -22,6 +23,7 @@ export default function NuevaContrasena() {
     if (contrasena.length < 8) return setError("La contraseña tiene que tener al menos 8 caracteres.");
     if (contrasena !== repetir) return setError("Las dos contraseñas no coinciden.");
     setEnviando(true);
+    if (api.modo === "nube" && await contrasenaFiltrada(contrasena)) { setEnviando(false); return setError(TEXTO_FILTRADA); }
     try {
       await api.cambiarContrasena(contrasena);
       avisar("Contraseña cambiada");

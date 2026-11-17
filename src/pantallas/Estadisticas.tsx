@@ -11,7 +11,7 @@ import {
   type FilaJugador, type Periodo
 } from "../datos/estadisticas";
 import { PUESTOS, PIERNAS, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
-import { hoyISO } from "./Partidos";
+import { hoyISO } from "../datos/fechas";
 import { Circulos } from "./Valoracion";
 import HojaInformeFamilia from "./InformeFamilia";
 import "./estadisticas.css";

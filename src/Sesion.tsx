@@ -20,7 +20,7 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
   const [recuperando, setRecuperando] = useState(() => location.pathname === "/nueva-contrasena" && location.hash.includes("type=recovery"));
 
   const recargar = useCallback(async () => {
-    try { setPerfil(await api.perfilActual()); } finally { setCargando(false); }
+    try { setPerfil(await api.perfilActual()); } catch { setPerfil(null); } finally { setCargando(false); }
   }, []);
 
   useEffect(() => {

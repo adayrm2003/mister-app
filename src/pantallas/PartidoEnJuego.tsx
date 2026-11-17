@@ -5,7 +5,7 @@ import { AvisoMinutos, HojaPlanMinutos, ventanaPara } from "./PlanMinutos";
 import { MAX_VENTANAS } from "../datos/rotacion";
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
-import { IcoCompartir, IcoPapelera } from "../componentes/Iconos";
+import { IcoCompartir, IcoFlechaAbajo, IcoPapelera } from "../componentes/Iconos";
 import HojaResumen from "./ResumenPartido";
 import { Hoja, useUi } from "../componentes/ui";
 import { dorsalEnPartido, etiquetaJugador, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
@@ -37,6 +37,8 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const [, tic] = useState(0);
   const [plan, setPlan] = useState(false);
   const [resumen, setResumen] = useState(false);
+  // Los minutos de cada jugador, plegados durante el partido (se abren al terminar)
+  const [verMinutos, setVerMinutos] = useState(!!partido.reloj?.terminado);
   // Si el plan de cambios tiene máximo (5), no se dejan hacer más
   // Con máximo de cambios (Ajustes): 5 cambios en 3 ventanas durante el juego; el descanso no cuenta como ventana
   const limiteCambios = ajustes.cambios.activo ? ajustes.cambios.limite : null;
@@ -99,20 +101,12 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const expRival = expulsionesRival(acciones);
 
   return (
-    <div className="en-juego">
+    <div className="en-juego compacto">
       <section className={"marcador " + (acciones.length || reloj.terminado ? r.signo : "")} aria-label="Marcador">
         <div className="marcador-equipo"><span>{izq[0]}</span><b>{izq[1]}</b></div>
         <span className="marcador-guion">–</span>
         <div className="marcador-equipo"><b>{der[1]}</b><span>{der[0]}</span></div>
       </section>
-
-      {(acciones.length > 0 || reloj.terminado) && (
-        <button className={"btn btn-ancho boton-resumen " + (reloj.terminado ? "btn-peto" : "btn-borde")} type="button" onClick={() => setResumen(true)}>
-          <IcoCompartir /> Compartir resumen del partido
-        </button>
-      )}
-      {resumen && <HojaResumen partido={partido} jugadores={jugadores} alCerrar={() => setResumen(false)} />}
-
       <section className="reloj tarjeta" aria-live="polite">
         {reloj.terminado ? (
           <>
@@ -148,10 +142,6 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
           </>
         )}
       </section>
-      {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
-
-      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} enDescanso={enDescanso} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...prepararCambios(as)] })} abrirPlan={() => setPlan(true)} />
-      {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} alCerrar={() => setPlan(false)} />}
 
       <section className="botones-accion" aria-label="Apuntar">
         <span className="etiqueta grupo-accion">{equipo.nombre}</span>
@@ -170,6 +160,17 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
           t?.scrollIntoView({ behavior: "smooth", block: "center" }); t?.focus({ preventScroll: true });
         }}>✎ Anotación</button>
       </section>
+
+      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} enDescanso={enDescanso} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...prepararCambios(as)] })} abrirPlan={() => setPlan(true)} />
+      {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} alCerrar={() => setPlan(false)} />}
+      {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
+
+      {(acciones.length > 0 || reloj.terminado) && (
+        <button className={"btn btn-ancho boton-resumen " + (reloj.terminado ? "btn-peto" : "btn-borde")} type="button" onClick={() => setResumen(true)}>
+          <IcoCompartir /> Compartir resumen del partido
+        </button>
+      )}
+      {resumen && <HojaResumen partido={partido} jugadores={jugadores} alCerrar={() => setResumen(false)} />}
 
       <section className="linea-tiempo">
         <h2>Resumen</h2>
@@ -198,8 +199,10 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
         guardar={guardarAnotaciones} confirmar={confirmar} />
 
       <section className="minutos-jugados">
-        <header><h2>Minutos jugados</h2><span className="pastilla">de {duracion}'</span></header>
-        {convocados.length === 0 ? <p className="suave">No hay jugadores convocados.</p> : (
+        <button type="button" className="cabeza-plegable" aria-expanded={verMinutos} onClick={() => setVerMinutos(!verMinutos)}>
+          <h2>Minutos jugados</h2><span className="pastilla">de {duracion}'</span><IcoFlechaAbajo className="flecha-plegable" />
+        </button>
+        {!verMinutos ? null : convocados.length === 0 ? <p className="suave">No hay jugadores convocados.</p> : (
           <div className="lista">
             {[...convocados].sort((a, b) => (minutos[b.id] ?? 0) - (minutos[a.id] ?? 0)).map((j) => {
               const titular = al?.titulares.includes(j.id);

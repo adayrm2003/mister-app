@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "iconos": "node scripts/generar-iconos.mjs"
+    "iconos": "node scripts/generar-iconos.mjs",
+    "probar:datos": "npx -y tsx pruebas/sin-conexion.prueba.ts && npx -y tsx pruebas/contrasena.prueba.ts",
+    "probar": "node pruebas/navegador/todas.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

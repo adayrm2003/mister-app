@@ -6,7 +6,7 @@ export const TITULAR = {
   correo: "adayrm.2003@gmail.com"
 };
 
-export const ACTUALIZADO = "17 de noviembre de 2026";
+export const ACTUALIZADO = "18 de noviembre de 2026";
 
 export interface Seccion { titulo: string; parrafos: string[] }
 export interface DocumentoLegal { id: string; titulo: string; resumen: string; secciones: Seccion[] }
@@ -148,6 +148,8 @@ export const DOCUMENTOS: DocumentoLegal[] = [
       { titulo: "3. Seguridad", parrafos: [
         "Datos alojados en la Unión Europea (Supabase, Irlanda).",
         "Conexión siempre cifrada (HTTPS) y contraseñas guardadas cifradas.",
+        "Para poder usar la app sin cobertura en el campo, se guarda en el móvil una copia de los datos del equipo y de lo apuntado sin conexión hasta que se sube. Esa copia se borra al cerrar sesión.",
+        "Al crear una cuenta o cambiar la contraseña, la app comprueba si esa contraseña ha aparecido en filtraciones públicas (servicio Have I Been Pwned). Nunca se envía la contraseña: solo los 5 primeros caracteres de su huella cifrada.",
         "Control de acceso en el servidor mediante seguridad por filas: cada entrenador solo puede leer y escribir los datos de sus equipos, y cada directiva solo los de su club. Los entrenadores necesitan confirmar su correo antes de poder ver los datos de su equipo."
       ] },
       { titulo: "4. Reparto de responsabilidades", parrafos: [

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEquipo, useMios } from "../ContextoEquipo";
 import { Opciones } from "../componentes/Controles";
 import { IcoAtras, IcoCheck, IcoDescargar, IcoFlechaAbajo, IcoLapiz, IcoMas, IcoPapelera, IcoSilbato } from "../componentes/Iconos";
@@ -12,14 +12,8 @@ import "./sesiones.css";
 const sinAcentos = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Interruptor de la pestaña Ejercicios: biblioteca de ejercicios o sesiones. */
-export function SelectorBiblioteca() {
-  return (
-    <nav className="segmentos-dir selector-biblioteca" aria-label="Biblioteca">
-      <NavLink to="/ejercicios" className={({ isActive }) => (isActive ? "activo" : "")}>Ejercicios</NavLink>
-      <NavLink to="/sesiones" end className={({ isActive }) => (isActive ? "activo" : "")}>Sesiones</NavLink>
-    </nav>
-  );
-}
+import SelectorBiblioteca from "../componentes/SelectorEntrenar";
+export { SelectorBiblioteca };
 
 function useEjerciciosPorId() {
   const { filas, cargando } = useMios<Ejercicio>("ejercicios");

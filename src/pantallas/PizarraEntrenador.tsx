@@ -9,6 +9,7 @@ import { useUi } from "../componentes/ui";
 import { jugadoresEnCampo, type Jugador, type Partido } from "../datos/modelo";
 import { JUGADAS_ABP, copiarPizarra, nombreJugada, pizarraABP, pizarraVacia, type LadoABP, type PizarraGuardada, type TipoABP } from "../datos/pizarra";
 import { caducado, type VideoAnalisis } from "../datos/video";
+import SelectorEntrenar from "../componentes/SelectorEntrenar";
 import "./ejercicios.css";
 import "./partidos.css";
 import "./pizarra-entrenador.css";
@@ -24,6 +25,7 @@ export default function PizarraInicio() {
   const deTipo = (t: PizarraGuardada["tipo"]) => filas.filter((p) => p.tipo === t).length;
   return (
     <main className="pagina pagina-ancha pizarra-inicio">
+      <SelectorEntrenar />
       <h1>Pizarra</h1>
       <p className="suave">Prepara los partidos y explica las jugadas a tus jugadores. Todo queda guardado en este equipo.</p>
       <div className="secciones-pizarra">
@@ -41,11 +43,6 @@ export default function PizarraInicio() {
           <span className="seccion-icono" aria-hidden="true">▶</span>
           <span className="fila-texto"><b>Vídeos</b><span>Para el vídeo, dibuja encima y marca los momentos clave</span></span>
           <span className="pastilla">{videos.filter((v) => !caducado(v)).length}</span>
-        </Link>
-        <Link to="/ejercicios" className="seccion-pizarra tarjeta">
-          <span className="seccion-icono" aria-hidden="true">△</span>
-          <span className="fila-texto"><b>Ejercicios</b><span>Tus ejercicios con pizarra animada y la Biblioteca Míster</span></span>
-          <IcoAtras style={{ transform: "rotate(180deg)", width: 20, height: 20, color: "var(--tinta-2)" }} />
         </Link>
       </div>
     </main>

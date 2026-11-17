@@ -47,6 +47,8 @@ export function crearApiNube(url: string, clave: string): Api {
       const { data: s } = await sb.auth.getSession();
       if (!s.session) return null;
       const { data, error } = await sb.from("perfiles").select("id,email,rol").eq("id", s.session.user.id).maybeSingle();
+      // Sin conexión se avisa con un error (y se usa la copia del móvil); si no, se considera sin sesión
+      if (error && /fetch|network/i.test(error.message)) throw new ErrorApp("No hay conexión con el servidor. Revisa tu internet.");
       if (error || !data) return null;
       return { id: data.id, email: data.email, rol: data.rol as Rol };
     },

@@ -1,0 +1,29 @@
+// Todos los estilos de la app se cargan al principio (pesan poco), para que ninguna pantalla
+// dependa de que otra se haya abierto antes ahora que las pantallas se descargan por partes.
+import "./componentes/campo.css";
+import "./componentes/dictado.css";
+import "./componentes/pizarra.css";
+import "./componentes/selector.css";
+import "./pantallas/acceso.css";
+import "./pantallas/ajustes.css";
+import "./pantallas/alineacion.css";
+import "./pantallas/calendario.css";
+import "./pantallas/convocatoria.css";
+import "./pantallas/directiva.css";
+import "./pantallas/ejercicios.css";
+import "./pantallas/entrenador.css";
+import "./pantallas/estadisticas.css";
+import "./pantallas/legal.css";
+import "./pantallas/modo-campo.css";
+import "./pantallas/partido-en-juego.css";
+import "./pantallas/partidos.css";
+import "./pantallas/pizarra-entrenador.css";
+import "./pantallas/plan-minutos.css";
+import "./pantallas/plantilla.css";
+import "./pantallas/propuesta.css";
+import "./pantallas/resumen-partido.css";
+import "./pantallas/rivales.css";
+import "./pantallas/sesiones.css";
+import "./pantallas/temporada.css";
+import "./pantallas/valoracion.css";
+import "./pantallas/videos.css";
