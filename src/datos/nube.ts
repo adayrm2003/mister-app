@@ -1,7 +1,7 @@
 // MODO NUBE: cuentas y datos en Supabase. La seguridad por filas (supabase/esquema.sql)
 // garantiza en el servidor que cada usuario solo ve lo que le toca.
 import { createClient, type AuthError, type PostgrestError } from "@supabase/supabase-js";
-import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, type PreferenciasAvisos, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Club, type EntrenadorClub, type Equipo, type EquipoClub, type EventoSesion, type Fila, type Rol, type PreferenciasAvisos, type EntrenadorEquipo, ErrorApp, normalizarCorreo } from "./tipos";
 import { cargarCatalogoLocal, type EjercicioCatalogo } from "./catalogo";
 
 // Solo se convierten los nombres de primer nivel (equipoId <-> equipo_id); lo de dentro (jsonb) se guarda tal cual.
@@ -37,8 +37,8 @@ export function crearApiNube(url: string, clave: string): Api {
     if (!data) throw new ErrorApp("Solo la cuenta de la directiva puede hacer esto.");
     return data.id as string;
   }
-  const aEquipo = (f: { id: string; club_id: string; nombre: string; clubes?: { nombre: string; escudo?: string | null } | null }): Equipo =>
-    ({ id: f.id, clubId: f.club_id, nombre: f.nombre, club: f.clubes?.nombre, escudo: f.clubes?.escudo ?? null });
+  const aEquipo = (f: { id: string; club_id: string; nombre: string; clubes?: { nombre: string; escudo?: string | null } | null; entrenadores_equipo?: { rol?: string }[] }): Equipo =>
+    ({ id: f.id, clubId: f.club_id, nombre: f.nombre, club: f.clubes?.nombre, escudo: f.clubes?.escudo ?? null, rol: f.entrenadores_equipo?.[0]?.rol === "ayudante" ? "ayudante" : "principal" });
 
   return {
     modo: "nube",
@@ -144,11 +144,33 @@ export function crearApiNube(url: string, clave: string): Api {
       const u = await usuario();
       const { data, error } = await sb
         .from("equipos")
-        .select("id,club_id,nombre,clubes(nombre,escudo),entrenadores_equipo!inner(email)")
+        .select("id,club_id,nombre,clubes(nombre,escudo),entrenadores_equipo!inner(email,rol)")
         .eq("entrenadores_equipo.email", normalizarCorreo(u.email ?? ""))
         .order("nombre");
       traducir(error);
       return ((data ?? []) as unknown as Parameters<typeof aEquipo>[0][]).map(aEquipo);
+    },
+
+    async entrenadoresDeMiEquipo(equipoId) {
+      const { data, error } = await sb.rpc("entrenadores_de_mi_equipo", { p_equipo: equipoId });
+      traducir(error);
+      return (data ?? []) as EntrenadorEquipo[];
+    },
+
+    async anadirAyudante(equipoId, email) {
+      const { error } = await sb.rpc("anadir_ayudante", { p_equipo: equipoId, p_email: normalizarCorreo(email) });
+      traducir(error);
+    },
+
+    async quitarAyudante(equipoId, email) {
+      const { error } = await sb.rpc("quitar_ayudante", { p_equipo: equipoId, p_email: normalizarCorreo(email) });
+      traducir(error);
+    },
+
+    async enlaceCalendario(equipoId, nuevo = false) {
+      const { data, error } = await sb.rpc("enlace_calendario", { p_equipo: equipoId, p_nuevo: nuevo });
+      traducir(error);
+      return `${url.replace(/\/$/, "")}/functions/v1/calendario?t=${data as string}`;
     },
 
     async crearMiEquipo(club, nombre) {

@@ -188,7 +188,11 @@ export interface Partido {
   conclusiones?: string;
   /** Valoración de cada jugador que jugó: del 1 al 5 y un comentario opcional. */
   valoraciones?: Record<string, Valoracion>;
+  /** Si es un partido de un torneo (varios partidos el mismo día con una sola convocatoria). */
+  torneo?: TorneoRef | null;
 }
+
+export interface TorneoRef { id: string; nombre: string }
 
 export interface Valoracion { nota: number | null; comentario: string }
 

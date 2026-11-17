@@ -1,0 +1,3 @@
+.resumen-partido { display: flex; flex-direction: column; gap: 12px; }
+.resumen-imagen { width: min(100%, 340px); align-self: center; border-radius: 14px; box-shadow: var(--sombra); }
+.boton-resumen { gap: 8px; }

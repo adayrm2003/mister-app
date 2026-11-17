@@ -9,6 +9,7 @@ import { api } from "../datos/api";
 import { DURACIONES, MODALIDADES, jugadoresEnCampo, type Duracion, type Modalidad, type Sistema } from "../datos/modelo";
 import EditorSistema from "./EditorSistema";
 import AjustesDeCambios from "./AjustesCambios";
+import EntrenadoresEquipo from "./EntrenadoresEquipo";
 import "./ajustes.css";
 
 export default function Ajustes() {
@@ -56,7 +57,7 @@ export default function Ajustes() {
 
       <section className="apartado">
         <header><h2>Tu equipo</h2>{equipo.club && <p className="suave">De {equipo.club}</p>}</header>
-        <form className="renombrar-equipo" onSubmit={async (e) => {
+        {(equipo.rol ?? "principal") === "principal" && <form className="renombrar-equipo" onSubmit={async (e) => {
           e.preventDefault();
           const limpio = nombreEquipo.trim();
           if (!limpio) return avisar("Escribe el nombre del equipo");
@@ -67,7 +68,8 @@ export default function Ajustes() {
             <input id="ajustes-nombre-equipo" className="entrada" value={nombreEquipo} onChange={(e) => setNombreEquipo(e.target.value)} maxLength={40} />
           </label>
           <button className="btn btn-principal" type="submit" disabled={!nombreEquipo.trim() || nombreEquipo.trim() === equipo.nombre}>Guardar nombre</button>
-        </form>
+        </form>}
+        <EntrenadoresEquipo />
         <p className="suave">Si necesitas borrar este equipo, pídeselo a la directiva de tu club.</p>
       </section>
 

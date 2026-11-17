@@ -8,6 +8,7 @@ import { COMPETICIONES, nuevoId, type Jugador, type Partido } from "../datos/mod
 import { HojaConvocatoria } from "./Convocatoria";
 import { TarjetaRival } from "./Rivales";
 import ValoracionPartido from "./Valoracion";
+import { HojaNuevoTorneo } from "./Torneo";
 import Alineacion from "./Alineacion";
 import PartidoEnJuego from "./PartidoEnJuego";
 import { SelectorPartidos } from "./Estadisticas";
@@ -24,6 +25,7 @@ export default function Partidos() {
   const { filas: partidos, cargando, guardar } = useColeccion<Partido>("partidos");
   const [params, setParams] = useSearchParams();
   const [nuevo, setNuevo] = useState<Partido | null>(null);
+  const [nuevoTorneo, setNuevoTorneo] = useState(false);
   const ir = useNavigate();
 
   const crear = (fecha = hoyISO()) => setNuevo({ id: nuevoId(), equipoId: equipo.id, rival: "", fecha, hora: "10:00", campo: "", casa: true, competicion: "Liga", notas: "", alineacion: null });
@@ -39,6 +41,7 @@ export default function Partidos() {
       <SelectorPartidos />
       <h1>Partidos</h1>
       <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => crear()}><IcoMas /> Apuntar partido</button>
+      <button className="btn btn-borde btn-ancho" type="button" onClick={() => setNuevoTorneo(true)}>🏆 Apuntar torneo (varios partidos)</button>
 
       {!cargando && partidos.length === 0 && (
         <div className="vacio tarjeta">
@@ -50,6 +53,7 @@ export default function Partidos() {
       {proximos.length > 0 && <ListaPartidos titulo="Próximos" partidos={proximos} />}
       {pasados.length > 0 && <ListaPartidos titulo="Jugados" partidos={pasados} />}
 
+      {nuevoTorneo && <HojaNuevoTorneo alCerrar={() => setNuevoTorneo(false)} />}
       {nuevo && (
         <FormPartido partido={nuevo} titulo="Nuevo partido" alCerrar={() => setNuevo(null)}
           alGuardar={async (p) => { await guardar(p); setNuevo(null); ir(`/partidos/${p.id}`); }} />
@@ -65,6 +69,19 @@ function ListaPartidos({ titulo, partidos }: { titulo: string; partidos: Partido
       <div className="lista">
         {partidos.map((p) => {
           const { dia, mes } = diaMes(p.fecha);
+          // Los partidos de un torneo salen juntos en una sola fila
+          if (p.torneo) {
+            const del = partidos.filter((x) => x.torneo?.id === p.torneo!.id);
+            if (del[0].id !== p.id) return null;
+            const jugados = del.filter((x) => (x.acciones ?? []).length || x.reloj?.terminado);
+            return (
+              <Link key={"t" + p.torneo.id} to={`/torneos/${p.torneo.id}`} className="fila fila-partido fila-torneo">
+                <span className="fecha-bloque"><b>{dia}</b><small>{mes}</small></span>
+                <span className="fila-texto"><b>🏆 {p.torneo.nombre}</b><span>{del.length} partidos{p.campo ? " · " + p.campo : ""}</span></span>
+                <span className="pastilla">{jugados.length ? `${jugados.length}/${del.length} jugados` : "Torneo"}</span>
+              </Link>
+            );
+          }
           return (
             <Link key={p.id} to={`/partidos/${p.id}`} className="fila fila-partido">
               <span className="fecha-bloque"><b>{dia}</b><small>{mes}</small></span>
@@ -181,6 +198,9 @@ export function PartidoDetalle() {
         <ValoracionPartido partido={partido} jugadores={jugadores} guardarPartido={guardar} />
       ) : (
         <>
+        {partido.torneo && (
+          <Link to={`/torneos/${partido.torneo.id}`} className="tarjeta aviso-torneo">🏆 Partido del torneo «{partido.torneo.nombre}» · ver el torneo</Link>
+        )}
         <section className="tarjeta convocatoria-resumen">
           <span className="fila-texto">
             <b>Convocatoria</b>
@@ -209,7 +229,8 @@ export function PartidoDetalle() {
         <TarjetaRival nombre={partido.rival} />
         </>
       )}
-      {convocando && <HojaConvocatoria partido={partido} jugadores={jugadores} guardarPartido={guardar} alCerrar={() => setConvocando(false)} />}
+      {convocando && <HojaConvocatoria partido={partido} jugadores={jugadores} guardarPartido={guardar} alCerrar={() => setConvocando(false)}
+        torneo={partido.torneo ? partidos.filter((x) => x.torneo?.id === partido.torneo!.id) : undefined} />}
 
       {editando && (
         <FormPartido partido={partido} titulo="Editar partido" alCerrar={() => setEditando(false)}

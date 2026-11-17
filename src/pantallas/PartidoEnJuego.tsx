@@ -1,10 +1,12 @@
 // Durante o después del partido: reloj, goles, cambios, tarjetas, línea de tiempo y minutos jugados.
 import { useEffect, useMemo, useState } from "react";
+import BotonDictado, { juntar } from "../componentes/Dictado";
 import { AvisoMinutos, HojaPlanMinutos, ventanaPara } from "./PlanMinutos";
 import { MAX_VENTANAS } from "../datos/rotacion";
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
-import { IcoPapelera } from "../componentes/Iconos";
+import { IcoCompartir, IcoPapelera } from "../componentes/Iconos";
+import HojaResumen from "./ResumenPartido";
 import { Hoja, useUi } from "../componentes/ui";
 import { dorsalEnPartido, etiquetaJugador, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
 import { TEXTO_ACCION, accionesDe, enCampo, expulsiones, expulsionesRival, minutoActual, minutosCalculados, minutosFinales, mmss, resultado, segundosActuales, type Accion, type Anotacion, type Reloj, type TipoAccion } from "../datos/partido";
@@ -34,6 +36,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const [minutosJugador, setMinutosJugador] = useState<Jugador | null>(null);
   const [, tic] = useState(0);
   const [plan, setPlan] = useState(false);
+  const [resumen, setResumen] = useState(false);
   // Si el plan de cambios tiene máximo (5), no se dejan hacer más
   // Con máximo de cambios (Ajustes): 5 cambios en 3 ventanas durante el juego; el descanso no cuenta como ventana
   const limiteCambios = ajustes.cambios.activo ? ajustes.cambios.limite : null;
@@ -102,6 +105,13 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
         <span className="marcador-guion">–</span>
         <div className="marcador-equipo"><b>{der[1]}</b><span>{der[0]}</span></div>
       </section>
+
+      {(acciones.length > 0 || reloj.terminado) && (
+        <button className={"btn btn-ancho boton-resumen " + (reloj.terminado ? "btn-peto" : "btn-borde")} type="button" onClick={() => setResumen(true)}>
+          <IcoCompartir /> Compartir resumen del partido
+        </button>
+      )}
+      {resumen && <HojaResumen partido={partido} jugadores={jugadores} alCerrar={() => setResumen(false)} />}
 
       <section className="reloj tarjeta" aria-live="polite">
         {reloj.terminado ? (
@@ -401,7 +411,10 @@ function Anotaciones({ lista, minutoAhora, guardar, confirmar }: {
       <form className="anotar" onSubmit={(e) => { e.preventDefault(); apuntar(); }}>
         <textarea className="entrada area" rows={2} value={texto} onChange={(e) => setTexto(e.target.value)} maxLength={400}
           placeholder="Por ejemplo: el lateral izquierdo no cierra, hay que salir más rápido al contraataque…" aria-label="Nueva anotación" />
-        <button className="btn btn-principal" type="submit" disabled={!texto.trim()}>Apuntar{minutoAhora != null ? ` en el ${minutoAhora}'` : ""}</button>
+        <div className="acciones-texto">
+          <BotonDictado alTexto={(t) => setTexto((x) => juntar(x, t))} etiqueta="Dictar la anotación" />
+          <button className="btn btn-principal" type="submit" disabled={!texto.trim()}>Apuntar{minutoAhora != null ? ` en el ${minutoAhora}'` : ""}</button>
+        </div>
       </form>
       {lista.some((a) => a.revisada) && (
         <button className="btn btn-texto" type="button" onClick={() => setVerRevisadas(!verRevisadas)}>{verRevisadas ? "Ocultar las revisadas" : "Ver también las revisadas"}</button>

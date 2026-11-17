@@ -45,6 +45,7 @@ export default function Sesiones() {
         <span className="pastilla">{filas.length} guardadas</span>
       </div>
       <button className="btn btn-peto btn-grande btn-ancho" type="button" onClick={() => ir("/sesiones/nueva")}><IcoMas /> Nueva sesión</button>
+      <button className="btn btn-borde btn-ancho" type="button" onClick={() => ir("/sesiones/propuesta")}>✨ Proponer sesión según un objetivo</button>
       {filas.length > 3 && (
         <input className="entrada" type="search" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar sesión" aria-label="Buscar sesión" />
       )}

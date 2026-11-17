@@ -202,6 +202,9 @@ export default function PanelDirectiva() {
                     ) : (
                       <p className="equipo-entrenador"><span className="pastilla pastilla-aviso">Sin entrenador</span></p>
                     )}
+                    {(eq.ayudantes ?? []).length > 0 && (
+                      <p className="equipo-entrenador suave">Ayudante{eq.ayudantes!.length > 1 ? "s" : ""}: <span className="correo">{eq.ayudantes!.join(", ")}</span></p>
+                    )}
                     <button className={"btn btn-ancho " + (eq.entrenador ? "btn-gris" : "btn-principal")} type="button" onClick={() => setFormulario({ tipo: "pasar", equipo: eq })}>
                       <IcoMover /> {eq.entrenador ? "Pasar a otro entrenador" : "Dar a un entrenador"}
                     </button>

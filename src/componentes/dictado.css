@@ -1,0 +1,7 @@
+.dictado { display: inline-flex; flex-direction: column; gap: 4px; }
+.boton-dictado { background: var(--superficie-2); color: var(--tinta); min-height: 48px; gap: 8px; }
+.boton-dictado svg { width: 22px; height: 22px; }
+.boton-dictado.escuchando { background: var(--peto); color: #fff; animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: .75; } }
+.dictado-error { color: var(--error-tinta); font-size: 13px; }
+.acciones-texto { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }

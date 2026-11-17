@@ -30,6 +30,8 @@ interface Entrada {
   ventanas?: number[];
   /** Con límite: también se cambia en el descanso. */
   descanso?: boolean;
+  /** En un torneo: minutos que ya jugó cada uno en los partidos anteriores (juega más quien lleva menos). */
+  previos?: Record<string, number>;
   puesto: (id: string) => Puesto | undefined;
 }
 
@@ -72,7 +74,7 @@ export function planificar(e: Entrada): PlanCambios {
     return { tramos: e.tramos, limite, porteroId: portero, cambios: [], minutos };
   }
   if (limite != null) return conLimite(e, resto, huecos, portero, minutos, dur, limite);
-  const veces = new Map(resto.map((id) => [id, 0]));
+  const veces = new Map(resto.map((id) => [id, (e.previos?.[id] ?? 0) / largo]));
   const orden = new Map(resto.map((id, i) => [id, i]));
   let anterior: string[] = [];
   const grupos: string[][] = [];
@@ -81,7 +83,7 @@ export function planificar(e: Entrada): PlanCambios {
     if (t === 0) {
       // Empiezan los titulares de la alineación (si los hay) y se completa con los demás
       const tit = e.titulares.filter((id) => veces.has(id)).slice(0, huecos);
-      elegidos = [...tit, ...resto.filter((id) => !tit.includes(id))].slice(0, huecos);
+      elegidos = [...tit, ...resto.filter((id) => !tit.includes(id)).sort((a, b) => veces.get(a)! - veces.get(b)!)].slice(0, huecos);
     } else {
       // Juegan los que menos tramos llevan; a igualdad, siguen los que ya estaban (menos cambios)
       elegidos = [...resto].sort((a, b) =>
@@ -105,7 +107,7 @@ export function planificar(e: Entrada): PlanCambios {
       if (en) cambios.push({ minuto, sale: s, entra: en });
     }
   }
-  for (const [id, n] of veces) minutos[id] = Math.round(n * largo);
+  for (const [id, n] of veces) minutos[id] = Math.round((n - (e.previos?.[id] ?? 0) / largo) * largo);
   return { tramos: e.tramos, limite, porteroId: portero, cambios, minutos };
 }
 
@@ -115,9 +117,11 @@ export function planificar(e: Entrada): PlanCambios {
  * Si hay más suplentes que cambios, alguno se queda sin jugar.
  */
 function conLimite(e: Entrada, resto: string[], huecos: number, portero: string | null, minutos: Record<string, number>, dur: number, limite: number): PlanCambios {
+  const prev = (id: string) => e.previos?.[id] ?? 0;
   const tit = e.titulares.filter((id) => resto.includes(id)).slice(0, huecos);
-  const inicio = [...tit, ...resto.filter((id) => !tit.includes(id))].slice(0, huecos);
-  const banquillo = resto.filter((id) => !inicio.includes(id));
+  // Sin alineación, en un torneo empiezan los que menos llevan
+  const inicio = [...tit, ...resto.filter((id) => !tit.includes(id)).sort((a, b) => prev(a) - prev(b))].slice(0, huecos);
+  const banquillo = resto.filter((id) => !inicio.includes(id)).sort((a, b) => prev(a) - prev(b));
   const total = Math.min(limite, banquillo.length);
   let momentos = momentosDeCambio(e.partes, e.minutosParte, e.ventanas ?? ventanasPorDefecto(e.partes, e.minutosParte), e.descanso ?? true);
   if (!momentos.length) momentos = [{ minuto: Math.round(dur / 2), descanso: e.partes >= 2 }];
@@ -127,7 +131,8 @@ function conLimite(e: Entrada, resto: string[], huecos: number, portero: string 
     momentos = momentos.filter((m) => cerca.includes(m));
   }
   const cuantos = repartoCambios(momentos, total, dur);
-  const libres = [...inicio].reverse(); // salen primero los últimos de la alineación
+  // Salen primero los que más llevan en el torneo (o, si no, los últimos de la alineación)
+  const libres = [...inicio].reverse().sort((a, b) => prev(b) - prev(a));
   const entran = banquillo.slice(0, total);
   const cambios: CambioPrevisto[] = [];
   momentos.forEach((m, i) => {

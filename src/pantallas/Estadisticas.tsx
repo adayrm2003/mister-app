@@ -13,6 +13,7 @@ import {
 import { PUESTOS, PIERNAS, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
 import { hoyISO } from "./Partidos";
 import { Circulos } from "./Valoracion";
+import HojaInformeFamilia from "./InformeFamilia";
 import "./estadisticas.css";
 
 /** Interruptor de la pestaña Partidos: lista de partidos o estadísticas. */
@@ -294,6 +295,7 @@ export function FichaJugador() {
   const historial = useMemo(() => (j ? partidosDeJugador(j.id, enPeriodo.partidos, partes * minutos, hoy) : []), [j, enPeriodo.partidos, partes, minutos, hoy]);
   const conNota = historial.filter((h) => h.nota != null);
   const mediaNota = conNota.length ? conNota.reduce((t, h) => t + h.nota!, 0) / conNota.length : null;
+  const [informe, setInforme] = useState(false);
   const entrenos = enPeriodo.eventos.filter((e) => e.tipo === "entrenamiento" && e.fecha <= hoy && j && e.asistencia?.[j.id]).sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   if (cargando) return <main className="pagina" />;
@@ -317,6 +319,15 @@ export function FichaJugador() {
         </div>
       </div>
       <SelectorPeriodo {...periodo} />
+      <button className="btn btn-borde btn-ancho" type="button" onClick={() => setInforme(true)}>📄 Informe para la familia</button>
+      {informe && (
+        <HojaInformeFamilia jugador={j.nombre} dorsal={j.dorsal} posicion={PUESTOS.find((p) => p.valor === j.posicion)?.texto ?? ""} alCerrar={() => setInforme(false)}
+          periodo={periodo.eleccion.tipo === "temporada" ? `la temporada ${periodo.eleccion.t}` : periodo.eleccion.tipo === "todo" ? "todos los partidos" : `${periodo.periodo.desde ?? "…"} a ${periodo.periodo.hasta ?? "…"}`}
+          cifras={[["Partidos jugados", String(d.jugados)], ["Titular", String(d.titular)], ["Minutos", String(d.minutos)], ["Goles", String(d.goles)],
+            ["Asistencias de gol", String(d.asistencias)], ["Convocatorias", `${d.convocado}/${f.conAlineacion}`],
+            ["Asistencia a partidos", d.asistenciaPartidos == null ? "—" : `${d.asistenciaPartidos}%`], ["Asistencia a entrenos", d.asistencia == null ? "—" : `${d.asistencia}%`]]}
+          partidos={historial} />
+      )}
 
       <div className="cifras-jugador">
         {cifras.map(([k, v, cl]) => <div key={k} className={"tarjeta" + (cl ? " " + cl : "")}><b>{v}</b><span>{k}</span></div>)}

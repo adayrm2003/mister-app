@@ -76,9 +76,10 @@ export default function Inicio() {
       )}
 
       {semana?.objetivo && (
-        <Link to="/temporada" className="tarjeta objetivo-semana-inicio">
-          <span className="fila-texto"><span className="etiqueta">Objetivo de la semana{etapaActual ? ` · ${etapaActual.nombre}` : ""}</span><b>{semana.objetivo}</b></span>
-        </Link>
+        <div className="tarjeta objetivo-semana-inicio">
+          <Link to="/temporada" className="fila-texto"><span className="etiqueta">Objetivo de la semana{etapaActual ? ` · ${etapaActual.nombre}` : ""}</span><b>{semana.objetivo}</b></Link>
+          <Link to={`/sesiones/propuesta?objetivo=${encodeURIComponent(semana.objetivo)}`} className="btn btn-borde">Proponer sesión</Link>
+        </div>
       )}
 
       <div className="acciones-inicio">

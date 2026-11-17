@@ -21,7 +21,12 @@ export interface Equipo {
   club?: string;
   /** Escudo del club (solo se rellena al leer los equipos de un entrenador). */
   escudo?: string | null;
+  /** Papel de quien lo mira: entrenador principal o ayudante (segundo entrenador). */
+  rol?: RolEquipo;
 }
+
+export type RolEquipo = "principal" | "ayudante";
+export interface EntrenadorEquipo { email: string; rol: RolEquipo; registrado: boolean }
 
 /** Un entrenador que la directiva ha añadido a su club, identificado por su correo. */
 export interface EntrenadorClub {
@@ -39,6 +44,8 @@ export interface EquipoClub {
   modalidad: string | null;
   /** Correo del entrenador, o null si el equipo se ha quedado sin entrenador. */
   entrenador: string | null;
+  /** Correos de los ayudantes (segundos entrenadores). */
+  ayudantes?: string[];
 }
 
 export interface DatosRegistro {
@@ -81,6 +88,13 @@ export interface Api {
   misEquipos(): Promise<Equipo[]>;
   crearMiEquipo(clubId: string, nombre: string): Promise<Equipo>;
   renombrarEquipo(id: string, nombre: string): Promise<void>;
+  /** Entrenadores del equipo (principal y ayudantes). */
+  entrenadoresDeMiEquipo(equipoId: string): Promise<EntrenadorEquipo[]>;
+  /** Solo el entrenador principal: añadir o quitar un ayudante (tiene que ser entrenador del club). */
+  anadirAyudante(equipoId: string, email: string): Promise<void>;
+  quitarAyudante(equipoId: string, email: string): Promise<void>;
+  /** Dirección privada del calendario del equipo para el móvil (nuevo = cambiarla y anular la anterior). */
+  enlaceCalendario(equipoId: string, nuevo?: boolean): Promise<string>;
 
   /** Solo la directiva del club. */
   borrarEquipo(id: string): Promise<void>;

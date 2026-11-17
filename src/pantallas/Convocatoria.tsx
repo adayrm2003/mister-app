@@ -36,8 +36,27 @@ export function textoConvocatoria(p: Partido, equipo: string, lista: Jugador[], 
   return lineas.join("\n");
 }
 
-export function HojaConvocatoria({ partido, jugadores, guardarPartido, alCerrar }: {
+/** Mensaje de la convocatoria de un torneo: todos sus partidos con su hora. */
+export function textoConvocatoriaTorneo(partidos: Partido[], quedada: string, equipo: string, lista: Jugador[], fijos: boolean) {
+  const ps = [...partidos].sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+  const p0 = ps[0];
+  const lineas = [
+    `*CONVOCATORIA · ${equipo.toUpperCase()}*`,
+    `🏆 ${p0?.torneo?.nombre ?? "Torneo"}`,
+    `📅 ${p0 ? fechaMensaje(p0.fecha) : ""}${p0?.campo ? ` · ${p0.campo}` : ""}`
+  ];
+  if (quedada.trim()) lineas.push(`🕘 Quedamos: ${quedada.trim()}`);
+  lineas.push("", "*Partidos:*");
+  ps.forEach((p) => lineas.push(`• ${p.hora ? p.hora + " " : ""}vs ${p.rival}${p.fecha !== p0.fecha ? ` (${fechaMensaje(p.fecha)})` : ""}`));
+  lineas.push("", `*Convocados (${lista.length}):*`);
+  lista.forEach((j, i) => lineas.push(`${i + 1}. ${j.nombre}${fijos && j.dorsal != null ? ` (${j.dorsal})` : ""}`));
+  return lineas.join("\n");
+}
+
+export function HojaConvocatoria({ partido, jugadores, guardarPartido, alCerrar, torneo }: {
   partido: Partido; jugadores: Jugador[]; guardarPartido: (p: Partido) => Promise<void>; alCerrar: () => void;
+  /** Si es un torneo: todos sus partidos (la convocatoria vale para todos). */
+  torneo?: Partido[];
 }) {
   const { equipo, ajustes } = useEquipo();
   const { avisar } = useUi();
@@ -47,9 +66,12 @@ export function HojaConvocatoria({ partido, jugadores, guardarPartido, alCerrar 
   const [paso, setPaso] = useState<"lista" | "mensaje">("lista");
   const plantilla = useMemo(() => ordenarPlantilla(jugadores, fijos), [jugadores, fijos]);
   const lista = plantilla.filter((j) => elegidos.has(j.id));
-  const texto = textoConvocatoria({ ...partido, quedada }, equipo.nombre, lista, fijos);
+  const texto = torneo ? textoConvocatoriaTorneo(torneo, quedada, equipo.nombre, lista, fijos) : textoConvocatoria({ ...partido, quedada }, equipo.nombre, lista, fijos);
 
-  const guardar = (s: Set<string>, q = quedada) => guardarPartido({ ...partido, convocados: plantilla.filter((j) => s.has(j.id)).map((j) => j.id), quedada: q });
+  const guardar = async (s: Set<string>, q = quedada) => {
+    const convocados = plantilla.filter((j) => s.has(j.id)).map((j) => j.id);
+    for (const p of torneo ?? [partido]) await guardarPartido({ ...p, convocados, quedada: q });
+  };
   const alternar = (id: string) => {
     const s = new Set(elegidos);
     if (s.has(id)) s.delete(id); else s.add(id);

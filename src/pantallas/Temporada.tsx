@@ -238,6 +238,9 @@ function HojaSemana({ lunes, valor, citas, etapa, alCerrar, alGuardar }: {
         <label className="campo"><span>Notas <small className="suave">(opcional)</small></span>
           <textarea className="entrada area" rows={3} maxLength={1000} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Contenidos, ejercicios que quieres hacer, recordatorios…" />
         </label>
+        {objetivo.trim() && (
+          <Link className="btn btn-borde" to={`/sesiones/propuesta?objetivo=${encodeURIComponent(objetivo.trim())}`} onClick={() => alGuardar({ objetivo, notas })}>Proponer una sesión con este objetivo</Link>
+        )}
         {(citas.entrenos.length > 0 || citas.partidos.length > 0) && (
           <div className="citas-semana">
             <span className="etiqueta">Esta semana en el calendario</span>

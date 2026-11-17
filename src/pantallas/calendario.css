@@ -115,3 +115,6 @@
   .cal-dia.hoy { padding-left: 0; padding-right: 0; }
   .mini-hora { letter-spacing: -.02em; }
 }
+.calendario-movil { display: flex; flex-direction: column; gap: 10px; }
+.calendario-movil p { margin: 0; }
+.calendario-movil a.btn { text-decoration: none; }

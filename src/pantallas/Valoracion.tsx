@@ -5,6 +5,7 @@ import { useEquipo } from "../ContextoEquipo";
 import { tiempoDePartido, type Jugador, type Partido, type Valoracion as TValoracion } from "../datos/modelo";
 import { minutosFinales } from "../datos/partido";
 import { convocadosDe } from "./PlanMinutos";
+import BotonDictado, { juntar } from "../componentes/Dictado";
 import "./valoracion.css";
 
 /** Cinco circulitos: se rellenan hasta la nota. Tocar la misma nota la quita. */
@@ -73,6 +74,7 @@ export default function ValoracionPartido({ partido, jugadores, guardarPartido }
         <textarea className="entrada area" rows={5} maxLength={3000} value={conclusiones} onChange={(e) => setConclusiones(e.target.value)}
           placeholder="Qué ha salido bien, qué hay que mejorar, qué trabajar esta semana…" />
       </label>
+      <BotonDictado alTexto={(t) => setConclusiones((x) => juntar(x, t))} etiqueta="Dictar las conclusiones" />
 
       <section className="valorar-jugadores">
         <div className="valorar-cabeza">

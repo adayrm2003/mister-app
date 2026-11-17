@@ -27,5 +27,7 @@
 .semana-pasada button { opacity: .7; }
 .citas-semana { display: flex; flex-direction: column; gap: 6px; }
 .citas-semana a { padding: 10px 12px; border-radius: 12px; background: var(--superficie-2); color: var(--tinta); text-decoration: none; }
-.objetivo-semana-inicio { display: flex; gap: 12px; align-items: center; padding: 14px; text-decoration: none; color: var(--tinta); }
+.objetivo-semana-inicio { display: flex; gap: 12px; align-items: center; padding: 14px; color: var(--tinta); flex-wrap: wrap; }
+.objetivo-semana-inicio a { text-decoration: none; color: inherit; }
+.objetivo-semana-inicio .btn { flex: none; }
 .objetivo-semana-inicio .fila-texto { flex: 1; min-width: 0; }

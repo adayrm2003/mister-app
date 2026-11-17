@@ -1,7 +1,7 @@
 // MODO PRUEBA: imita las cuentas y la base de datos guardándolo todo en este navegador.
 // Sirve para probar la app sin Supabase. Las mismas reglas de acceso que en la nube:
 // la directiva solo ve su club y el entrenador solo los equipos asignados a su correo.
-import { type Api, type Club, type EquipoClub, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, ErrorApp, normalizarCorreo } from "./tipos";
+import { type Api, type Club, type EquipoClub, type DatosRegistro, type Equipo, type EventoSesion, type Fila, type Perfil, type Tabla, type TablaUsuario, type RolEquipo, ErrorApp, normalizarCorreo } from "./tipos";
 import { cargarCatalogoLocal } from "./catalogo";
 
 interface Usuario extends Perfil { hash: string }
@@ -11,7 +11,7 @@ interface Bd {
   clubes: ClubGuardado[];
   equipos: Equipo[];
   /** Quién entrena cada equipo. */
-  asignaciones: { id: string; equipoId: string; email: string }[];
+  asignaciones: { id: string; equipoId: string; email: string; rol?: RolEquipo }[];
   /** Entrenadores que cada club ha añadido. */
   miembros: { id: string; clubId: string; email: string }[];
   sesion: string | null;
@@ -66,6 +66,10 @@ function equipoDelClub(bd: Bd, c: Club, equipoId: string) {
 function comprobarEquipo(bd: Bd, equipoId: string) {
   const u = usuarioActual(bd);
   if (!bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === u.email)) throw new ErrorApp("No tienes acceso a ese equipo.");
+}
+function soloPrincipal(bd: Bd, equipoId: string, email: string) {
+  const a = bd.asignaciones.find((x) => x.equipoId === equipoId && x.email === email);
+  if (!a || (a.rol ?? "principal") !== "principal") throw new ErrorApp("Solo el entrenador principal puede hacer esto.");
 }
 const soyDelClub = (bd: Bd, u: Usuario, clubId: string) => bd.miembros.some((m) => m.clubId === clubId && m.email === u.email);
 function borrarEquipoDe(bd: Bd, equipoId: string) {
@@ -183,7 +187,8 @@ export const apiLocal: Api = {
       .map((e): EquipoClub => ({
         id: e.id, nombre: e.nombre,
         modalidad: (bd.ajustesEquipo[e.id]?.modalidad as string | undefined) ?? null,
-        entrenador: bd.asignaciones.find((a) => a.equipoId === e.id)?.email ?? null
+        entrenador: bd.asignaciones.find((a) => a.equipoId === e.id && (a.rol ?? "principal") === "principal")?.email ?? null,
+        ayudantes: bd.asignaciones.filter((a) => a.equipoId === e.id && a.rol === "ayudante").map((a) => a.email).sort()
       }))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   },
@@ -195,8 +200,9 @@ export const apiLocal: Api = {
     equipoDelClub(bd, c, equipoId);
     const correo = normalizarCorreo(email);
     if (!bd.miembros.some((m) => m.clubId === c.id && m.email === correo)) throw new ErrorApp("Ese entrenador no está en tu club.");
-    bd.asignaciones = bd.asignaciones.filter((a) => a.equipoId !== equipoId);
-    bd.asignaciones.push({ id: id(), equipoId, email: correo });
+    // Cambia el principal; los ayudantes se quedan
+    bd.asignaciones = bd.asignaciones.filter((a) => !(a.equipoId === equipoId && ((a.rol ?? "principal") === "principal" || a.email === correo)));
+    bd.asignaciones.push({ id: id(), equipoId, email: correo, rol: "principal" });
     guardar(bd);
   },
 
@@ -211,10 +217,10 @@ export const apiLocal: Api = {
   async misEquipos() {
     const bd = leer();
     const u = usuarioActual(bd);
-    const ids = new Set(bd.asignaciones.filter((a) => a.email === u.email).map((a) => a.equipoId));
+    const mias = new Map(bd.asignaciones.filter((a) => a.email === u.email).map((a) => [a.equipoId, a.rol ?? "principal"] as const));
     return bd.equipos
-      .filter((e) => ids.has(e.id))
-      .map((e) => { const c = bd.clubes.find((x) => x.id === e.clubId); return { ...e, club: c?.nombre, escudo: c?.escudo ?? null }; })
+      .filter((e) => mias.has(e.id))
+      .map((e) => { const c = bd.clubes.find((x) => x.id === e.clubId); return { ...e, club: c?.nombre, escudo: c?.escudo ?? null, rol: mias.get(e.id) }; })
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   },
 
@@ -232,9 +238,44 @@ export const apiLocal: Api = {
     return e;
   },
 
-  async renombrarEquipo(equipoId, nombre) {
+  async entrenadoresDeMiEquipo(equipoId) {
     const bd = leer();
     comprobarEquipo(bd, equipoId);
+    return bd.asignaciones.filter((a) => a.equipoId === equipoId)
+      .map((a) => ({ email: a.email, rol: a.rol ?? "principal", registrado: bd.usuarios.some((x) => x.email === a.email) }))
+      .sort((a, b) => (a.rol === b.rol ? a.email.localeCompare(b.email) : a.rol === "principal" ? -1 : 1));
+  },
+
+  async anadirAyudante(equipoId, email) {
+    await espera();
+    const bd = leer();
+    const u = usuarioActual(bd);
+    soloPrincipal(bd, equipoId, u.email);
+    const correo = normalizarCorreo(email);
+    const e = bd.equipos.find((x) => x.id === equipoId)!;
+    if (correo === u.email) throw new ErrorApp("Ya eres el entrenador principal de este equipo.");
+    if (!bd.miembros.some((m) => m.clubId === e.clubId && m.email === correo)) throw new ErrorApp("Ese correo no es de un entrenador del club. Pide a la directiva que lo añada primero.");
+    if (bd.asignaciones.some((a) => a.equipoId === equipoId && a.email === correo)) throw new ErrorApp("Ese entrenador ya está en el equipo.");
+    if (bd.asignaciones.filter((a) => a.equipoId === equipoId && a.rol === "ayudante").length >= 3) throw new ErrorApp("Como mucho puede haber 3 ayudantes por equipo.");
+    bd.asignaciones.push({ id: id(), equipoId, email: correo, rol: "ayudante" });
+    guardar(bd);
+  },
+
+  async enlaceCalendario() {
+    throw new ErrorApp("El calendario en el móvil solo funciona en la app publicada, no en el modo prueba.");
+  },
+
+  async quitarAyudante(equipoId, email) {
+    const bd = leer();
+    soloPrincipal(bd, equipoId, usuarioActual(bd).email);
+    const correo = normalizarCorreo(email);
+    bd.asignaciones = bd.asignaciones.filter((a) => !(a.equipoId === equipoId && a.email === correo && a.rol === "ayudante"));
+    guardar(bd);
+  },
+
+  async renombrarEquipo(equipoId, nombre) {
+    const bd = leer();
+    soloPrincipal(bd, equipoId, usuarioActual(bd).email);
     const e = bd.equipos.find((x) => x.id === equipoId);
     if (e) e.nombre = nombre.trim();
     guardar(bd);

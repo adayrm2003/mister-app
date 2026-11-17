@@ -23,3 +23,10 @@
 .pieza-arrastrable { background: none; border: 0; padding: 6px; touch-action: none; cursor: grab; }
 .pieza-arrastrable:active { cursor: grabbing; }
 .renombrar-equipo { display: flex; flex-direction: column; gap: 10px; }
+.entrenadores-equipo { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.entrenadores-equipo .fila { display: flex; align-items: center; gap: 8px; }
+.entrenadores-equipo .fila-texto { flex: 1; min-width: 0; }
+.entrenadores-equipo .fila-texto b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.anadir-ayudante { display: flex; flex-direction: column; gap: 8px; }
+.anadir-ayudante .btn { align-self: flex-start; }
+.anadir-ayudante .suave { margin: 0; }

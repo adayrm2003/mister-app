@@ -9,6 +9,7 @@ import { DIAS_CORTOS, aISO, citasDe, emojiCasa, deISO, diasDelMes, lunesDe, resu
 import { COLOR_COMPETICION, PUESTOS, type Jugador, type Partido } from "../datos/modelo";
 import type { Sesion } from "../datos/sesion";
 import { SelectorCalendario } from "./Temporada";
+import BotonCalendarioMovil from "./CalendarioMovil";
 import "./calendario.css";
 
 const hoy = () => aISO(new Date());
@@ -143,6 +144,7 @@ export default function Calendario() {
             avisar(lista.length > 1 ? `${lista.length} eventos añadidos` : "Evento añadido");
           }} />
       )}
+      <BotonCalendarioMovil />
     </main>
   );
 }

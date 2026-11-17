@@ -2,10 +2,10 @@
 // los partidos del equipo); aquí se ve el plan de cada partido y, durante el partido, el próximo cambio.
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useEquipo } from "../ContextoEquipo";
+import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { Hoja } from "../componentes/ui";
 import { jugadoresEnCampo, nuevoId, tiempoDePartido, type Ajustes, type Jugador, type Partido } from "../datos/modelo";
-import { minutosCalculados, type Accion } from "../datos/partido";
+import { minutosCalculados, minutosFinales, type Accion } from "../datos/partido";
 import { MAX_VENTANAS, pendientes, planificar, type CambioPrevisto, type PlanCambios } from "../datos/rotacion";
 import "./plan-minutos.css";
 
@@ -17,7 +17,19 @@ export function convocadosDe(p: Partido): string[] {
 }
 
 /** Plan de cambios de un partido según los Ajustes del equipo (null si está desactivado o no hay convocados). */
-export function planDePartido(p: Partido, ajustes: Ajustes, porId: Map<string, Jugador>): PlanCambios | null {
+/** En un torneo: minutos de cada jugador en los partidos del torneo anteriores a este. */
+export function minutosPrevios(p: Partido, todos: Partido[], duracion: number): Record<string, number> {
+  if (!p.torneo) return {};
+  const clave = (x: Partido) => x.fecha + (x.hora || "99:99");
+  const r: Record<string, number> = {};
+  for (const x of todos) {
+    if (x.id === p.id || x.torneo?.id !== p.torneo.id || clave(x) >= clave(p)) continue;
+    for (const [id, m] of Object.entries(minutosFinales(x, duracion))) r[id] = (r[id] ?? 0) + m;
+  }
+  return r;
+}
+
+export function planDePartido(p: Partido, ajustes: Ajustes, porId: Map<string, Jugador>, previos?: Record<string, number>): PlanCambios | null {
   const c = ajustes.cambios;
   if (!c.activo) return null;
   const convocados = convocadosDe(p).filter((id) => porId.has(id));
@@ -29,7 +41,7 @@ export function planDePartido(p: Partido, ajustes: Ajustes, porId: Map<string, J
   const { partes, minutos } = tiempoDePartido(ajustes);
   return planificar({
     convocados, titulares, porteroId: portero, enCampo: jugadoresEnCampo(ajustes), partes, minutosParte: minutos,
-    tramos: c.tramos, limite: c.limite, descanso: true, puesto: (id) => porId.get(id)?.posicion
+    tramos: c.tramos, limite: c.limite, descanso: true, previos, puesto: (id) => porId.get(id)?.posicion
   });
 }
 
@@ -62,7 +74,9 @@ export function HojaPlanMinutos({ partido, jugadores, alCerrar }: { partido: Par
   const { ajustes } = useEquipo();
   const { partes, minutos: minutosParte } = tiempoDePartido(ajustes);
   const porId = useMemo(() => new Map(jugadores.map((j) => [j.id, j])), [jugadores]);
-  const plan = planDePartido(partido, ajustes, porId);
+  const { filas: todos } = useColeccion<Partido>("partidos");
+  const previos = minutosPrevios(partido, todos, partes * minutosParte);
+  const plan = planDePartido(partido, ajustes, porId, previos);
   const convocados = convocadosDe(partido).filter((id) => porId.has(id));
   const nombre = (id: string) => porId.get(id)?.nombre ?? "—";
   const max = partes * minutosParte;
@@ -79,7 +93,10 @@ export function HojaPlanMinutos({ partido, jugadores, alCerrar }: { partido: Par
         ) : convocados.length === 0 || !plan ? (
           <p className="suave">Primero haz la convocatoria o la alineación: el reparto se hace entre los convocados.</p>
         ) : (
-          <PlanVista plan={plan} convocados={convocados} nombre={nombre} max={max} minutosParte={minutosParte} colorEquipo={ajustes.colorEquipo} />
+          <>
+            {partido.torneo && Object.keys(previos).length > 0 && <p className="mensaje mensaje-aviso">Torneo «{partido.torneo.nombre}»: el reparto tiene en cuenta los minutos de los partidos anteriores, así juega más quien lleva menos.</p>}
+            <PlanVista plan={plan} convocados={convocados} nombre={nombre} max={max} minutosParte={minutosParte} colorEquipo={ajustes.colorEquipo} />
+          </>
         )}
         <div className="hoja-acciones"><button className="btn btn-principal" type="button" onClick={alCerrar}>Listo</button></div>
       </div>
@@ -145,7 +162,8 @@ export function AvisoMinutos({ partido, jugadores, minuto, duracion, enDescanso,
   const nombre = (id: string) => porId.get(id)?.nombre ?? "—";
   const acciones = partido.acciones ?? [];
   const hechos = acciones.filter((a) => a.tipo === "cambio");
-  const plan = planDePartido(partido, ajustes, porId);
+  const { filas: todos } = useColeccion<Partido>("partidos");
+  const plan = planDePartido(partido, ajustes, porId, minutosPrevios(partido, todos, duracion));
   const terminado = !!partido.reloj?.terminado;
   if (!ajustes.cambios.activo) return null;
 

@@ -94,3 +94,9 @@ td.destaca { font-weight: 800; color: var(--cesped); }
 .valoracion-jugador header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
 .valoracion-jugador h2 { margin: 0; }
 .valoracion-jugador ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.informe-familia { display: flex; flex-direction: column; gap: 12px; }
+.informe-familia > .suave { margin: 0; }
+.informe-cifras { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.informe-cifras li { background: var(--superficie-2); border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; min-width: 0; }
+.informe-cifras b { font-size: 18px; }
+.informe-cifras span { font-size: 11px; color: var(--tinta-2); line-height: 1.2; }

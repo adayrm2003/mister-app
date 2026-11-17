@@ -25,3 +25,12 @@
 .segmentos-dir.segmentos-partido { grid-template-columns: repeat(4, 1fr); gap: 2px; }
 .segmentos-partido button { font-size: 15px; padding: 0 2px; min-width: 0; }
 @media (max-width: 360px) { .segmentos-partido button { font-size: 13.5px; } }
+.partidos-torneo-nuevo { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.partidos-torneo-nuevo li { display: flex; gap: 8px; align-items: center; }
+.partidos-torneo-nuevo .hora-torneo { width: 104px; flex: none; }
+.partidos-torneo-nuevo .entrada { min-width: 0; flex: 1; }
+.aviso-torneo { display: block; padding: 12px 14px; color: var(--tinta); text-decoration: none; font-weight: 600; }
+.minutos-torneo { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.minutos-torneo h2 { margin: 0; }
+.minutos-torneo .suave { margin: 0; }
+.torneo .grupo-partidos { display: flex; flex-direction: column; gap: 8px; }

@@ -17,7 +17,7 @@ import "./ejercicios.css";
 
 /* ---------- Datos: se leen una vez y se guardan mientras la app está abierta ---------- */
 let enMemoria: Promise<EjercicioCatalogo[]> | null = null;
-function useCatalogo() {
+export function useCatalogo() {
   const [lista, setLista] = useState<EjercicioCatalogo[] | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
