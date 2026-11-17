@@ -1,25 +1,18 @@
 // Ajustes de los cambios: se eligen una vez y valen para todos los partidos del equipo.
 // Activado o desactivado; cambios ilimitados o máximo 5 (en 3 ventanas durante el juego, más el descanso).
+// Las ventanas no tienen minutos fijos: se cuentan en el partido según se hacen los cambios.
 import { useEffect, useRef } from "react";
 import { useEquipo } from "../ContextoEquipo";
-import { Contador } from "../componentes/Controles";
-import { IcoMas, IcoPapelera } from "../componentes/Iconos";
 import { CAMBIOS_BASE, tiempoDePartido, type AjustesCambios } from "../datos/modelo";
-import { MAX_CAMBIOS, MAX_VENTANAS, momentosDeCambio, repartoCambios, ventanasPorDefecto } from "../datos/rotacion";
+import { MAX_CAMBIOS, MAX_VENTANAS } from "../datos/rotacion";
 import "./plan-minutos.css";
 
 export default function AjustesDeCambios() {
   const { equipo, ajustes, cambiarAjustesEquipo } = useEquipo();
   const c: AjustesCambios = { ...CAMBIOS_BASE, ...ajustes.cambios };
-  const { partes, minutos } = tiempoDePartido(ajustes);
-  const dur = partes * minutos;
+  const { minutos } = tiempoDePartido(ajustes);
   const set = (p: Partial<AjustesCambios>) => cambiarAjustesEquipo({ cambios: { ...c, ...p } });
-  const ventanas = (c.ventanas ?? ventanasPorDefecto(partes, minutos)).filter((m) => m > 0 && m < dur).slice(0, MAX_VENTANAS);
-  const ponerVentanas = (v: number[]) => set({ ventanas: v });
-  const momentos = momentosDeCambio(partes, minutos, ventanas, c.descanso);
-  const reparto = repartoCambios(momentos, c.limite ?? MAX_CAMBIOS, dur);
   const opcionesTramo = [1, 2, 3].filter((t) => minutos / t >= 5);
-  const parteDe = (m: number) => (partes >= 2 ? (m <= minutos ? "1ª parte" : "2ª parte") : "");
 
   // Si se llega con #cambios (desde el partido), se baja hasta aquí
   const ref = useRef<HTMLElement>(null);
@@ -59,34 +52,9 @@ export default function AjustesDeCambios() {
               </div>
             </div>
           ) : (
-            <div className="campo"><span>¿Cuándo haces los cambios?</span>
-              <ul className="ventanas-cambio">
-                {ventanas.map((m, i) => (
-                  <li key={i}>
-                    <span className="ventana-nombre"><b>Ventana {i + 1}</b><small className="suave">{parteDe(m)}</small></span>
-                    <Contador valor={m} min={1} max={dur - 1} etiqueta={`Minuto de la ventana ${i + 1}`} cambiar={(v) => ponerVentanas(ventanas.map((x, k) => (k === i ? v : x)))} />
-                    <button type="button" className="btn btn-icono" aria-label={`Quitar la ventana ${i + 1}`} onClick={() => ponerVentanas(ventanas.filter((_, k) => k !== i))}><IcoPapelera /></button>
-                  </li>
-                ))}
-              </ul>
-              {ventanas.length < MAX_VENTANAS && (
-                <button type="button" className="btn btn-borde" onClick={() => ponerVentanas([...ventanas, Math.min(dur - 1, (ventanas[ventanas.length - 1] ?? Math.round(dur / 3)) + 5)])}>
-                  <IcoMas /> Añadir ventana ({ventanas.length} de {MAX_VENTANAS})
-                </button>
-              )}
-              {partes >= 2 && (
-                <label className="interruptor">
-                  <input type="checkbox" checked={c.descanso} onChange={(e) => set({ descanso: e.target.checked })} />
-                  <span><b>Cambiar también en el descanso</b><small className="suave">No gasta ninguna de las {MAX_VENTANAS} ventanas.</small></span>
-                </label>
-              )}
-              {momentos.length > 0 && (
-                <p className="suave reparto-ventanas">
-                  Así se repartirían los {MAX_CAMBIOS} cambios: {momentos.map((m, i) => `${m.descanso ? "descanso" : `min ${m.minuto}`} (${reparto[i]})`).join(" · ")}.
-                  {" "}Si tienes menos suplentes, se usan los momentos más cercanos a la mitad del partido.
-                </p>
-              )}
-              {momentos.length === 0 && <p className="mensaje mensaje-aviso">Añade al menos una ventana o activa el descanso.</p>}
+            <div className="tarjeta ventanas-info">
+              <p><b>{MAX_VENTANAS} ventanas de cambio durante el juego</b> y, aparte, <b>el descanso</b>, que no gasta ninguna.</p>
+              <p className="suave">No hace falta fijar minutos: haces los cambios cuando lo necesites (una lesión, el marcador…). En el partido, al hacer un cambio eliges si es durante el juego o en el descanso, y la app lleva la cuenta de cambios y ventanas. Varios cambios en el mismo minuto van en la misma ventana.</p>
             </div>
           )}
 

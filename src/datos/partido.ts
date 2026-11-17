@@ -14,6 +14,8 @@ export interface Accion {
   dorsalRival?: number | null; // tarjetas del otro equipo
   /** Cambio hecho en el descanso (no cuenta como ventana de cambio). */
   descanso?: boolean;
+  /** Con máximo de cambios: ventana (1, 2 o 3) en la que se hizo el cambio durante el juego. */
+  ventana?: number;
 }
 
 /** Nota rápida del entrenador durante el partido, para revisarla en el descanso o al final. */

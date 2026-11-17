@@ -6,7 +6,7 @@ import { useEquipo } from "../ContextoEquipo";
 import { Hoja } from "../componentes/ui";
 import { jugadoresEnCampo, nuevoId, tiempoDePartido, type Ajustes, type Jugador, type Partido } from "../datos/modelo";
 import { minutosCalculados, type Accion } from "../datos/partido";
-import { MAX_VENTANAS, momentosDeCambio, pendientes, planificar, ventanasPorDefecto, type CambioPrevisto, type PlanCambios } from "../datos/rotacion";
+import { MAX_VENTANAS, pendientes, planificar, type CambioPrevisto, type PlanCambios } from "../datos/rotacion";
 import "./plan-minutos.css";
 
 /** Convocados del partido: los de la alineación y, si no hay, los de la convocatoria. */
@@ -29,7 +29,7 @@ export function planDePartido(p: Partido, ajustes: Ajustes, porId: Map<string, J
   const { partes, minutos } = tiempoDePartido(ajustes);
   return planificar({
     convocados, titulares, porteroId: portero, enCampo: jugadoresEnCampo(ajustes), partes, minutosParte: minutos,
-    tramos: c.tramos, limite: c.limite, ventanas: c.ventanas ?? undefined, descanso: c.descanso, puesto: (id) => porId.get(id)?.posicion
+    tramos: c.tramos, limite: c.limite, descanso: true, puesto: (id) => porId.get(id)?.posicion
   });
 }
 
@@ -37,14 +37,26 @@ export function planDePartido(p: Partido, ajustes: Ajustes, porId: Map<string, J
 export function textoCambios(ajustes: Ajustes) {
   const c = ajustes.cambios;
   if (!c.activo) return "Plan de cambios desactivado";
-  const { partes, minutos } = tiempoDePartido(ajustes);
+  const { minutos } = tiempoDePartido(ajustes);
   if (c.limite == null) return `Cambios ilimitados · ${c.tramos === 1 ? "en el descanso" : `cada ${Math.round(minutos / c.tramos)} min`}`;
-  const m = momentosDeCambio(partes, minutos, c.ventanas ?? ventanasPorDefecto(partes, minutos), c.descanso);
-  return `Máximo ${c.limite} cambios · ${m.map((x) => (x.descanso ? "descanso" : `${x.minuto}′`)).join(", ")}`;
+  return `Máximo ${c.limite} cambios · ${MAX_VENTANAS} ventanas durante el juego, más el descanso`;
 }
 
-/** Ventanas de cambio ya usadas: minutos distintos con cambios hechos durante el juego (el descanso no cuenta). */
-export const ventanasUsadas = (acciones: Accion[]) => new Set(acciones.filter((a) => a.tipo === "cambio" && !a.descanso).map((a) => a.minuto));
+/** Ventanas de cambio ya usadas durante el juego (los cambios del descanso no cuentan). */
+export const ventanasUsadas = (acciones: Accion[]) =>
+  new Set(acciones.filter((a) => a.tipo === "cambio" && !a.descanso).map((a) => (a.ventana != null ? `v${a.ventana}` : `m${a.minuto}`)));
+
+/**
+ * Ventana en la que va un cambio hecho durante el juego: si el último cambio en juego fue en ese mismo
+ * minuto (o el anterior), es la misma ventana; si no, se abre una nueva.
+ */
+export function ventanaPara(acciones: Accion[], minuto: number): { numero: number; misma: boolean; minutoAnterior?: number } {
+  const enJuego = acciones.filter((a) => a.tipo === "cambio" && !a.descanso).sort((x, y) => x.minuto - y.minuto);
+  const ultimo = enJuego[enJuego.length - 1];
+  const usadas = ventanasUsadas(acciones).size;
+  if (ultimo && Math.abs(minuto - ultimo.minuto) <= 1) return { numero: ultimo.ventana ?? usadas, misma: true, minutoAnterior: ultimo.minuto };
+  return { numero: usadas + 1, misma: false };
+}
 
 export function HojaPlanMinutos({ partido, jugadores, alCerrar }: { partido: Partido; jugadores: Jugador[]; alCerrar: () => void }) {
   const { ajustes } = useEquipo();
@@ -97,6 +109,7 @@ function PlanVista({ plan, convocados, nombre, max, minutosParte, colorEquipo }:
         })}
       </ul>
       <h3 className="etiqueta">Cambios previstos{plan.limite != null ? ` · ${plan.cambios.length} de ${plan.limite}` : ""}</h3>
+      {plan.limite != null && <p className="suave">Los minutos son una sugerencia: puedes hacer cada cambio cuando quieras. En el partido eliges si es durante el juego (gasta una ventana) o en el descanso.</p>}
       {porMinuto.length === 0 ? <p className="suave">Con estos convocados todos juegan el partido entero: no hace falta cambiar.</p> : (
         <ol className="cambios-previstos">
           {porMinuto.map(([min, cs]) => (
@@ -150,6 +163,8 @@ export function AvisoMinutos({ partido, jugadores, minuto, duracion, enDescanso,
   if (!plan && !avisarSinJugar) return null;
   const hacer = (cs: CambioPrevisto[]) => guardarAcciones(cs.map((c) => ({ id: nuevoId(), tipo: "cambio" as const, minuto: minuto ?? c.minuto, jugadorId: c.sale, entraId: c.entra })));
   const tocaYa = siguiente && (siguiente.descanso ? enDescanso : minuto != null && minuto >= siguiente.minuto);
+  // Con máximo de cambios: si ya se usaron las 3 ventanas, durante el juego no se puede cambiar más (en el descanso sí)
+  const sinVentanas = limite != null && !enDescanso && (() => { const v = ventanaPara(acciones, minuto ?? siguiente?.minuto ?? 0); return !v.misma && v.numero > MAX_VENTANAS; })();
 
   return (
     <section className="aviso-minutos tarjeta" aria-live="polite">
@@ -159,7 +174,8 @@ export function AvisoMinutos({ partido, jugadores, minuto, duracion, enDescanso,
           Cambios {Math.min(hechos.length, limite)} de {limite} · Ventanas {Math.min(usadas.size, MAX_VENTANAS)} de {MAX_VENTANAS}{agotados ? " · ya no quedan" : ""}
         </span>
       )}
-      {plan && !agotados && visibles.length > 0 && !terminado && (
+      {sinVentanas && !agotados && !terminado && <p className="mensaje mensaje-aviso">Ya has usado las {MAX_VENTANAS} ventanas: los cambios que quedan, en el descanso.</p>}
+      {plan && !agotados && !sinVentanas && visibles.length > 0 && !terminado && (
         <>
           <span className="etiqueta">Próximo cambio previsto · {siguiente!.descanso ? "en el descanso" : `min ${siguiente!.minuto}`}{tocaYa ? " · ¡ya toca!" : ""}</span>
           {visibles.length > 1 && <button className="btn btn-peto btn-ancho" type="button" onClick={() => hacer(visibles)}>Hacer los {visibles.length} cambios</button>}

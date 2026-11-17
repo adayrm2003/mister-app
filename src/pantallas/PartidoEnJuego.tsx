@@ -1,6 +1,6 @@
 // Durante o después del partido: reloj, goles, cambios, tarjetas, línea de tiempo y minutos jugados.
 import { useEffect, useMemo, useState } from "react";
-import { AvisoMinutos, HojaPlanMinutos, ventanasUsadas } from "./PlanMinutos";
+import { AvisoMinutos, HojaPlanMinutos, ventanaPara } from "./PlanMinutos";
 import { MAX_VENTANAS } from "../datos/rotacion";
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
@@ -38,7 +38,6 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   // Con máximo de cambios (Ajustes): 5 cambios en 3 ventanas durante el juego; el descanso no cuenta como ventana
   const limiteCambios = ajustes.cambios.activo ? ajustes.cambios.limite : null;
   const cambiosHechos = (partido.acciones ?? []).filter((a) => a.tipo === "cambio").length;
-  const usadas = ventanasUsadas(partido.acciones ?? []);
 
   const { partes, minutos: minutosParte } = tiempoDePartido(ajustes);
   const duracion = partes * minutosParte;
@@ -54,10 +53,23 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const reloj = partido.reloj ?? { parte: 1, inicio: null, terminado: false };
   const minAhora = minutoActual(reloj, minutosParte);
   const enDescanso = !!partido.reloj && reloj.inicio == null && !reloj.terminado && reloj.parte < partes;
-  const sinVentanas = limiteCambios != null && usadas.size >= MAX_VENTANAS && !enDescanso && !(minAhora != null && usadas.has(minAhora));
-  const cambiosAgotados = limiteCambios != null && (cambiosHechos >= limiteCambios || sinVentanas);
-  /** Los cambios hechos en el descanso se marcan para que no cuenten como ventana. */
-  const marcarDescanso = (a: Accion) => (a.tipo === "cambio" && enDescanso && !(partido.acciones ?? []).some((x) => x.id === a.id) ? { ...a, descanso: true } : a);
+  const cambiosAgotados = limiteCambios != null && cambiosHechos >= limiteCambios;
+  const minutoDescanso = (enDescanso ? reloj.parte : Math.max(1, reloj.parte - 1)) * minutosParte;
+  /**
+   * Prepara los cambios nuevos: los del descanso se marcan (no gastan ventana) y, con máximo de cambios,
+   * los hechos durante el juego se apuntan en su ventana.
+   */
+  const prepararCambios = (nuevas: Accion[]) => {
+    const lista = [...(partido.acciones ?? [])];
+    return nuevas.map((a0) => {
+      if (a0.tipo !== "cambio" || lista.some((x) => x.id === a0.id)) return a0;
+      const a: Accion = { ...a0, descanso: a0.descanso ?? (enDescanso || undefined) };
+      if (a.descanso) a.minuto = a0.descanso ? a.minuto : minutoDescanso;
+      else if (limiteCambios != null) a.ventana = ventanaPara(lista, a.minuto).numero;
+      lista.push(a);
+      return a;
+    });
+  };
   const segAhora = segundosActuales(reloj, minutosParte);
   // Lo que pasa del final teórico de la parte (45:00, 90:00...) es tiempo añadido
   const finParte = reloj.parte * minutosParte * 60;
@@ -68,7 +80,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
 
   const guardar = (c: Partial<Partido>) => guardarPartido({ ...partido, ...c });
   const guardarAccion = async (sinMarcar: Accion) => {
-    const a = marcarDescanso(sinMarcar);
+    const [a] = prepararCambios([sinMarcar]);
     const lista = (partido.acciones ?? []).some((x) => x.id === a.id) ? (partido.acciones ?? []).map((x) => (x.id === a.id ? a : x)) : [...(partido.acciones ?? []), a];
     await guardar({ acciones: lista });
   };
@@ -128,14 +140,14 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       </section>
       {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
 
-      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} enDescanso={enDescanso} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...as.map(marcarDescanso)] })} abrirPlan={() => setPlan(true)} />
+      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} enDescanso={enDescanso} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...prepararCambios(as)] })} abrirPlan={() => setPlan(true)} />
       {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} alCerrar={() => setPlan(false)} />}
 
       <section className="botones-accion" aria-label="Apuntar">
         <span className="etiqueta grupo-accion">{equipo.nombre}</span>
         <button className="btn btn-peto accion-gol" type="button" onClick={() => setHoja({ tipo: "gol" })}><IconoAccion tipo="gol" /> Gol nuestro</button>
         <button className="btn btn-gris" type="button" disabled={cambiosAgotados} onClick={() => setHoja({ tipo: "cambio" })}>
-          <IconoAccion tipo="cambio" /> Cambio{limiteCambios != null ? ` ${Math.min(cambiosHechos, limiteCambios)}/${limiteCambios}` : ""}{sinVentanas && cambiosHechos < (limiteCambios ?? 0) ? " · sin ventanas" : ""}
+          <IconoAccion tipo="cambio" /> Cambio{limiteCambios != null ? ` ${Math.min(cambiosHechos, limiteCambios)}/${limiteCambios}` : ""}
         </button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarilla" })}><IconoAccion tipo="amarilla" /> Amarilla</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "roja" })}><IconoAccion tipo="roja" /> Roja</button>
@@ -161,7 +173,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
                   <span className="suceso-texto">
                     {a.tipo === "gol" && <><b>Gol de {etiqueta(a.jugadorId)}</b>{a.asistenteId && <small>Asistencia: {etiqueta(a.asistenteId)}</small>}</>}
                     {a.tipo === "golRival" && <b>Gol de {ellos}</b>}
-                    {a.tipo === "cambio" && <><b>Entra {etiqueta(a.entraId)}</b><small>Sale {etiqueta(a.jugadorId)}</small></>}
+                    {a.tipo === "cambio" && <><b>Entra {etiqueta(a.entraId)}</b><small>Sale {etiqueta(a.jugadorId)}{a.descanso ? " · en el descanso" : a.ventana ? ` · ventana ${a.ventana}` : ""}</small></>}
                     {(a.tipo === "amarilla" || a.tipo === "roja") && <><b>{TEXTO_ACCION[a.tipo]} a {etiqueta(a.jugadorId)}</b>{a.tipo === "amarilla" && exp.get(a.jugadorId!) === a.minuto && <small>Segunda amarilla: expulsado</small>}</>}
                     {(a.tipo === "amarillaRival" || a.tipo === "rojaRival") && <><b>{a.tipo === "amarillaRival" ? "Amarilla" : "Roja"} al {a.dorsalRival ?? "?"} de {ellos}</b>{a.tipo === "amarillaRival" && a.dorsalRival != null && expRival.get(a.dorsalRival) === a.minuto && <small>Segunda amarilla: expulsado</small>}</>}
                   </span>
@@ -204,6 +216,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       {hoja && (
         <HojaAccion tipo={hoja.tipo} editar={hoja.editar} minutoInicial={hoja.editar?.minuto ?? (enDescanso ? reloj.parte * minutosParte : null) ?? (minAhora != null ? Math.min(minAhora, reloj.parte * minutosParte) : null) ?? acciones[acciones.length - 1]?.minuto ?? 1} rival={ellos}
           etiqueta={etiqueta} convocados={convocados} al={al} acciones={partido.acciones ?? []}
+          ventanas={limiteCambios != null ? { enDescanso, minutoDescanso } : undefined}
           alCerrar={() => setHoja(null)}
           alGuardar={async (a) => { await guardarAccion(a); setHoja(null); avisar(a.tipo === "gol" ? "¡Gol apuntado!" : `${TEXTO_ACCION[a.tipo]} apuntado`); }}
           alBorrar={hoja.editar ? async () => {
@@ -225,9 +238,11 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
 }
 
 /* ---------- Apuntar o corregir una acción ---------- */
-function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, al, acciones, alCerrar, alGuardar, alBorrar }: {
+function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, al, acciones, ventanas, alCerrar, alGuardar, alBorrar }: {
   tipo: TipoAccion; editar?: Accion; minutoInicial: number; rival: string; etiqueta: (id?: string) => string;
   convocados: Jugador[]; al: Partido["alineacion"]; acciones: Accion[];
+  /** Solo con máximo de cambios: para elegir si el cambio es durante el juego (gasta ventana) o en el descanso. */
+  ventanas?: { enDescanso: boolean; minutoDescanso: number };
   alCerrar: () => void; alGuardar: (a: Accion) => Promise<void>; alBorrar?: () => void;
 }) {
   const [minuto, setMinuto] = useState(minutoInicial);
@@ -240,7 +255,11 @@ function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, 
   const enElCampo = convocados.filter((j) => dentro.has(j.id));
   const fuera = convocados.filter((j) => !dentro.has(j.id) && !(expulsados.has(j.id) && expulsados.get(j.id)! <= minuto));
   const id = editar?.id ?? crypto.randomUUID();
-  const guardar = (c: Partial<Accion>) => alGuardar({ id, tipo, minuto, ...c });
+  const [enDescansoElegido, setEnDescanso] = useState(editar ? !!editar.descanso : !!ventanas?.enDescanso);
+  const otrasCambio = otras.filter((a) => a.tipo === "cambio");
+  const v = ventanas && !enDescansoElegido ? ventanaPara(otrasCambio, minuto) : null;
+  const sinVentanas = !!v && !v.misma && v.numero > MAX_VENTANAS;
+  const guardar = (c: Partial<Accion>) => alGuardar({ id, tipo, minuto, ...(tipo === "cambio" && ventanas ? { descanso: enDescansoElegido } : {}), ...c });
 
   const titulo = editar ? `Corregir: ${TEXTO_ACCION[tipo].toLowerCase()}`
     : tipo === "gol" ? "Gol nuestro" : tipo === "golRival" ? `Gol de ${rival}`
@@ -280,11 +299,25 @@ function HojaAccion({ tipo, editar, minutoInicial, rival, etiqueta, convocados, 
           <Lista jugadores={(enElCampo.length ? enElCampo : convocados).filter((j) => j.id !== jugadorId)} marcado={editar?.asistenteId} elegir={(j) => guardar({ jugadorId, asistenteId: j.id })} /></>
       )}
 
-      {tipo === "cambio" && (paso === "principal" || !jugadorId) && (
+      {tipo === "cambio" && ventanas && !editar && (
+        <div className="campo cuando-cambio"><span>¿Cuándo es el cambio?</span>
+          <div className="barra-opciones" role="radiogroup" aria-label="Cuándo es el cambio">
+            <button type="button" role="radio" aria-checked={!enDescansoElegido} onClick={() => setEnDescanso(false)}>Durante el juego</button>
+            <button type="button" role="radio" aria-checked={enDescansoElegido} onClick={() => { setEnDescanso(true); setMinuto(ventanas.minutoDescanso); }}>En el descanso</button>
+          </div>
+          <small className={sinVentanas ? "mensaje mensaje-aviso" : "suave"}>
+            {enDescansoElegido ? "En el descanso: no gasta ninguna ventana."
+              : sinVentanas ? `Ya has usado las ${MAX_VENTANAS} ventanas: solo puedes cambiar en el descanso.`
+              : v!.misma ? `Va en la misma ventana que el cambio del minuto ${v!.minutoAnterior} (ventana ${v!.numero} de ${MAX_VENTANAS}).`
+              : `Gasta la ventana ${v!.numero} de ${MAX_VENTANAS}.`}
+          </small>
+        </div>
+      )}
+      {tipo === "cambio" && sinVentanas ? null : tipo === "cambio" && (paso === "principal" || !jugadorId) && (
         <><span className="etiqueta">¿Quién sale?</span>
           <Lista jugadores={enElCampo} marcado={jugadorId} elegir={(j) => { setJugadorId(j.id); setPaso("segundo"); }} /></>
       )}
-      {tipo === "cambio" && paso === "segundo" && jugadorId && (
+      {tipo === "cambio" && !sinVentanas && paso === "segundo" && jugadorId && (
         <><p className="elegido-texto">Sale <b>{etiqueta(jugadorId)}</b> <button className="btn btn-texto" type="button" onClick={() => setPaso("principal")}>Cambiar</button></p>
           <span className="etiqueta">¿Quién entra?</span>
           <Lista jugadores={fuera.filter((j) => j.id !== jugadorId)} marcado={editar?.entraId} elegir={(j) => guardar({ jugadorId, entraId: j.id })} /></>

@@ -29,3 +29,6 @@
 .ventanas-cambio li { display: flex; align-items: center; gap: 8px; }
 .ventana-nombre { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .reparto-ventanas { margin: 6px 0 0; font-size: 14px; }
+.ventanas-info { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.ventanas-info p { margin: 0; }
+.cuando-cambio small { display: block; margin-top: 6px; }
