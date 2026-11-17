@@ -114,7 +114,7 @@ import type { EjercicioCatalogo } from "./catalogo";
 export type TablaUsuario = "ejercicios" | "sesiones";
 
 /** Tablas con datos de un equipo. */
-export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos" | "pizarras" | "videos";
+export type Tabla = "jugadores" | "partidos" | "plantillas_alineacion" | "eventos" | "pizarras" | "videos" | "rivales" | "temporadas";
 export interface Fila { id: string; equipoId: string }
 
 /** Error con un mensaje ya preparado para enseñarlo al usuario. */

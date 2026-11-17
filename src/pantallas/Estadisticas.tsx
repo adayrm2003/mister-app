@@ -12,6 +12,7 @@ import {
 } from "../datos/estadisticas";
 import { PUESTOS, PIERNAS, tiempoDePartido, type Jugador, type Partido } from "../datos/modelo";
 import { hoyISO } from "./Partidos";
+import { Circulos } from "./Valoracion";
 import "./estadisticas.css";
 
 /** Interruptor de la pestaña Partidos: lista de partidos o estadísticas. */
@@ -20,6 +21,7 @@ export function SelectorPartidos() {
     <nav className="segmentos-dir selector-biblioteca" aria-label="Partidos">
       <NavLink to="/partidos" end className={({ isActive }) => (isActive ? "activo" : "")}>Partidos</NavLink>
       <NavLink to="/estadisticas" end className={({ isActive }) => (isActive ? "activo" : "")}>Estadísticas</NavLink>
+      <NavLink to="/rivales" end className={({ isActive }) => (isActive ? "activo" : "")}>Rivales</NavLink>
     </nav>
   );
 }
@@ -88,16 +90,23 @@ const Porcentaje = ({ n }: { n: number | null }) =>
   n == null ? <>—</> : <span className={"porcentaje " + (n >= 80 ? "alto" : n >= 60 ? "medio" : "bajo")}>{n}%</span>;
 
 /** Lista con barra: el más alto ocupa toda la barra. */
-function Ranking({ titulo, filas, valor, texto, vacio, ir, todos = false }: {
+function Ranking({ titulo, filas, valor, texto, vacio, ir, todos = false, menosPrimero = false, explicacion, sobre }: {
   titulo: string; filas: FilaJugador[]; valor: (f: FilaJugador) => number; texto: (f: FilaJugador) => string; vacio: string; ir: (id: string) => void;
   /** Asistencia: salen todos, también los que menos vienen. Goles y tarjetas: los 8 primeros. */
   todos?: boolean;
+  /** Reparto de minutos: primero los que menos juegan. */
+  menosPrimero?: boolean;
+  explicacion?: string;
+  /** Valor que llena la barra entera (si no, el más alto). */
+  sobre?: number;
 }) {
-  const lista = filas.filter((f) => todos || valor(f) > 0).sort((a, b) => valor(b) - valor(a) || a.jugador.nombre.localeCompare(b.jugador.nombre, "es")).slice(0, todos ? undefined : 8);
-  const max = Math.max(1, ...lista.map(valor));
+  const lista = filas.filter((f) => todos || valor(f) > 0)
+    .sort((a, b) => (menosPrimero ? valor(a) - valor(b) : valor(b) - valor(a)) || a.jugador.nombre.localeCompare(b.jugador.nombre, "es")).slice(0, todos ? undefined : 8);
+  const max = sobre ?? Math.max(1, ...lista.map(valor));
   return (
     <section className="ranking tarjeta">
       <h2>{titulo}</h2>
+      {explicacion && lista.length > 0 && <p className="suave ranking-explicacion">{explicacion}</p>}
       {lista.length === 0 ? <p className="suave">{vacio}</p> : (
         <ol>
           {lista.map((f, i) => (
@@ -216,6 +225,9 @@ export default function Estadisticas({ desde = "partidos" }: { desde?: "partidos
           texto={(f) => [f.amarillas && `${f.amarillas} TA`, f.rojas && `${f.rojas} TR`].filter(Boolean).join(" · ")} vacio="Ninguna tarjeta. ¡Bien!" ir={verJugador} />
         <Ranking titulo="Asistencia a entrenamientos" filas={datos.filas.filter((f) => f.asistencia != null)} valor={(f) => f.asistencia ?? 0}
           texto={(f) => `${f.asistencia}% · ${f.presente}/${f.entrenos}`} vacio="Pasa lista en los entrenamientos y aquí verás quién viene más." ir={verJugador} todos />
+        <Ranking titulo="Reparto de minutos" filas={datos.filas.filter((f) => f.reparto != null)} valor={(f) => f.reparto ?? 0} sobre={100}
+          texto={(f) => `${f.reparto}% · ${f.minutos}′`} vacio="Haz la alineación y apunta los cambios: aquí verás si todos juegan parecido." ir={verJugador} todos menosPrimero
+          explicacion="De los minutos que podía jugar cada uno (cuando estaba convocado). Arriba, los que menos juegan." />
         <Ranking titulo="Convocatorias a partidos" filas={datos.filas} valor={(f) => f.convocado}
           texto={(f) => `${f.convocado}/${datos.conAlineacion} · ${f.asistenciaPartidos ?? 0}%`} vacio="Haz la alineación de los partidos y aquí verás las convocatorias." ir={verJugador} todos={datos.conAlineacion > 0} />
       </div>
@@ -280,6 +292,8 @@ export function FichaJugador() {
   const enPeriodo = useMemo(() => filtrarPeriodo(partidos, eventos, periodo.periodo), [partidos, eventos, periodo.periodo]);
   const f = useMemo(() => (j ? estadisticas([j], enPeriodo.partidos, enPeriodo.eventos, partes * minutos, hoy) : null), [j, enPeriodo, partes, minutos, hoy]);
   const historial = useMemo(() => (j ? partidosDeJugador(j.id, enPeriodo.partidos, partes * minutos, hoy) : []), [j, enPeriodo.partidos, partes, minutos, hoy]);
+  const conNota = historial.filter((h) => h.nota != null);
+  const mediaNota = conNota.length ? conNota.reduce((t, h) => t + h.nota!, 0) / conNota.length : null;
   const entrenos = enPeriodo.eventos.filter((e) => e.tipo === "entrenamiento" && e.fecha <= hoy && j && e.asistencia?.[j.id]).sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   if (cargando) return <main className="pagina" />;
@@ -308,12 +322,25 @@ export function FichaJugador() {
         {cifras.map(([k, v, cl]) => <div key={k} className={"tarjeta" + (cl ? " " + cl : "")}><b>{v}</b><span>{k}</span></div>)}
       </div>
 
+      {conNota.length > 0 && (
+        <section className="tarjeta valoracion-jugador">
+          <header><h2>Valoración del entrenador</h2>
+            <span className="media-equipo"><Circulos valor={mediaNota} etiqueta="Valoración media" pequenos /> {mediaNota!.toFixed(1).replace(".", ",")} · {conNota.length} {conNota.length === 1 ? "partido" : "partidos"}</span>
+          </header>
+          <ul>
+            {conNota.filter((h) => h.comentario).slice(0, 5).map((h) => (
+              <li key={h.partido.id}><span className="suave">{fecha(h.partido.fecha)} · vs {h.partido.rival}:</span> {h.comentario}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="tabla-jugadores">
         <header><h2>Partido a partido</h2><span className="suave">{historial.length} partidos jugados por el equipo</span></header>
         {historial.length === 0 ? <p className="suave">Ningún partido jugado en este periodo.</p> : (
           <div className="tabla-scroll">
             <table>
-              <thead><tr><th scope="col" className="col-jugador">Partido</th><th scope="col">Res.</th><th scope="col">Conv</th><th scope="col">Min</th><th scope="col">Gol</th><th scope="col">Asis</th><th scope="col">Tarj.</th></tr></thead>
+              <thead><tr><th scope="col" className="col-jugador">Partido</th><th scope="col">Res.</th><th scope="col">Conv</th><th scope="col">Min</th><th scope="col">Gol</th><th scope="col">Asis</th><th scope="col">Tarj.</th><th scope="col">Valor.</th></tr></thead>
               <tbody>
                 {historial.map((h) => (
                   <tr key={h.partido.id} className={h.convocado ? "" : "no-convocado"}>
@@ -324,6 +351,7 @@ export function FichaJugador() {
                     <td className={h.goles ? "destaca" : ""}>{h.goles}</td>
                     <td>{h.asistencias}</td>
                     <td>{h.amarillas ? <span className="celda-tarjeta amarilla">{h.amarillas}</span> : null}{h.roja ? <span className="celda-tarjeta roja">R</span> : null}{!h.amarillas && !h.roja ? "–" : null}</td>
+                    <td>{h.nota != null ? <Circulos valor={h.nota} etiqueta="Valoración" pequenos /> : "–"}</td>
                   </tr>
                 ))}
               </tbody>

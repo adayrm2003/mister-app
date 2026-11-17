@@ -159,7 +159,19 @@ export interface Partido {
   reloj?: import("./partido").Reloj;
   /** Notas del entrenador durante el partido. */
   anotaciones?: import("./partido").Anotacion[];
+  /** Jugadores convocados (lista para mandar por WhatsApp). null/ausente = aún sin convocatoria. */
+  convocados?: string[] | null;
+  /** Dónde y cuándo se queda (sale en el mensaje de la convocatoria). */
+  quedada?: string;
+  /** Plan de cambios para repartir los minutos. */
+  planCambios?: import("./rotacion").PlanCambios | null;
+  /** Conclusiones del entrenador después del partido. */
+  conclusiones?: string;
+  /** Valoración de cada jugador que jugó: del 1 al 5 y un comentario opcional. */
+  valoraciones?: Record<string, Valoracion>;
 }
+
+export interface Valoracion { nota: number | null; comentario: string }
 
 export interface PlantillaAlineacion {
   id: string;

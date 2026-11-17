@@ -1,0 +1,18 @@
+/* Valoración del partido */
+.valoracion { display: flex; flex-direction: column; gap: 14px; }
+.estado-guardado { margin: 0; min-height: 1.2em; font-size: 14px; text-align: right; }
+.valorar-cabeza { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.media-equipo { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lista-valorar { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; border: 1px solid var(--linea); border-radius: 16px; background: var(--superficie); overflow: hidden; }
+.lista-valorar li { padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; }
+.lista-valorar li + li { border-top: 1px solid var(--linea); }
+.valorar-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.valorar-fila .fila-texto { min-width: 0; flex: 1 1 100px; }
+.anadir-comentario { align-self: flex-start; min-height: 32px; padding: 0; font-size: 14px; }
+.entrada-comentario { min-height: 44px; font-size: 15px; }
+.circulos { display: inline-flex; gap: 6px; align-items: center; }
+.circulos .circulo { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--cesped); background: transparent; padding: 0; flex: none; }
+.circulos button.circulo { width: 34px; height: 34px; cursor: pointer; }
+.circulos .circulo.lleno { background: var(--cesped); }
+.circulos.pequenos { gap: 3px; }
+.circulos.pequenos .circulo { width: 12px; height: 12px; border-width: 1.5px; }

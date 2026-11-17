@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { usePlanTemporada } from "./Temporada";
+import { etapaDe, hoyLunes } from "../datos/temporada";
 import { IcoCalendario, IcoMas, IcoPartidos } from "../componentes/Iconos";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import type { Partido } from "../datos/modelo";
@@ -32,6 +34,9 @@ export default function Inicio() {
   const partido = cita?.esPartido ? partidos.find((p) => p.id === cita.id) : undefined;
   const evento = cita && !cita.esPartido ? eventos.find((e) => e.id === cita.id) : undefined;
   const siguientes = citas.slice(1, 4);
+  const { plan } = usePlanTemporada();
+  const semana = plan?.semanas[hoyLunes()];
+  const etapaActual = etapaDe(plan, hoyISO());
   const hoy = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
 
   return (
@@ -48,7 +53,12 @@ export default function Inicio() {
           <p className="proximo-datos">{partido
             ? `${partido.hora} · ${partido.campo || "Campo sin indicar"} · ${partido.casa ? "En casa" : "Fuera"} · ${partido.competicion}`
             : cita.detalle || "Sin hora"}</p>
-          {partido && <button className="btn proximo-boton" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}><IcoPartidos /> {partido.alineacion ? "Ver alineación" : "Hacer alineación"}</button>}
+          {partido && (
+            <div className="proximo-botones">
+              <button className="btn proximo-boton" type="button" onClick={() => ir(`/partidos/${partido.id}?convocar=1`)}>{partido.convocados ? `Convocatoria (${partido.convocados.length})` : "Convocar"}</button>
+              <button className="btn proximo-boton" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}><IcoPartidos /> {partido.alineacion ? "Ver alineación" : "Hacer alineación"}</button>
+            </div>
+          )}
           {evento && (
             <div className="proximo-botones">
               {evento.sesionId && <button className="btn proximo-boton" type="button" onClick={() => ir(`/sesiones/${evento.sesionId}/campo`)}>Modo campo</button>}
@@ -63,6 +73,12 @@ export default function Inicio() {
           <p className="proximo-datos">Añade entrenamientos de {equipo.nombre} en el calendario o apunta un partido y aquí verás el siguiente.</p>
           <button className="btn proximo-boton" type="button" onClick={() => ir("/calendario")}><IcoCalendario /> Abrir calendario</button>
         </section>
+      )}
+
+      {semana?.objetivo && (
+        <Link to="/temporada" className="tarjeta objetivo-semana-inicio">
+          <span className="fila-texto"><span className="etiqueta">Objetivo de la semana{etapaActual ? ` · ${etapaActual.nombre}` : ""}</span><b>{semana.objetivo}</b></span>
+        </Link>
       )}
 
       <div className="acciones-inicio">

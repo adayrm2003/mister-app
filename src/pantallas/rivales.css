@@ -1,0 +1,10 @@
+/* Ficha del rival */
+.tarjeta-rival { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; text-align: left; color: var(--tinta); width: 100%; border: 1px solid var(--linea); }
+.tarjeta-rival b { font-size: 17px; }
+.notas-rival { color: var(--tinta-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; }
+.ficha-rival { display: flex; flex-direction: column; gap: 14px; }
+.rival-campo { width: min(100%, 260px); margin: 0 auto; }
+.historial-rival ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.historial-rival a { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--superficie-2); color: var(--tinta); text-decoration: none; }
+.historial-rival b.victoria { color: var(--cesped); }
+.historial-rival b.derrota { color: var(--error-tinta); }

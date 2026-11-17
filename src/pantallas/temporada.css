@@ -1,0 +1,31 @@
+/* Plan de temporada */
+.temporada .cal-navegacion h1 { font-size: 28px; margin: 0; text-align: center; flex: 1; }
+.temporada > .suave { margin-top: -6px; }
+.objetivos-temporada { padding: 14px; margin: 0; }
+.etapas, .semanas { display: flex; flex-direction: column; gap: 10px; }
+.etapas h2, .semanas h2 { margin: 0; }
+.etapas-vacio { padding: 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.etapas-vacio p { margin: 0; }
+.linea-temporada { position: relative; height: 14px; border-radius: 7px; background: var(--superficie-2); overflow: hidden; }
+.linea-temporada span { position: absolute; top: 0; bottom: 0; }
+.linea-temporada i { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1px; background: var(--tinta); border-radius: 2px; }
+.fila-etapa .fila-texto span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.color-etapa { width: 14px; height: 40px; border-radius: 7px; flex: none; }
+.color-etapa.en-linea { display: inline-block; width: 12px; height: 12px; vertical-align: middle; }
+.fechas-etapa { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fechas-etapa .campo { min-width: 0; }
+.fechas-etapa .entrada { min-width: 0; width: 100%; }
+.lista-semanas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 70vh; overflow-y: auto; }
+.lista-semanas button { width: 100%; display: flex; gap: 12px; align-items: stretch; text-align: left; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta); min-height: 60px; }
+.lista-semanas .franja { width: 6px; border-radius: 3px; flex: none; }
+.semana-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.semana-fecha { font-size: 13px; color: var(--tinta-2); font-weight: 600; }
+.semana-texto b { font-size: 16px; }
+.semana-texto b.sin-objetivo { color: var(--tinta-2); font-weight: 500; }
+.semana-citas { font-size: 13px; color: var(--tinta-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.semana-actual button { border: 2px solid var(--peto); }
+.semana-pasada button { opacity: .7; }
+.citas-semana { display: flex; flex-direction: column; gap: 6px; }
+.citas-semana a { padding: 10px 12px; border-radius: 12px; background: var(--superficie-2); color: var(--tinta); text-decoration: none; }
+.objetivo-semana-inicio { display: flex; gap: 12px; align-items: center; padding: 14px; text-decoration: none; color: var(--tinta); }
+.objetivo-semana-inicio .fila-texto { flex: 1; min-width: 0; }

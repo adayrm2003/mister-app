@@ -19,6 +19,10 @@ export interface FilaJugador {
   convocado: number;
   /** % de convocatorias sobre los partidos jugados que tienen alineación. */
   asistenciaPartidos: number | null;
+  /** Minutos que podría haber jugado: la duración de los partidos en que estaba convocado. */
+  minutosPosibles: number;
+  /** % de minutos jugados sobre los posibles (reparto de minutos). */
+  reparto: number | null;
 }
 
 export interface ResumenEquipo { jugados: number; victorias: number; empates: number; derrotas: number; gf: number; gc: number }
@@ -31,7 +35,7 @@ export function estadisticas(jugadores: Jugador[], partidos: Partido[], eventos:
   const jugados = partidos.filter((p) => partidoJugado(p, hoy));
   const filas = new Map<string, FilaJugador>(jugadores.map((j) => [j.id, {
     jugador: j, jugados: 0, titular: 0, minutos: 0, goles: 0, asistencias: 0, amarillas: 0, rojas: 0, entrenos: 0, presente: 0, asistencia: null,
-    convocado: 0, asistenciaPartidos: null
+    convocado: 0, asistenciaPartidos: null, minutosPosibles: 0, reparto: null
   }]));
   const conAlineacion = jugados.filter((p) => !!p.alineacion).length;
 
@@ -45,7 +49,8 @@ export function estadisticas(jugadores: Jugador[], partidos: Partido[], eventos:
     const acciones = p.acciones ?? [];
     const titulares = new Set((p.alineacion?.titulares ?? []).filter((x): x is string => !!x));
     // Convocados: titulares y banquillo de la alineación
-    for (const id of new Set([...titulares, ...(p.alineacion?.suplentes ?? [])])) { const f = filas.get(id); if (f) f.convocado++; }
+    const durPartido = Math.max(duracion, ...acciones.map((a) => a.minuto));
+    for (const id of new Set([...titulares, ...(p.alineacion?.suplentes ?? [])])) { const f = filas.get(id); if (f) { f.convocado++; f.minutosPosibles += durPartido; } }
     const ids = new Set([...Object.keys(min), ...titulares]);
     for (const id of ids) {
       const f = filas.get(id);
@@ -77,6 +82,7 @@ export function estadisticas(jugadores: Jugador[], partidos: Partido[], eventos:
   for (const f of filas.values()) {
     f.asistencia = f.entrenos ? Math.round((f.presente / f.entrenos) * 100) : null;
     f.asistenciaPartidos = conAlineacion ? Math.round((f.convocado / conAlineacion) * 100) : null;
+    f.reparto = f.minutosPosibles ? Math.min(100, Math.round((f.minutos / f.minutosPosibles) * 100)) : null;
   }
 
   const entrenosSinLista = eventos.filter((e) => e.tipo === "entrenamiento" && e.fecha <= hoy && Object.keys(e.asistencia ?? {}).length === 0)
@@ -106,6 +112,8 @@ export function temporadasCon(partidos: Partido[], eventos: Evento[], hoy: strin
 export interface PartidoJugador {
   partido: Partido; nuestros: number; suyos: number; signo: "victoria" | "empate" | "derrota";
   convocado: boolean; titular: boolean; minutos: number; goles: number; asistencias: number; amarillas: number; roja: boolean;
+  /** Valoración del entrenador en ese partido (1 a 5) y su comentario. */
+  nota: number | null; comentario: string;
 }
 export function partidosDeJugador(jugadorId: string, partidos: Partido[], duracion: number, hoy: string): PartidoJugador[] {
   return partidos.filter((p) => partidoJugado(p, hoy)).sort((a, b) => b.fecha.localeCompare(a.fecha)).map((p) => {
@@ -118,7 +126,8 @@ export function partidosDeJugador(jugadorId: string, partidos: Partido[], duraci
       goles: a.filter((x) => x.tipo === "gol" && x.jugadorId === jugadorId).length,
       asistencias: a.filter((x) => x.tipo === "gol" && x.asistenteId === jugadorId).length,
       amarillas: a.filter((x) => x.tipo === "amarilla" && x.jugadorId === jugadorId).length,
-      roja: expulsiones(a).has(jugadorId)
+      roja: expulsiones(a).has(jugadorId),
+      nota: p.valoraciones?.[jugadorId]?.nota ?? null, comentario: p.valoraciones?.[jugadorId]?.comentario ?? ""
     };
   });
 }

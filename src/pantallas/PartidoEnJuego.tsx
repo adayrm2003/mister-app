@@ -1,5 +1,6 @@
 // Durante o después del partido: reloj, goles, cambios, tarjetas, línea de tiempo y minutos jugados.
 import { useEffect, useMemo, useState } from "react";
+import { AvisoMinutos, HojaPlanMinutos } from "./PlanMinutos";
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { IcoPapelera } from "../componentes/Iconos";
@@ -31,6 +32,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const [hoja, setHoja] = useState<{ tipo: TipoAccion; editar?: Accion } | null>(null);
   const [minutosJugador, setMinutosJugador] = useState<Jugador | null>(null);
   const [, tic] = useState(0);
+  const [plan, setPlan] = useState(false);
 
   const { partes, minutos: minutosParte } = tiempoDePartido(ajustes);
   const duracion = partes * minutosParte;
@@ -113,6 +115,9 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
         )}
       </section>
       {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
+
+      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...as] })} abrirPlan={() => setPlan(true)} />
+      {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} guardarPartido={guardarPartido} alCerrar={() => setPlan(false)} />}
 
       <section className="botones-accion" aria-label="Apuntar">
         <span className="etiqueta grupo-accion">{equipo.nombre}</span>

@@ -19,6 +19,8 @@ import Inicio from "./Inicio";
 import Biblioteca, { FichaBiblioteca } from "./Biblioteca";
 import PizarraInicio, { EditorPizarraABP, EditorPizarraPartido, PizarrasABP, PizarrasPartido } from "./PizarraEntrenador";
 import { AnalisisVideo, VideosLista } from "./Videos";
+import Rivales from "./Rivales";
+import Temporada from "./Temporada";
 import CrearEquipo from "../componentes/CrearEquipo";
 import "./entrenador.css";
 
@@ -72,7 +74,7 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
         <nav className="pestanas" aria-label="Secciones">
           <div className="pestanas-logo"><LogoMister size={40} /></div>
           {PESTANAS.map(({ a, texto, Icono }) => (
-            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) || (a === "/partidos" && ruta.startsWith("/estadisticas")) ? " active" : "")}>
+            <NavLink key={a} to={a} className={({ isActive }) => "pestana" + (isActive || (a === "/ejercicios" && ruta.startsWith("/sesiones")) || (a === "/partidos" && (ruta.startsWith("/estadisticas") || ruta.startsWith("/rivales"))) || (a === "/calendario" && ruta.startsWith("/temporada")) ? " active" : "")}>
               <span className="pestana-icono"><Icono /></span>
               {texto}
             </NavLink>
@@ -114,9 +116,11 @@ export default function AppEntrenador({ esDirectiva = false }: { esDirectiva?: b
             <Route path="/sesiones/:id/editar" element={<EditorSesion />} />
             <Route path="/sesiones/:id/campo" element={<ModoCampo />} />
             <Route path="/calendario" element={<Calendario />} />
+            <Route path="/temporada" element={<Temporada />} />
             <Route path="/calendario/:id" element={<EventoDetalle />} />
             <Route path="/partidos" element={<Partidos />} />
             <Route path="/estadisticas" element={<Estadisticas />} />
+            <Route path="/rivales" element={<Rivales />} />
             <Route path="/partidos/:id" element={<PartidoDetalle />} />
             <Route path="/partidos/:id/:seccion" element={<PartidoDetalle />} />
             <Route path="*" element={<Navigate to="/inicio" replace />} />

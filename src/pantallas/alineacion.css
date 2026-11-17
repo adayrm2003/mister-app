@@ -51,3 +51,5 @@
 .vista-hoja { background: var(--superficie-2); border-radius: 16px; padding: 14px; display: grid; place-items: center; }
 .vista-hoja img { width: 100%; max-width: 420px; aspect-ratio: 210 / 297; height: auto; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.25); border-radius: 4px; }
 .vista-hoja-cargando { width: 100%; max-width: 420px; aspect-ratio: 210 / 297; display: grid; place-items: center; background: #fff; color: #555; border-radius: 4px; }
+.chip-llamado { border-color: var(--cesped); }
+.chips-llamados { margin-bottom: 10px; }

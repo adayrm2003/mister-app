@@ -8,6 +8,7 @@ import { Hoja, useUi } from "../componentes/ui";
 import { DIAS_CORTOS, aISO, citasDe, emojiCasa, deISO, diasDelMes, lunesDe, resumenAsistencia, sumarDias, type Cita, type Evento } from "../datos/calendario";
 import { COLOR_COMPETICION, PUESTOS, type Jugador, type Partido } from "../datos/modelo";
 import type { Sesion } from "../datos/sesion";
+import { SelectorCalendario } from "./Temporada";
 import "./calendario.css";
 
 const hoy = () => aISO(new Date());
@@ -66,6 +67,7 @@ export default function Calendario() {
 
   return (
     <main className="pagina pagina-ancha calendario">
+      <SelectorCalendario />
       <div className="titulo-con-accion">
         <h1>Calendario</h1>
         <div className="segmentos-dir vista-calendario" role="radiogroup" aria-label="Vista">

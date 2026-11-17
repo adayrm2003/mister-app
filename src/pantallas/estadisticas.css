@@ -89,3 +89,8 @@ td.destaca { font-weight: 800; color: var(--cesped); }
 .punto-asistencia { min-height: 36px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid var(--linea); color: var(--tinta); }
 .punto-asistencia.presente { background: color-mix(in srgb, var(--victoria) 18%, var(--superficie)); border-color: var(--victoria); }
 .punto-asistencia.ausente { background: color-mix(in srgb, var(--derrota) 14%, var(--superficie)); border-color: var(--derrota); }
+.ranking-explicacion { margin: -4px 0 8px; font-size: 14px; }
+.valoracion-jugador { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.valoracion-jugador header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.valoracion-jugador h2 { margin: 0; }
+.valoracion-jugador ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }

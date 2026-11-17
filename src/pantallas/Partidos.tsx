@@ -4,7 +4,10 @@ import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { Opciones } from "../componentes/Controles";
 import { IcoAtras, IcoMas, IcoPapelera, IcoPartidos } from "../componentes/Iconos";
 import { Hoja, useUi } from "../componentes/ui";
-import { COMPETICIONES, nuevoId, type Partido } from "../datos/modelo";
+import { COMPETICIONES, nuevoId, type Jugador, type Partido } from "../datos/modelo";
+import { HojaConvocatoria } from "./Convocatoria";
+import { TarjetaRival } from "./Rivales";
+import ValoracionPartido from "./Valoracion";
 import Alineacion from "./Alineacion";
 import PartidoEnJuego from "./PartidoEnJuego";
 import { SelectorPartidos } from "./Estadisticas";
@@ -135,7 +138,11 @@ export function FormPartido({ partido, titulo, alCerrar, alGuardar, alBorrar }: 
 export function PartidoDetalle() {
   const { id, seccion } = useParams();
   const { filas: partidos, cargando, guardar, borrar } = useColeccion<Partido>("partidos");
+  const { filas: jugadores } = useColeccion<Jugador>("jugadores");
   const [editando, setEditando] = useState(false);
+  const [buscar, setBuscar] = useSearchParams();
+  const [convocando, setConvocando] = useState(() => !!buscar.get("convocar"));
+  useEffect(() => { if (buscar.get("convocar")) setBuscar({}, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { confirmar, avisar } = useUi();
   const ir = useNavigate();
   const partido = partidos.find((p) => p.id === id);
@@ -147,7 +154,9 @@ export function PartidoDetalle() {
 
   const enAlineacion = seccion === "alineacion";
   const enJuego = seccion === "partido";
-  const enDatos = !enAlineacion && !enJuego;
+  const enValoracion = seccion === "valoracion";
+  const enDatos = !enAlineacion && !enJuego && !enValoracion;
+  const nConvocados = partido.convocados?.length ?? 0;
   return (
     <main className="pagina partido">
       <div className="partido-cabeza">
@@ -157,17 +166,28 @@ export function PartidoDetalle() {
           <h1 className="partido-rival">vs {partido.rival}</h1>
         </div>
       </div>
-      <div className="segmentos-dir" role="tablist" aria-label="Secciones del partido">
+      <div className="segmentos-dir segmentos-partido" role="tablist" aria-label="Secciones del partido">
         <button role="tab" type="button" aria-selected={enDatos} onClick={() => ir(`/partidos/${partido.id}`, { replace: true })}>Datos</button>
         <button role="tab" type="button" aria-selected={enAlineacion} onClick={() => ir(`/partidos/${partido.id}/alineacion`, { replace: true })}>Alineación</button>
         <button role="tab" type="button" aria-selected={enJuego} onClick={() => ir(`/partidos/${partido.id}/partido`, { replace: true })}>Partido</button>
+        <button role="tab" type="button" aria-selected={enValoracion} onClick={() => ir(`/partidos/${partido.id}/valoracion`, { replace: true })}>Valoración</button>
       </div>
 
       {enAlineacion ? (
         <Alineacion partido={partido} guardarPartido={guardar} />
       ) : enJuego ? (
         <PartidoEnJuego partido={partido} guardarPartido={guardar} />
+      ) : enValoracion ? (
+        <ValoracionPartido partido={partido} jugadores={jugadores} guardarPartido={guardar} />
       ) : (
+        <>
+        <section className="tarjeta convocatoria-resumen">
+          <span className="fila-texto">
+            <b>Convocatoria</b>
+            <span>{partido.convocados ? `${nConvocados} ${nConvocados === 1 ? "convocado" : "convocados"}` : "Sin hacer"}</span>
+          </span>
+          <button className="btn btn-peto" type="button" onClick={() => setConvocando(true)}>{partido.convocados ? "Ver y enviar" : "Convocar"}</button>
+        </section>
         <section className="datos-partido tarjeta">
           <dl>
             <div><dt>Fecha</dt><dd>{fechaLarga(partido.fecha)}</dd></div>
@@ -186,7 +206,10 @@ export function PartidoDetalle() {
             {(partido.acciones ?? []).length || partido.reloj ? `Resultado ${resultado(partido).nuestros} – ${resultado(partido).suyos} · ver partido` : "Apuntar goles, cambios y tarjetas"}
           </button>
         </section>
+        <TarjetaRival nombre={partido.rival} />
+        </>
       )}
+      {convocando && <HojaConvocatoria partido={partido} jugadores={jugadores} guardarPartido={guardar} alCerrar={() => setConvocando(false)} />}
 
       {editando && (
         <FormPartido partido={partido} titulo="Editar partido" alCerrar={() => setEditando(false)}

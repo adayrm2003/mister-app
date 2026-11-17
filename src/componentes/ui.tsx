@@ -5,17 +5,21 @@ import { createPortal } from "react-dom";
 /* ---------- Hoja inferior (en ordenador se ve como ventana centrada) ---------- */
 export function Hoja({ titulo, children, alCerrar }: { titulo: string; children: ReactNode; alCerrar: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  // alCerrar cambia en cada pintado del padre: se guarda aparte para que la hoja no se reinicie
+  // (si no, al guardar algo con la hoja abierta, el foco y el desplazamiento volvían arriba)
+  const cerrar = useRef(alCerrar);
+  cerrar.current = alCerrar;
   useEffect(() => {
-    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") alCerrar(); };
+    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") cerrar.current(); };
     document.addEventListener("keydown", tecla);
     const anterior = document.activeElement as HTMLElement | null;
     ref.current?.querySelector<HTMLElement>("input, button:not(.cerrar-hoja)")?.focus();
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", tecla); document.body.style.overflow = ""; anterior?.focus?.(); };
-  }, [alCerrar]);
+  }, []);
   // Se pinta directamente en <body> para que ninguna cabecera ni la barra de pestañas la tape
   return createPortal(
-    <div className="velo" onMouseDown={(e) => { if (e.target === e.currentTarget) alCerrar(); }}>
+    <div className="velo" onMouseDown={(e) => { if (e.target === e.currentTarget) cerrar.current(); }}>
       <div className="hoja" role="dialog" aria-modal="true" aria-label={titulo} ref={ref}>
         <h2>{titulo}</h2>
         {children}

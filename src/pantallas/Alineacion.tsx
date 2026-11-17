@@ -6,6 +6,7 @@ import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { Campo, Ficha, recorteParaPuntos, yEnCampo } from "../componentes/Campo";
 import { IcoCheck, IcoHoja, IcoMas, IcoPapelera } from "../componentes/Iconos";
 import HojaVestuario from "./HojaVestuario";
+import { HojaPlanMinutos } from "./PlanMinutos";
 
 /** "Sábado 7/11" para la hoja del vestuario. */
 const fechaCorta = (f: string) => {
@@ -27,6 +28,7 @@ type Hojas =
   | { tipo: "guardarPlantilla" }
   | { tipo: "usarPlantilla" }
   | { tipo: "vestuario" }
+  | { tipo: "minutos" }
   | null;
 
 interface Arrastre { id: string; x: number; y: number; sx: number; sy: number; activo: boolean }
@@ -63,6 +65,10 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
   const suplentes = al.suplentes.filter((id) => porId.has(id));
   const convocados = new Set([...titulares.filter(Boolean), ...suplentes] as string[]);
   const resto = jugadores.filter((j) => !convocados.has(j.id)).sort((a, b) => PUESTOS.findIndex((p) => p.valor === a.posicion) - PUESTOS.findIndex((p) => p.valor === b.posicion) || a.nombre.localeCompare(b.nombre, "es"));
+  // Si se hizo la convocatoria (pestaña Datos), sus jugadores salen primero para colocarlos
+  const llamados = partido.convocados ? new Set(partido.convocados) : null;
+  const restoLlamados = llamados ? resto.filter((j) => llamados.has(j.id)) : [];
+  const restoOtros = llamados ? resto.filter((j) => !llamados.has(j.id)) : resto;
   const repetidos = dorsalesRepetidos({ ...al, titulares, suplentes }, jugadores, ajustes.dorsales);
   const dorsal = (j: Jugador) => dorsalEnPartido(j, al, ajustes.dorsales);
   const enCampo = titulares.filter(Boolean).length;
@@ -114,7 +120,7 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
     const y = al.posiciones[indice]?.y ?? 50;
     const puesto = y >= 85 ? "portero" : y >= 62 ? "defensa" : y >= 42 ? "medio" : "delantero";
     const libres = [...suplentes.map((id) => porId.get(id)!), ...resto];
-    const nota = (j: Jugador) => (j.posicion === puesto ? 0 : 2) + (suplentes.includes(j.id) ? 0 : 1);
+    const nota = (j: Jugador) => (j.posicion === puesto ? 0 : 2) + (suplentes.includes(j.id) ? 0 : 1) + (llamados && !llamados.has(j.id) && !suplentes.includes(j.id) ? 4 : 0);
     return libres.sort((a, b) => nota(a) - nota(b));
   }
 
@@ -188,12 +194,24 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
           </section>
 
           <section className={"zona zona-resto" + (destinoBajo === "fuera" ? " zona-marcada" : "")} data-destino="fuera">
-            <h3 className="etiqueta">Sin convocar · {resto.length}</h3>
-            {resto.length === 0 ? (
-              <p className="suave zona-vacia">{jugadores.length ? "Todos los jugadores están convocados." : "Sin jugadores."}</p>
+            {llamados && restoLlamados.length > 0 && (
+              <>
+                <h3 className="etiqueta">Convocados por colocar · {restoLlamados.length}</h3>
+                <div className="chips chips-llamados">
+                  {restoLlamados.map((j) => (
+                    <button key={j.id} type="button" className="chip-jugador chip-fuera chip-llamado" {...asas(j.id)} style={{ opacity: arrastre?.activo && arrastre.id === j.id ? 0.3 : 1 }}>
+                      <span className="chip-puesto">{PUESTOS.find((p) => p.valor === j.posicion)?.corto}</span>{j.nombre}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            <h3 className="etiqueta">{llamados ? "No convocados" : "Sin convocar"} · {restoOtros.length}</h3>
+            {restoOtros.length === 0 ? (
+              <p className="suave zona-vacia">{jugadores.length ? (llamados ? "Todos los demás están en la convocatoria." : "Todos los jugadores están convocados.") : "Sin jugadores."}</p>
             ) : (
               <div className="chips">
-                {resto.map((j) => (
+                {restoOtros.map((j) => (
                   <button key={j.id} type="button" className="chip-jugador chip-fuera" {...asas(j.id)} style={{ opacity: arrastre?.activo && arrastre.id === j.id ? 0.3 : 1 }}>
                     <span className="chip-puesto">{PUESTOS.find((p) => p.valor === j.posicion)?.corto}</span>{j.nombre}
                   </button>
@@ -204,6 +222,9 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
 
           <button className="btn btn-principal btn-grande btn-ancho" type="button" onClick={() => setHoja({ tipo: "vestuario" })}>
             <IcoHoja /> Hoja para el vestuario (PDF)
+          </button>
+          <button className="btn btn-borde btn-ancho" type="button" disabled={convocados.size === 0 && !partido.convocados?.length} onClick={() => setHoja({ tipo: "minutos" })}>
+            ⏱ {partido.planCambios ? "Ver el plan de minutos" : "Repartir minutos (plan de cambios)"}
           </button>
           <div className="alineacion-acciones">
             <button className="btn btn-borde" type="button" onClick={() => setHoja({ tipo: "guardarPlantilla" })} disabled={convocados.size === 0}>Guardar como plantilla</button>
@@ -222,6 +243,10 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
         </div>
       )}
 
+      {hoja?.tipo === "minutos" && (
+        <HojaPlanMinutos partido={{ ...partido, alineacion: { ...al, titulares, suplentes } }} jugadores={jugadores} alCerrar={() => setHoja(null)}
+          guardarPartido={(p) => guardarPartido({ ...p, alineacion: al })} />
+      )}
       {hoja?.tipo === "sistema" && (
         <HojaSistemas sistemas={ajustes.sistemas} n={n} actual={al.sistemaId} alCerrar={() => setHoja(null)}
           elegir={(s) => { setAl(cambiarSistema({ ...al, titulares, suplentes }, s)); setHoja(null); }} irAjustes={() => ir("/ajustes")} />
