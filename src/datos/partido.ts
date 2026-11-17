@@ -12,6 +12,8 @@ export interface Accion {
   asistenteId?: string; // solo en goles
   entraId?: string; // solo en cambios
   dorsalRival?: number | null; // tarjetas del otro equipo
+  /** Cambio hecho en el descanso (no cuenta como ventana de cambio). */
+  descanso?: boolean;
 }
 
 /** Nota rápida del entrenador durante el partido, para revisarla en el descanso o al final. */

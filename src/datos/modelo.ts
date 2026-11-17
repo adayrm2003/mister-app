@@ -21,7 +21,26 @@ export interface AjustesEquipo {
   dorsales: ModoDorsales;
   colorEquipo: string;
   colorRival: string;
+  /** Cómo se hacen los cambios en los partidos de este equipo (reparto de minutos). */
+  cambios: AjustesCambios;
 }
+
+export interface AjustesCambios {
+  /** Si la app propone los cambios para repartir los minutos. */
+  activo: boolean;
+  /** null = ilimitados (se puede volver a entrar); 5 = máximo 5 cambios, en 3 ventanas más el descanso. */
+  limite: number | null;
+  /** Con cambios ilimitados: en cuántos tramos se divide cada parte (1 = solo en el descanso). */
+  tramos: number;
+  /** El portero juega todo el partido (no entra en el reparto). */
+  porteroFijo: boolean;
+  /** Con máximo 5: minutos de las ventanas de cambio durante el juego (como mucho 3). null = automáticas. */
+  ventanas: number[] | null;
+  /** Con máximo 5: también se cambia en el descanso (no cuenta como ventana). */
+  descanso: boolean;
+}
+
+export const CAMBIOS_BASE: AjustesCambios = { activo: true, limite: null, tramos: 2, porteroFijo: true, ventanas: null, descanso: true };
 
 /** Preferencias de cada entrenador (valen para todos sus equipos). */
 export interface AjustesUsuario {
@@ -82,7 +101,7 @@ export const COLORES = ["#FF6B1A", "#0F6B45", "#1F3F8F", "#D7263D", "#F5C518", "
 
 export const AJUSTES_EQUIPO_BASE: AjustesEquipo = {
   modalidad: "F11", duracion: "2x45", partesOtra: 2, minutosParteOtra: 35,
-  dorsales: "fijos", colorEquipo: "#FF6B1A", colorRival: "#1F3F8F"
+  dorsales: "fijos", colorEquipo: "#FF6B1A", colorRival: "#1F3F8F", cambios: CAMBIOS_BASE
 };
 
 export const AJUSTES_USUARIO_BASE: AjustesUsuario = {

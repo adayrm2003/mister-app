@@ -1,6 +1,7 @@
 // Durante o después del partido: reloj, goles, cambios, tarjetas, línea de tiempo y minutos jugados.
 import { useEffect, useMemo, useState } from "react";
-import { AvisoMinutos, HojaPlanMinutos } from "./PlanMinutos";
+import { AvisoMinutos, HojaPlanMinutos, ventanasUsadas } from "./PlanMinutos";
+import { MAX_VENTANAS } from "../datos/rotacion";
 import { useNavigate } from "react-router-dom";
 import { useColeccion, useEquipo } from "../ContextoEquipo";
 import { IcoPapelera } from "../componentes/Iconos";
@@ -34,9 +35,10 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const [, tic] = useState(0);
   const [plan, setPlan] = useState(false);
   // Si el plan de cambios tiene máximo (5), no se dejan hacer más
-  const limiteCambios = partido.planCambios?.limite ?? null;
+  // Con máximo de cambios (Ajustes): 5 cambios en 3 ventanas durante el juego; el descanso no cuenta como ventana
+  const limiteCambios = ajustes.cambios.activo ? ajustes.cambios.limite : null;
   const cambiosHechos = (partido.acciones ?? []).filter((a) => a.tipo === "cambio").length;
-  const cambiosAgotados = limiteCambios != null && cambiosHechos >= limiteCambios;
+  const usadas = ventanasUsadas(partido.acciones ?? []);
 
   const { partes, minutos: minutosParte } = tiempoDePartido(ajustes);
   const duracion = partes * minutosParte;
@@ -51,6 +53,11 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   const r = resultado(partido);
   const reloj = partido.reloj ?? { parte: 1, inicio: null, terminado: false };
   const minAhora = minutoActual(reloj, minutosParte);
+  const enDescanso = !!partido.reloj && reloj.inicio == null && !reloj.terminado && reloj.parte < partes;
+  const sinVentanas = limiteCambios != null && usadas.size >= MAX_VENTANAS && !enDescanso && !(minAhora != null && usadas.has(minAhora));
+  const cambiosAgotados = limiteCambios != null && (cambiosHechos >= limiteCambios || sinVentanas);
+  /** Los cambios hechos en el descanso se marcan para que no cuenten como ventana. */
+  const marcarDescanso = (a: Accion) => (a.tipo === "cambio" && enDescanso && !(partido.acciones ?? []).some((x) => x.id === a.id) ? { ...a, descanso: true } : a);
   const segAhora = segundosActuales(reloj, minutosParte);
   // Lo que pasa del final teórico de la parte (45:00, 90:00...) es tiempo añadido
   const finParte = reloj.parte * minutosParte * 60;
@@ -60,7 +67,8 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
   useEffect(() => { if (reloj.inicio == null) return; const t = setInterval(() => tic((n) => n + 1), 1000); return () => clearInterval(t); }, [reloj.inicio]);
 
   const guardar = (c: Partial<Partido>) => guardarPartido({ ...partido, ...c });
-  const guardarAccion = async (a: Accion) => {
+  const guardarAccion = async (sinMarcar: Accion) => {
+    const a = marcarDescanso(sinMarcar);
     const lista = (partido.acciones ?? []).some((x) => x.id === a.id) ? (partido.acciones ?? []).map((x) => (x.id === a.id ? a : x)) : [...(partido.acciones ?? []), a];
     await guardar({ acciones: lista });
   };
@@ -120,14 +128,14 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       </section>
       {!al && <p className="mensaje mensaje-aviso">Sin alineación hecha: se puede apuntar todo, pero los minutos jugados se calculan con los titulares de la alineación. <button className="btn btn-texto" type="button" onClick={() => ir(`/partidos/${partido.id}/alineacion`)}>Hacer alineación</button></p>}
 
-      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...as] })} abrirPlan={() => setPlan(true)} />
-      {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} guardarPartido={guardarPartido} alCerrar={() => setPlan(false)} />}
+      <AvisoMinutos partido={partido} jugadores={jugadores} minuto={minAhora} duracion={duracion} enDescanso={enDescanso} guardarAcciones={(as) => guardar({ acciones: [...(partido.acciones ?? []), ...as.map(marcarDescanso)] })} abrirPlan={() => setPlan(true)} />
+      {plan && <HojaPlanMinutos partido={partido} jugadores={jugadores} alCerrar={() => setPlan(false)} />}
 
       <section className="botones-accion" aria-label="Apuntar">
         <span className="etiqueta grupo-accion">{equipo.nombre}</span>
         <button className="btn btn-peto accion-gol" type="button" onClick={() => setHoja({ tipo: "gol" })}><IconoAccion tipo="gol" /> Gol nuestro</button>
         <button className="btn btn-gris" type="button" disabled={cambiosAgotados} onClick={() => setHoja({ tipo: "cambio" })}>
-          <IconoAccion tipo="cambio" /> Cambio{limiteCambios != null ? ` ${Math.min(cambiosHechos, limiteCambios)}/${limiteCambios}` : ""}
+          <IconoAccion tipo="cambio" /> Cambio{limiteCambios != null ? ` ${Math.min(cambiosHechos, limiteCambios)}/${limiteCambios}` : ""}{sinVentanas && cambiosHechos < (limiteCambios ?? 0) ? " · sin ventanas" : ""}
         </button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "amarilla" })}><IconoAccion tipo="amarilla" /> Amarilla</button>
         <button className="btn btn-gris" type="button" onClick={() => setHoja({ tipo: "roja" })}><IconoAccion tipo="roja" /> Roja</button>
@@ -194,7 +202,7 @@ export default function PartidoEnJuego({ partido, guardarPartido }: { partido: P
       </section>
 
       {hoja && (
-        <HojaAccion tipo={hoja.tipo} editar={hoja.editar} minutoInicial={hoja.editar?.minuto ?? (minAhora != null ? Math.min(minAhora, reloj.parte * minutosParte) : null) ?? acciones[acciones.length - 1]?.minuto ?? 1} rival={ellos}
+        <HojaAccion tipo={hoja.tipo} editar={hoja.editar} minutoInicial={hoja.editar?.minuto ?? (enDescanso ? reloj.parte * minutosParte : null) ?? (minAhora != null ? Math.min(minAhora, reloj.parte * minutosParte) : null) ?? acciones[acciones.length - 1]?.minuto ?? 1} rival={ellos}
           etiqueta={etiqueta} convocados={convocados} al={al} acciones={partido.acciones ?? []}
           alCerrar={() => setHoja(null)}
           alGuardar={async (a) => { await guardarAccion(a); setHoja(null); avisar(a.tipo === "gol" ? "¡Gol apuntado!" : `${TEXTO_ACCION[a.tipo]} apuntado`); }}

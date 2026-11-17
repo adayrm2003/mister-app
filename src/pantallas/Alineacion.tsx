@@ -224,7 +224,7 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
             <IcoHoja /> Hoja para el vestuario (PDF)
           </button>
           <button className="btn btn-borde btn-ancho" type="button" disabled={convocados.size === 0 && !partido.convocados?.length} onClick={() => setHoja({ tipo: "minutos" })}>
-            ⏱ {partido.planCambios ? "Ver el plan de minutos" : "Repartir minutos (plan de cambios)"}
+            ⏱ Reparto de minutos{ajustes.cambios.activo ? "" : " (desactivado)"}
           </button>
           <div className="alineacion-acciones">
             <button className="btn btn-borde" type="button" onClick={() => setHoja({ tipo: "guardarPlantilla" })} disabled={convocados.size === 0}>Guardar como plantilla</button>
@@ -244,8 +244,7 @@ export default function Alineacion({ partido, guardarPartido }: { partido: Parti
       )}
 
       {hoja?.tipo === "minutos" && (
-        <HojaPlanMinutos partido={{ ...partido, alineacion: { ...al, titulares, suplentes } }} jugadores={jugadores} alCerrar={() => setHoja(null)}
-          guardarPartido={(p) => guardarPartido({ ...p, alineacion: al })} />
+        <HojaPlanMinutos partido={{ ...partido, alineacion: { ...al, titulares, suplentes } }} jugadores={jugadores} alCerrar={() => setHoja(null)} />
       )}
       {hoja?.tipo === "sistema" && (
         <HojaSistemas sistemas={ajustes.sistemas} n={n} actual={al.sistemaId} alCerrar={() => setHoja(null)}

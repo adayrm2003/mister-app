@@ -1,7 +1,7 @@
 // El equipo con el que se trabaja y sus ajustes, disponibles en todas las pantallas del entrenador.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "./datos/api";
-import { AJUSTES_EQUIPO_BASE, AJUSTES_USUARIO_BASE, esModalidad, type Ajustes, type AjustesEquipo, type AjustesUsuario } from "./datos/modelo";
+import { AJUSTES_EQUIPO_BASE, AJUSTES_USUARIO_BASE, CAMBIOS_BASE, esModalidad, type Ajustes, type AjustesEquipo, type AjustesUsuario } from "./datos/modelo";
 import type { Equipo, Fila, Tabla, TablaUsuario } from "./datos/tipos";
 import { mensajeDe, useUi } from "./componentes/ui";
 
@@ -40,6 +40,7 @@ export function ProveedorEquipo({ equipo, equipos, recargarEquipos, children }: 
         if (!vivo) return;
         const eq = { ...AJUSTES_EQUIPO_BASE, ...soloClaves(AJUSTES_EQUIPO_BASE, e) };
         if (!esModalidad(eq.modalidad)) eq.modalidad = AJUSTES_EQUIPO_BASE.modalidad;
+        eq.cambios = { ...CAMBIOS_BASE, ...(eq.cambios ?? {}) };
         const us = { ...AJUSTES_USUARIO_BASE, ...soloClaves(AJUSTES_USUARIO_BASE, u) };
         us.sistemas = us.sistemas.filter((s) => [7, 8, 11].includes(s.jugadores));
         us.modalidades = (us.modalidades ?? []).filter(esModalidad);

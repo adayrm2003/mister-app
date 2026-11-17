@@ -8,6 +8,7 @@ import { mensajeDe, useUi } from "../componentes/ui";
 import { api } from "../datos/api";
 import { DURACIONES, MODALIDADES, jugadoresEnCampo, type Duracion, type Modalidad, type Sistema } from "../datos/modelo";
 import EditorSistema from "./EditorSistema";
+import AjustesDeCambios from "./AjustesCambios";
 import "./ajustes.css";
 
 export default function Ajustes() {
@@ -108,6 +109,8 @@ export default function Ajustes() {
             ]} />
         </div>
       </section>
+
+      <AjustesDeCambios />
 
       <section className="apartado">
         <header><h2>Colores</h2><p className="suave">En la pizarra y en las alineaciones</p></header>
